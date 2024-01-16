@@ -1,0 +1,6 @@
+module Playlist
+
+PlaylistWindow 1.0 PlaylistWindow.qml
+PlaylistView 1.0 PlaylistView.qml
+PlaylistDelagate 1.0 PlaylistDelegate.qml
+
