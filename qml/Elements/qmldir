@@ -1,4 +1,5 @@
 module Elements
 
+Busy 1.0 Busy.qml
 Preview 1.0 Preview.qml
 DefaultText 1.0 DefaultText.qml

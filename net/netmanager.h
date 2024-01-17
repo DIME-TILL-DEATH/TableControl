@@ -19,6 +19,9 @@ signals:
     void sgPlaylistDataUpdated(Data::Playlist dataType, QVariantList dataList);
     void sgFileDataUpdated(Data::File dataType, QVariantList dataList);
 
+    void sgDeviceConnected();
+    void sgDeviceDisconnected();
+
 public slots:
     void sendRequest(FrameType frameType, uint8_t requestType,
                                             uint32_t data0 = 0,

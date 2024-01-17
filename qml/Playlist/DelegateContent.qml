@@ -1,4 +1,5 @@
-import QtQuick 2.15
+import QtQuick
+import QtQuick.Controls
 
 import Elements
 import UiObjects
@@ -6,15 +7,8 @@ import UiObjects
 DropArea{
     id: _delegateRoot
 
-    width: 80; height: 80
-
     property int modelIndex
     property int visualIndex: DelegateModel.itemsIndex
-
-    function update()
-    {
-        _previewIcon.update();
-    }
 
     onEntered: function (drag) {
         var from = (drag.source as Item).visualIndex;
@@ -28,24 +22,16 @@ DropArea{
         PlaylistModel.move(from, to);
     }
 
-    Rectangle{
+    function update()
+    {
+        _previewIcon.update();
+    }
+
+
+    Item{
         id: _thing
 
         property Item dragParent: _delegateRoot
-
-        z: -5
-
-        color: "transparent"
-
-        SequentialAnimation on color{
-            id: _colorAnim
-
-            running: (fileName === PlaylistModel.curPrintFileName)
-            loops: Animation.Infinite
-            alwaysRunToEnd: true
-            ColorAnimation {from: "black"; to: "slategray"; duration: 2000}
-            ColorAnimation {from: "slategray"; to: "black"; duration: 2000}
-        }
 
         width: _delegateRoot.width
         height: _delegateRoot.height
@@ -57,6 +43,7 @@ DropArea{
 
         property int visualIndex: _delegateRoot.visualIndex
 
+
         Row{
             width: parent.width
             height: parent.height
@@ -66,6 +53,7 @@ DropArea{
             Preview
             {
                 id: _previewIcon
+
                 width: height
                 height: parent.height
 
@@ -107,7 +95,8 @@ DropArea{
                     anchors.fill: parent
                     drag.target: _thing
                     onClicked: {
-                        _listView.currentIndex = index
+                        //console.log("Data points: ", previewData.length())
+                        _delegateRoot.update();
                     }
 
                     onPressed: {
@@ -121,6 +110,18 @@ DropArea{
             }
         }
 
+        Connections{
+            target: PlaylistModel
+
+            function onDataChanged(firstModelIndex, lastModelIndex)
+            {
+                for(var i = firstModelIndex.row; i<=lastModelIndex.row; i++)
+                {
+                    if(i === _delegateRoot.visualIndex)
+                        _delegateRoot.update();
+                }
+            }
+        }
 
         states: [
             State {

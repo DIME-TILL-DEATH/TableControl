@@ -14,6 +14,11 @@ ApplicationWindow {
     visible: true
     title: qsTr("Kinetic table control")
 
+    Rectangle
+    {
+        anchors.fill: parent
+        color: "black"
+    }
 
     SwipeView
     {
@@ -27,36 +32,46 @@ ApplicationWindow {
         currentIndex: _bar.currentIndex
         interactive: false
 
-        Column{
-            id: _playlistPage
-            height: parent.height
-            anchors.horizontalCenter: parent.horizontalCenter
-
-            PlaylistWindow{
-                height: parent.height - _transport.height //- _preview.height
+        Item{
+            Busy{
+                height: parent.height
                 width: parent.width
             }
 
-            TransportPanel{
-                id: _transport
-
-                height: parent.height * 0.1
+            Column{
+                id: _playlistPage
+                height: parent.height
                 width: parent.width
 
-                anchors.horizontalCenter: parent.horizontalCenter
+                PlaylistView{
+                    height: parent.height - _transport.height //- _preview.height
+                    width: parent.width
+                }
+
+                TransportPanel{
+                    id: _transport
+
+                    height: parent.height * 0.1
+                    width: parent.width
+
+                    anchors.horizontalCenter: parent.horizontalCenter
+                }
             }
         }
 
-        Column{
-            height: parent.height
-            anchors.horizontalCenter: parent.horizontalCenter
+        Item{
+            Column{
+                height: parent.height
+                width: parent.width
+            }
         }
 
-        Column{
-            height: parent.height
-            anchors.horizontalCenter: parent.horizontalCenter
+        Item{
+            Column{
+                height: parent.height
+                width: parent.width
+            }
         }
-
     }
 
     footer: TabBar{

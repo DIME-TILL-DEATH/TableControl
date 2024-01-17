@@ -34,11 +34,13 @@ bool NetClient::isSocketReady()
 void NetClient::connected()
 {
     qDebug()<<"Connected to server";
+    emit sgConnected();
 }
 
 void NetClient::disconnected()
 {
     disconnect(this);
+    emit sgDisconnected();
 }
 
 void NetClient::bytesWritten(qint64 bytes)

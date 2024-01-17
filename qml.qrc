@@ -3,12 +3,13 @@
         <file>qml/Main.qml</file>
         <file>qml/Transport/qmldir</file>
         <file>qml/Transport/TransportPanel.qml</file>
-        <file>qml/Playlist/PlaylistWindow.qml</file>
         <file>qml/Playlist/PlaylistView.qml</file>
         <file>qml/Playlist/qmldir</file>
-        <file>qml/Playlist/PlaylistDelegate.qml</file>
+        <file>qml/Playlist/DelegateContent.qml</file>
         <file>qml/Elements/Preview.qml</file>
         <file>qml/Elements/qmldir</file>
         <file>qml/Elements/DefaultText.qml</file>
+        <file>qml/Elements/Busy.qml</file>
+        <file>qml/Playlist/DelegateSwipable.qml</file>
     </qresource>
 </RCC>

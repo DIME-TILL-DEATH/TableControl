@@ -37,6 +37,8 @@ int main(int argc, char *argv[])
 
     QObject::connect(netManager, &NetManager::sgPlaylistDataUpdated, playlistModel, &PlaylistModel::slPlaylistDataUpdate);
     QObject::connect(netManager, &NetManager::sgFileDataUpdated, fileManager, &FileManager::processDownloadedFile);
+    QObject::connect(netManager, &NetManager::sgDeviceConnected, playlistModel, &PlaylistModel::slDeviceAvaliable);
+    QObject::connect(netManager, &NetManager::sgDeviceDisconnected, playlistModel, &PlaylistModel::slDeviceUnavaliable);
 
     QObject::connect(playlistModel, &PlaylistModel::sgRequest, netManager, &NetManager::sendRequest);
     QObject::connect(playlistModel, &PlaylistModel::sgUpdateData, netManager, &NetManager::updateData);

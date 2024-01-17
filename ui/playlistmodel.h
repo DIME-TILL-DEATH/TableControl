@@ -11,8 +11,8 @@
 class PlaylistModel : public QAbstractListModel
 {
     Q_OBJECT
-    Q_PROPERTY(qint16 currentPlsPos READ currentPlsPos WRITE setCurrentPlsPos NOTIFY currentPlsPosChanged FINAL)
     Q_PROPERTY(QString curPrintFileName READ curPrintFileName WRITE setCurPrintFileName NOTIFY curPrintFileNameChanged FINAL)
+    Q_PROPERTY(bool deviceAvaliable READ deviceAvaliable WRITE setDeviceAvaliable NOTIFY deviceAvaliableChanged FINAL)
 public:
     explicit PlaylistModel(QObject *parent = nullptr);
 
@@ -22,12 +22,16 @@ public:
     QHash<int, QByteArray> roleNames() const;
 
     Q_INVOKABLE void move(int from, int to);
-
-    quint16 currentPlsPos() const;
-    void setCurrentPlsPos(quint16 newCurrentPlsPos);
+    Q_INVOKABLE void remove(int pos);
 
     QString curPrintFileName() const;
     void setCurPrintFileName(const QString &newCurPrintFileName);
+
+    float progress() const;
+    void setProgress(float newProgress);
+
+    bool deviceAvaliable() const;
+    void setDeviceAvaliable(bool newDeviceAvaliable);
 
 signals:
     void sgUpdateData(FrameType frameType, uint8_t dataType, QVariantList data);
@@ -36,15 +40,20 @@ signals:
                    uint32_t data1 = 0,
                    uint32_t parameters = 0);
 
-
-    void currentPlsPosChanged();
     void curPrintFileNameChanged();
 
     void sgRequestFileData(QString fileName);
 
+    void sgProgressChanged();
+
+    void deviceAvaliableChanged();
+
 public slots:
     void slPlaylistDataUpdate(Data::Playlist dataType, QVariantList dataList);
     void slFileDataReady(QString fileName, QList<QVariant> fileData);
+
+    void slDeviceAvaliable();
+    void slDeviceUnavaliable();
 
 private:
     QList<QString> m_playlist;
@@ -57,11 +66,14 @@ private:
     };
 
     void checkDataUpdate();
+    void sendUpdatedPlaylist();
 
     qint16 m_currentPlsPos{0};
     QString m_curPrintFileName;
 
     QTimer* updateDataTimer;
+    float m_progress;
+    bool m_deviceAvaliable;
 };
 
 #endif // PLAYLISTMODEL_H

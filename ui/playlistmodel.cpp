@@ -1,16 +1,41 @@
 #include <QPointF>
 
 #include "playlistmodel.h"
-#include "filemanager.h"
 
 PlaylistModel::PlaylistModel(QObject *parent)
     : QAbstractListModel{parent}
 {
     updateDataTimer = new QTimer(this);
     updateDataTimer->setInterval(1000);
-    updateDataTimer->start();
+    m_deviceAvaliable = false;
 
     connect(updateDataTimer, &QTimer::timeout, this, &PlaylistModel::checkDataUpdate);
+}
+
+void PlaylistModel::slDeviceAvaliable()
+{
+    emit sgRequest(FrameType::PLAYLIST_ACTIONS, (uint8_t)Requests::Playlist::REQUEST_PLAYLIST);
+    emit sgRequest(FrameType::TRANSPORT_ACTIONS, (uint8_t)Requests::Transport::REQUEST_PROGRESS);
+    emit sgRequest(FrameType::PLAYLIST_ACTIONS, (uint8_t)Requests::Playlist::REQUEST_PLAYLIST_POSITION);
+
+    setDeviceAvaliable(true);
+    updateDataTimer->start();
+}
+
+void PlaylistModel::slDeviceUnavaliable()
+{
+    updateDataTimer->stop();
+
+    if(m_playlist.size()>0)
+    {
+        beginRemoveRows(QModelIndex(), 0, m_playlist.size()-1);
+        m_playlist.clear();
+        setCurPrintFileName("");
+        endRemoveRows();
+    }
+
+    setDeviceAvaliable(false);
+    qDebug() << "Device unavaliable";
 }
 
 QHash<int, QByteArray> PlaylistModel::roleNames() const
@@ -40,9 +65,9 @@ void PlaylistModel::slPlaylistDataUpdate(Data::Playlist dataType, QVariantList d
     case Data::Playlist::PLAYLIST_POSITION:
     {
         qint16 plsPos = dataList.at(0).toInt();
-        setCurrentPlsPos(plsPos);
+        m_currentPlsPos = plsPos;
         if(plsPos < m_playlist.size())
-        {            
+        {
             setCurPrintFileName(m_playlist.at(plsPos));
         }
         break;
@@ -61,6 +86,7 @@ void PlaylistModel::slFileDataReady(QString fileName, QList<QVariant> fileData)
         }
     }
 }
+
 
 int PlaylistModel::rowCount(const QModelIndex &parent) const
 {
@@ -126,6 +152,14 @@ void PlaylistModel::refreshModel(QList<QString> newPlayList)
             endInsertRows();
         }
     }
+
+    if(newPlayList.size() < m_playlist.size())
+    {
+        int rowsToDelete = m_playlist.size() - newPlayList.size();
+        beginRemoveRows(QModelIndex(), m_playlist.size(), m_playlist.size()+rowsToDelete);
+        m_playlist.remove(m_playlist.size(), rowsToDelete);
+        endRemoveRows();
+    }
     setCurPrintFileName(m_playlist.at(m_currentPlsPos));
 }
 
@@ -138,37 +172,43 @@ void PlaylistModel::move(int from, int to)
             to = from++;
         }
 
-
         m_playlist.move(from, to);
         emit dataChanged(createIndex(from, 0), createIndex(to, 0));
 
-        QVariantList resultData;
-        foreach (QString name, m_playlist)
-        {
-            resultData.append(QVariant(name));
-        }
-
-        auto it = std::find(m_playlist.begin(), m_playlist.end(), m_curPrintFileName);
-        setCurrentPlsPos(std::distance(m_playlist.begin(), it));
-
-        emit sgUpdateData(FrameType::PLAYLIST_ACTIONS, (uint8_t)Requests::Playlist::CHANGE_PLAYLIST, resultData);
-        resultData.clear();
-        resultData.append(m_currentPlsPos);
-        emit sgUpdateData(FrameType::PLAYLIST_ACTIONS, (uint8_t)Requests::Playlist::CHANGE_PLAYLIST_POSITION, resultData);
+        sendUpdatedPlaylist();
     }
 }
 
-quint16 PlaylistModel::currentPlsPos() const
+void PlaylistModel::remove(int pos)
 {
-    return m_currentPlsPos;
+    beginRemoveRows(QModelIndex(), pos, pos);
+    m_playlist.removeAt(pos);
+    endRemoveRows();
+
+    sendUpdatedPlaylist();
 }
 
-void PlaylistModel::setCurrentPlsPos(quint16 newCurrentPlsPos)
+void PlaylistModel::checkDataUpdate()
 {
-    if (m_currentPlsPos == newCurrentPlsPos)
-        return;
-    m_currentPlsPos = newCurrentPlsPos;
-    emit currentPlsPosChanged();
+    emit sgRequest(FrameType::TRANSPORT_ACTIONS, (uint8_t)Requests::Transport::REQUEST_PROGRESS);
+    emit sgRequest(FrameType::PLAYLIST_ACTIONS, (uint8_t)Requests::Playlist::REQUEST_PLAYLIST_POSITION);
+}
+
+void PlaylistModel::sendUpdatedPlaylist()
+{
+    QVariantList resultData;
+    foreach (QString name, m_playlist)
+    {
+        resultData.append(QVariant(name));
+    }
+
+    auto it = std::find(m_playlist.begin(), m_playlist.end(), m_curPrintFileName);
+    m_currentPlsPos = std::distance(m_playlist.begin(), it);
+
+    emit sgUpdateData(FrameType::PLAYLIST_ACTIONS, (uint8_t)Requests::Playlist::CHANGE_PLAYLIST, resultData);
+    resultData.clear();
+    resultData.append(m_currentPlsPos);
+    emit sgUpdateData(FrameType::PLAYLIST_ACTIONS, (uint8_t)Requests::Playlist::CHANGE_PLAYLIST_POSITION, resultData);
 }
 
 QString PlaylistModel::curPrintFileName() const
@@ -182,10 +222,16 @@ void PlaylistModel::setCurPrintFileName(const QString &newCurPrintFileName)
         return;
     m_curPrintFileName = newCurPrintFileName;
     emit curPrintFileNameChanged();
+
 }
 
-void PlaylistModel::checkDataUpdate()
+bool PlaylistModel::deviceAvaliable() const
 {
-    emit sgRequest(FrameType::TRANSPORT_ACTIONS, (uint8_t)Requests::Transport::REQUEST_PROGRESS);
-    emit sgRequest(FrameType::PLAYLIST_ACTIONS, (uint8_t)Requests::Playlist::REQUEST_PLAYLIST_POSITION);
+    return m_deviceAvaliable;
+}
+
+void PlaylistModel::setDeviceAvaliable(bool newDeviceAvaliable)
+{
+    m_deviceAvaliable = newDeviceAvaliable;
+    emit deviceAvaliableChanged();
 }

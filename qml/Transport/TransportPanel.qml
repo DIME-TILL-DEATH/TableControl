@@ -35,8 +35,7 @@ Rectangle {
                 text: "RR"
 
                 onClicked: {
-                    TransportCore.previous();
-                    TransportCore.requestPlaylist();
+
                 }
             }
 
@@ -58,7 +57,7 @@ Rectangle {
                 text: "FF"
 
                 onClicked: {
-                    TransportCore.next();
+
                 }
             }
         }

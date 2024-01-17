@@ -14,6 +14,9 @@ NetManager::NetManager(QObject *parent)
 
     connect(netClient, &NetClient::sgDataRecieved, this, &NetManager::processRecievedData);
 
+    connect(netClient, &NetClient::sgConnected, this, &NetManager::sgDeviceConnected);
+    connect(netClient, &NetClient::sgDisconnected, this, &NetManager::sgDeviceDisconnected);
+
     lastRecvFrameHeader.frameSize = 0;
 }
 

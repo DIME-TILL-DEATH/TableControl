@@ -18,6 +18,9 @@ public:
 signals:
     void sgDataRecieved(QByteArray data);
 
+    void sgConnected();
+    void sgDisconnected();
+
 private slots:
     void connected();
     void disconnected();
