@@ -20,6 +20,7 @@ Item
 
         anchors.verticalCenter: parent.verticalCenter
 
+        spacing: bI.height/20
 
         BusyIndicator
         {

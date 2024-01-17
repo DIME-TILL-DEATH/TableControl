@@ -11,5 +11,6 @@
         <file>qml/Elements/DefaultText.qml</file>
         <file>qml/Elements/Busy.qml</file>
         <file>qml/Playlist/DelegateSwipable.qml</file>
+        <file>qml/Elements/LargePreview.qml</file>
     </qresource>
 </RCC>

@@ -69,7 +69,7 @@ private:
     void sendUpdatedPlaylist();
 
     qint16 m_currentPlsPos{0};
-    QString m_curPrintFileName;
+    QString m_curPrintFileName{"undefined"};
 
     QTimer* updateDataTimer;
     float m_progress;

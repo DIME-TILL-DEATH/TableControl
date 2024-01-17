@@ -10,6 +10,9 @@ DropArea{
     property int modelIndex
     property int visualIndex: DelegateModel.itemsIndex
 
+    signal showLargePreview(var dataPoints)
+    signal hideLargePreview()
+
     onEntered: function (drag) {
         var from = (drag.source as Item).visualIndex;
         var to = _thing.visualIndex;
@@ -21,12 +24,6 @@ DropArea{
         var to = (drag.source as Item).visualIndex;
         PlaylistModel.move(from, to);
     }
-
-    function update()
-    {
-        _previewIcon.update();
-    }
-
 
     Item{
         id: _thing
@@ -58,6 +55,16 @@ DropArea{
                 height: parent.height
 
                 dataPoints: previewData
+
+                MouseArea{
+                    id: _showLargePreviewMA
+
+                    anchors.fill: parent
+
+                    onPressed: showLargePreview(previewData)
+
+                    onReleased: hideLargePreview()
+                }
             }
 
             Column{
@@ -94,18 +101,11 @@ DropArea{
                     id: mouseArea
                     anchors.fill: parent
                     drag.target: _thing
-                    onClicked: {
-                        //console.log("Data points: ", previewData.length())
-                        _delegateRoot.update();
-                    }
 
-                    onPressed: {
-                        _delegateRoot.modelIndex = visualIndex
-                    }
+                    onPressed: _delegateRoot.modelIndex = visualIndex
 
-                    onReleased: {
-                        _thing.Drag.drop()
-                    }
+
+                    onReleased: _thing.Drag.drop()
                 }
             }
         }
@@ -118,7 +118,7 @@ DropArea{
                 for(var i = firstModelIndex.row; i<=lastModelIndex.row; i++)
                 {
                     if(i === _delegateRoot.visualIndex)
-                        _delegateRoot.update();
+                        _previewIcon.update();
                 }
             }
         }

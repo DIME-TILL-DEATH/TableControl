@@ -25,7 +25,7 @@ ApplicationWindow {
         id: _swipeView
 
         width: parent.width
-        height: parent.height*0.98
+        height: parent.height
 
         anchors.horizontalCenter: parent.horizontalCenter
 
@@ -40,22 +40,38 @@ ApplicationWindow {
 
             Column{
                 id: _playlistPage
-                height: parent.height
                 width: parent.width
+                height: parent.height
 
                 PlaylistView{
-                    height: parent.height - _transport.height //- _preview.height
+                    height: parent.height * 0.975// - _transport.height //- _preview.height
                     width: parent.width
                 }
 
-                TransportPanel{
-                    id: _transport
-
-                    height: parent.height * 0.1
-                    width: parent.width
+                ProgressBar{
+                    id: _progressBar
 
                     anchors.horizontalCenter: parent.horizontalCenter
+                    width: parent.width
+                    height: parent.height * 0.025
+
+                    value: TransportCore.progress;
+
+                    Text{
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: TransportCore.progress
+                    }
                 }
+
+//                TransportPanel{
+//                    id: _transport
+
+//                    height: parent.height * 0.1
+//                    width: parent.width
+
+//                    anchors.horizontalCenter: parent.horizontalCenter
+//                }
             }
         }
 

@@ -6,9 +6,17 @@ import UiObjects
 SwipeDelegate {
     id: swipeDelegate
 
+    signal showLargePreview(var dataPoints)
+    signal hideLargePreview()
+
     contentItem: DelegateContent{
         width: swipeDelegate.width
         height: swipeDelegate.height
+
+        Component.onCompleted: {
+            showLargePreview.connect(swipeDelegate.showLargePreview)
+            hideLargePreview.connect(swipeDelegate.hideLargePreview)
+        }
     }
 
 

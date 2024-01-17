@@ -30,7 +30,7 @@ void PlaylistModel::slDeviceUnavaliable()
     {
         beginRemoveRows(QModelIndex(), 0, m_playlist.size()-1);
         m_playlist.clear();
-        setCurPrintFileName("");
+        setCurPrintFileName("undefined");
         endRemoveRows();
     }
 
@@ -98,7 +98,7 @@ QVariant PlaylistModel::data(const QModelIndex &index, int role) const
 {
     if(!index.isValid() || index.row() > rowCount(index))
     {
-        return {};
+        return {-1};
     }
 
     switch(role)

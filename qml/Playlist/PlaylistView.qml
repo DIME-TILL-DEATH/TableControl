@@ -1,5 +1,6 @@
 import QtQuick 2.15
 
+import Elements
 import UiObjects
 
 ListView
@@ -15,11 +16,43 @@ ListView
         id: _visualModel
         model:PlaylistModel
 
-        delegate: DelegateSwipable{
+        delegate: DelegateSwipable{           
             width:  _listView.width
             height: _listView.height/6
+
+            Component.onCompleted: {
+                showLargePreview.connect(_listView.showLargePreview)
+                hideLargePreview.connect(_listView.hideLargePreview)
+            }
         }
 
+    }
+
+    function showLargePreview(dataPoints)
+    {
+        _largePreview.update(dataPoints);
+        _largePreview.visible = true;
+
+        _listView.interactive = false
+    }
+
+    function hideLargePreview()
+    {
+        _largePreview.visible = false;
+        _largePreview.update(0);
+
+        _listView.interactive = true
+    }
+
+    LargePreview{
+        id: _largePreview
+
+        width: parent.width * 0.95
+        height: width
+
+        visible: false
+
+        anchors.centerIn: parent
     }
 
     //==================Animations=================================
