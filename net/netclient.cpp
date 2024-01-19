@@ -4,16 +4,15 @@ NetClient::NetClient(QObject *parent)
     : QObject{parent}
 {
     socket = new QTcpSocket(this);
-}
 
-void NetClient::doConnect()
-{
     connect(socket, &QTcpSocket::connected,this, &NetClient::connected);
     connect(socket, &QTcpSocket::disconnected,this, &NetClient::disconnected);
     connect(socket, &QTcpSocket::bytesWritten,this, &NetClient::bytesWritten);
     connect(socket, &QTcpSocket::readyRead,this, &NetClient::readyRead);
+}
 
-
+void NetClient::doConnect()
+{
     socket->connectToHost(targetAddress, targetPort);
 }
 

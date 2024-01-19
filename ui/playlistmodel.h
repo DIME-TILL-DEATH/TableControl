@@ -21,6 +21,7 @@ public:
 
     QHash<int, QByteArray> roleNames() const;
 
+    Q_INVOKABLE void insert(int pos, QString fileName);
     Q_INVOKABLE void move(int from, int to);
     Q_INVOKABLE void remove(int pos);
 
@@ -42,7 +43,7 @@ signals:
 
     void curPrintFileNameChanged();
 
-    void sgRequestFileData(QString fileName);
+    void sgRequestFileData(QString fileName) const;
 
     void sgProgressChanged();
 
@@ -62,7 +63,8 @@ private:
     void refreshModel(QList<QString> playList);
     enum ListRoles{
         FileNameRole = Qt::UserRole + 1,
-        PreviewDataRole
+        PreviewDataRole,
+        FileAvaliableRole
     };
 
     void checkDataUpdate();

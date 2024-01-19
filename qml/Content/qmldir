@@ -1,0 +1,4 @@
+module Elements
+
+ContentPage 1.0 ContentPage.qml
+ContentDelegate 1.0 ContentDelegate.qml

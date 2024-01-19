@@ -9,6 +9,8 @@ ListView
 
     spacing: height/100
 
+    boundsBehavior: Flickable.StopAtBounds
+
     currentIndex: 3
     clip: true
 

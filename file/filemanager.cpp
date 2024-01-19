@@ -43,14 +43,22 @@ bool FileManager::getPointsFromFile(QString fileName, QList<QVariant>& result)
 
 void FileManager::savePreviewFile(QString filePath, const QByteArray &fileData)
 {
-    QString folder("preview/");
-    if(!QDir(folder).exists())
+    QFileInfo fileInfo("preview/" + filePath);
+
+    QDir folder = fileInfo.dir();
+
+//    QString folder("preview/");
+//    if(!QDir(folder).exists())
+//    {
+//        QDir().mkpath(folder);
+//    }
+    if(!folder.exists())
     {
-        QDir().mkpath(folder);
+        folder.mkpath(fileInfo.absolutePath());
     }
 
     QFile file(filePath);
-    file.setFileName(folder+filePath);
+    file.setFileName(fileInfo.absoluteFilePath());
 
     if(file.open(QIODevice::WriteOnly | QIODevice::Text))
     {
@@ -91,5 +99,16 @@ void FileManager::processDownloadedFile(Data::File dataType, QVariantList dataLi
         emit sgFileDataReady(fileName, dataFromFile);
         break;
     }
+
+    case Data::File::REQUESTED_FILE_NOT_FOUND:
+    {
+        QString fileName = dataList.at(0).toString();
+        QList<QVariant> dummyData;
+        dummyData.append("FILE NOT FOUND");
+        emit sgFileDataReady(fileName, dummyData);
+        break;
+    }
+
+    default: {}
     }
 }

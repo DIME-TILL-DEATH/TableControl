@@ -54,7 +54,7 @@ DropArea{
                 width: height
                 height: parent.height
 
-                dataPoints: previewData
+                dataPoints: model.previewData
 
                 MouseArea{
                     id: _showLargePreviewMA
@@ -76,7 +76,9 @@ DropArea{
                 spacing: height/20
 
                 DefaultText{
-                   text: fileName
+                   text: model.fileName
+
+                   color: (model.isFileAvaliable) ? "white" : "red";
                 }
                 DefaultText{
                    text: "default"

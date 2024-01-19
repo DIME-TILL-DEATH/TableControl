@@ -2,9 +2,9 @@ import QtQuick
 import QtQuick.Controls
 
 import UiObjects
-import Transport
 import Playlist
 import Elements
+import Content
 
 ApplicationWindow {
     id: _main
@@ -32,54 +32,12 @@ ApplicationWindow {
         currentIndex: _bar.currentIndex
         interactive: false
 
-        Item{
-            Busy{
-                height: parent.height
-                width: parent.width
-            }
-
-            Column{
-                id: _playlistPage
-                width: parent.width
-                height: parent.height
-
-                PlaylistView{
-                    height: parent.height * 0.975// - _transport.height //- _preview.height
-                    width: parent.width
-                }
-
-                ProgressBar{
-                    id: _progressBar
-
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    width: parent.width
-                    height: parent.height * 0.025
-
-                    value: TransportCore.progress;
-
-                    Text{
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        anchors.verticalCenter: parent.verticalCenter
-                        text: TransportCore.progress
-                    }
-                }
-
-//                TransportPanel{
-//                    id: _transport
-
-//                    height: parent.height * 0.1
-//                    width: parent.width
-
-//                    anchors.horizontalCenter: parent.horizontalCenter
-//                }
-            }
+        PlaylistPage{
+            id: _playlistPage
         }
 
-        Item{
-            Column{
-                height: parent.height
-                width: parent.width
-            }
+        ContentPage{
+            id: _contentPage
         }
 
         Item{

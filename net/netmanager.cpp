@@ -2,6 +2,8 @@
 
 #include "filemanager.h"
 
+#include "devicecontentmodel.h"
+
 NetManager::NetManager(QObject *parent)
     : QObject{parent}
 {
@@ -16,7 +18,6 @@ NetManager::NetManager(QObject *parent)
 
     connect(netClient, &NetClient::sgConnected, this, &NetManager::sgDeviceConnected);
     connect(netClient, &NetClient::sgDisconnected, this, &NetManager::sgDeviceDisconnected);
-
     lastRecvFrameHeader.frameSize = 0;
 }
 
@@ -124,6 +125,13 @@ QByteArray NetManager::formUpdatedFileData(uint8_t dataType, QVariantList data)
         qDebug() << "Requesting file: " << name;
         break;
     }
+    case Requests::File::GET_FOLDER_CONTENT:
+    {
+        QString name = data.at(0).toString();
+        result.append(name.toLocal8Bit());
+        qDebug() << "Requesting folder: " << name;
+        break;
+    }
     }
     return result;
 }
@@ -202,7 +210,7 @@ void NetManager::processPlaylistAnswer()
     {
         lastRecvFrame.remove(0, sizeof(FrameHeader));
         QString result(lastRecvFrame);
-        QStringList playlist = result.split("\r\n");
+        QStringList playlist = result.split("\r\n", Qt::SkipEmptyParts);
         QVariantList resultData;
         foreach (QString name, playlist)
         {
@@ -241,14 +249,47 @@ void NetManager::processFileAnswer()
     {
         lastRecvFrame.remove(0, sizeof(FrameHeader));
         QString fileName = lastRecvFrame.left(lastRecvFrameHeader.data0);
-        lastRecvFrame.remove(0, fileName.size());
+        qint32 filesize = static_cast<qint32>(lastRecvFrameHeader.data1);
 
-        FileManager::savePreviewFile(fileName, lastRecvFrame);
+        fileName.remove(DeviceContentModel().librarySdcardPath);
 
         QVariantList dataList;
         dataList.append(fileName);
-        emit sgFileDataUpdated(Data::File::REQUESTED_FILE, dataList);
-        qDebug() << "File downloaded" << fileName;
+
+        if(filesize == -1)
+        {
+            qDebug() << "Requested file not found" << fileName;
+            emit sgContentDataUpdated(Data::File::REQUESTED_FILE_NOT_FOUND, dataList);
+        }
+        else
+        {
+            lastRecvFrame.remove(0, fileName.size());
+
+            FileManager::savePreviewFile(fileName, lastRecvFrame);
+
+            emit sgContentDataUpdated(Data::File::REQUESTED_FILE, dataList);
+            qDebug() << "File downloaded" << fileName;
+        }
+        break;
+    }
+    case Requests::File::GET_FOLDER_CONTENT:
+    {
+        lastRecvFrame.remove(0, sizeof(FrameHeader));
+
+        QString result(lastRecvFrame);
+        QStringList resultList = result.split("*", Qt::SkipEmptyParts);
+        QString folderName = resultList.at(0);
+        result = resultList.at(1);
+
+        resultList = result.split("\r", Qt::SkipEmptyParts);
+
+        QVariantList resultData;
+        resultData.append(folderName);
+        foreach (QString name, resultList)
+        {
+            resultData.append(QVariant(name));
+        }
+        emit sgContentDataUpdated(Data::File::REQUESTED_FOLDER, resultData);
         break;
     }
     }

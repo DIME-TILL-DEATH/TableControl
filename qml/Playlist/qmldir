@@ -1,6 +1,7 @@
 module Playlist
 
-DelagateContent 1.0 DelagateContent.qml
+DelagateItem 1.0 DelagateItem.qml
 DelegateSwipable 1.0 DelegateSwipable.qml
 PlaylistView 1.0 PlaylistView.qml
+PlaylistPage 1.0 PlaylistPage.qml
 

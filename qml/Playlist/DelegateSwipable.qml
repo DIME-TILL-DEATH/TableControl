@@ -9,7 +9,7 @@ SwipeDelegate {
     signal showLargePreview(var dataPoints)
     signal hideLargePreview()
 
-    contentItem: DelegateContent{
+    contentItem: DelegateItem{
         width: swipeDelegate.width
         height: swipeDelegate.height
 

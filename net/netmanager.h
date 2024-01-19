@@ -17,7 +17,7 @@ public:
 signals:
     void sgTransportDataUpdated(Data::Transport dataType, QVariantList dataList);
     void sgPlaylistDataUpdated(Data::Playlist dataType, QVariantList dataList);
-    void sgFileDataUpdated(Data::File dataType, QVariantList dataList);
+    void sgContentDataUpdated(Data::File dataType, QVariantList dataList);
 
     void sgDeviceConnected();
     void sgDeviceDisconnected();

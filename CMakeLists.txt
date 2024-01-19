@@ -24,8 +24,10 @@ qt_add_executable(appTableControl WIN32 MACOSX_BUNDLE
 
     file/filemanager.h file/filemanager.cpp
 
-    ui/uitransport.h ui/uitransport.cpp
+    ui/contentnode.h ui/contentnode.cpp
+    ui/devicecontentmodel.h ui/devicecontentmodel.cpp
     ui/playlistmodel.h ui/playlistmodel.cpp
+    ui/uitransport.h ui/uitransport.cpp
 
     net/netclient.h net/netclient.cpp
     net/netmanager.h net/netmanager.cpp

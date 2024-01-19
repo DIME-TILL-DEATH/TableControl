@@ -12,6 +12,71 @@ PlaylistModel::PlaylistModel(QObject *parent)
     connect(updateDataTimer, &QTimer::timeout, this, &PlaylistModel::checkDataUpdate);
 }
 
+int PlaylistModel::rowCount(const QModelIndex &parent) const
+{
+    Q_UNUSED(parent)
+    return m_playlist.size();
+}
+
+QHash<int, QByteArray> PlaylistModel::roleNames() const
+{
+    QHash<int, QByteArray> roles;
+    roles[ListRoles::FileNameRole] = "fileName";
+    roles[ListRoles::PreviewDataRole] = "previewData";
+    roles[ListRoles::FileAvaliableRole] = "isFileAvaliable";
+    return roles;
+}
+
+QVariant PlaylistModel::data(const QModelIndex &index, int role) const
+{
+    if(!index.isValid() || index.row() > rowCount(index))
+    {
+        return {-1};
+    }
+
+    switch(role)
+    {
+    case ListRoles::FileNameRole:
+    {
+        return QVariant::fromValue(m_playlist.at(index.row()));
+    }
+
+    case ListRoles::PreviewDataRole:
+    {
+        QString fileName = m_playlist.at(index.row());
+        if(!m_previewData.contains(fileName))
+        {
+            emit sgRequestFileData(fileName);
+            return QVariantList();
+        }
+        else
+        {
+            if(m_previewData.value(fileName).at(0).toString() == "FILE NOT FOUND") return QVariantList();
+
+            return QVariant(m_previewData.value(fileName));
+        }
+    }
+
+    case ListRoles::FileAvaliableRole:
+    {
+        QString fileName = m_playlist.at(index.row());
+        if(!m_previewData.contains(fileName))
+        {
+            emit sgRequestFileData(fileName);
+            return 1;
+        }
+
+        return !(m_previewData.value(fileName).at(0).toString() == "FILE NOT FOUND");
+    }
+
+    default:
+    {
+        qWarning() << __FUNCTION__ << "no role";
+        return true;
+    }
+    }
+}
+
 void PlaylistModel::slDeviceAvaliable()
 {
     emit sgRequest(FrameType::PLAYLIST_ACTIONS, (uint8_t)Requests::Playlist::REQUEST_PLAYLIST);
@@ -37,16 +102,6 @@ void PlaylistModel::slDeviceUnavaliable()
     setDeviceAvaliable(false);
     qDebug() << "Device unavaliable";
 }
-
-QHash<int, QByteArray> PlaylistModel::roleNames() const
-{
-    QHash<int, QByteArray> roles;
-    roles[ListRoles::FileNameRole] = "fileName";
-    roles[ListRoles::PreviewDataRole] = "previewData";
-
-    return roles;
-}
-
 
 void PlaylistModel::slPlaylistDataUpdate(Data::Playlist dataType, QVariantList dataList)
 {
@@ -77,47 +132,14 @@ void PlaylistModel::slPlaylistDataUpdate(Data::Playlist dataType, QVariantList d
 
 void PlaylistModel::slFileDataReady(QString fileName, QList<QVariant> fileData)
 {
+    qDebug() << "Updating file data: " << fileName;
+
     m_previewData.insert(fileName, fileData);
     for(int pos=0; pos<m_playlist.size();pos++)
     {
         if(m_playlist.at(pos) == fileName)
         {
             emit dataChanged(createIndex(pos, 0), createIndex(pos, 0));
-        }
-    }
-}
-
-
-int PlaylistModel::rowCount(const QModelIndex &parent) const
-{
-    Q_UNUSED(parent)
-    return m_playlist.size();
-}
-
-QVariant PlaylistModel::data(const QModelIndex &index, int role) const
-{
-    if(!index.isValid() || index.row() > rowCount(index))
-    {
-        return {-1};
-    }
-
-    switch(role)
-    {
-        case ListRoles::FileNameRole:
-        {
-            return QVariant::fromValue(m_playlist.at(index.row()));
-        }
-
-        case ListRoles::PreviewDataRole:
-        {
-            QString fileName = m_playlist.at(index.row());
-            return QVariant(m_previewData.value(fileName));
-        }
-
-        default:
-        {
-            qWarning() << __FUNCTION__ << "no role";
-            return true;
         }
     }
 }
@@ -139,7 +161,6 @@ void PlaylistModel::refreshModel(QList<QString> newPlayList)
                 }
                 emit dataChanged(createIndex(pos, 0), createIndex(pos, 0));
             }
-
         }
         else
         {
@@ -179,6 +200,16 @@ void PlaylistModel::move(int from, int to)
     }
 }
 
+
+void PlaylistModel::insert(int pos, QString fileName)
+{
+    beginInsertRows(QModelIndex(), pos, pos);
+    m_playlist.insert(pos, fileName);
+    endInsertRows();
+
+    sendUpdatedPlaylist();
+}
+
 void PlaylistModel::remove(int pos)
 {
     beginRemoveRows(QModelIndex(), pos, pos);
@@ -209,6 +240,7 @@ void PlaylistModel::sendUpdatedPlaylist()
     resultData.clear();
     resultData.append(m_currentPlsPos);
     emit sgUpdateData(FrameType::PLAYLIST_ACTIONS, (uint8_t)Requests::Playlist::CHANGE_PLAYLIST_POSITION, resultData);
+    qDebug() << "Updating playlist";
 }
 
 QString PlaylistModel::curPrintFileName() const
