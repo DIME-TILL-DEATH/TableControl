@@ -74,16 +74,29 @@ void FileManager::savePreviewFile(QString filePath, const QByteArray &fileData)
 
 void FileManager::processFileLoadRequest(QString fileName)
 {
+    //qDebug() << "Processing content load request" << fileName;
     QList<QVariant> dataFromFile;
-    if(getPointsFromFile(fileName, dataFromFile))
+
+    if(m_loadedData.contains(fileName))
     {
-        emit sgFileDataReady(fileName, dataFromFile);
+        //qDebug() << "send pointer to already loaded data";
+        emit sgFileDataReady(fileName, m_loadedData.value(fileName));
     }
     else
     {
-        QVariantList data;
-        data.append(fileName);
-        emit sgUpdateData(FrameType::FILE_ACTIONS, (uint8_t)(Requests::File::GET_FILE), data);
+        if(getPointsFromFile(fileName, dataFromFile))
+        {
+            //qDebug() << "loading file";
+            m_loadedData.insert(fileName, dataFromFile);
+            emit sgFileDataReady(fileName, dataFromFile);
+        }
+        else
+        {
+            //qDebug() << "try to download file";
+            QVariantList data;
+            data.append(fileName);
+            emit sgUpdateData(FrameType::FILE_ACTIONS, (uint8_t)(Requests::File::GET_FILE), data);
+        }
     }
 }
 

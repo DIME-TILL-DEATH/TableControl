@@ -3,12 +3,14 @@
 DeviceContentModel::DeviceContentModel(QObject *parent)
     : QAbstractItemModel{parent}
 {
-    rootItem = new ContentNode("", NodeType::Folder);
+    rootNode = new ContentNode("", ContentNode::NodeType::Root);
+    sdCardNode = new ContentNode("SD card", ContentNode::NodeType::Root);
+    rootNode->appendChild(sdCardNode);
 }
 
 DeviceContentModel::~DeviceContentModel()
 {
-    delete rootItem;
+    delete rootNode;
 }
 
 QModelIndex DeviceContentModel::index(int row, int column, const QModelIndex &parent) const
@@ -19,13 +21,14 @@ QModelIndex DeviceContentModel::index(int row, int column, const QModelIndex &pa
     ContentNode *parentItem;
 
     if (!parent.isValid())
-        parentItem = rootItem;
+        parentItem = rootNode;
     else
         parentItem = static_cast<ContentNode*>(parent.internalPointer());
 
     ContentNode *childItem = parentItem->child(row);
     if (childItem)
         return createIndex(row, column, childItem);
+
     return QModelIndex();
 }
 
@@ -36,7 +39,7 @@ int DeviceContentModel::rowCount(const QModelIndex &parent) const
         return 0;
 
     if (!parent.isValid())
-        parentItem = rootItem;
+        parentItem = rootNode;
     else
         parentItem = static_cast<ContentNode*>(parent.internalPointer());
 
@@ -57,7 +60,7 @@ QModelIndex DeviceContentModel::parent(const QModelIndex &index) const
     ContentNode *childItem = static_cast<ContentNode*>(index.internalPointer());
     ContentNode *parentItem = childItem->parentItem();
 
-    if (parentItem == rootItem)
+    if (parentItem == rootNode)
         return QModelIndex();
 
     return createIndex(parentItem->row(), 0, parentItem);
@@ -69,14 +72,6 @@ Qt::ItemFlags DeviceContentModel::flags(const QModelIndex &index) const
         return Qt::NoItemFlags;
 
     return QAbstractItemModel::flags(index);
-}
-
-QVariant DeviceContentModel::headerData(int section, Qt::Orientation orientation, int role) const
-{
-    if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
-        return rootItem->data(section);
-
-    return QVariant();
 }
 
 QVariant DeviceContentModel::data(const QModelIndex &index, int role) const
@@ -95,8 +90,9 @@ QVariant DeviceContentModel::data(const QModelIndex &index, int role) const
 QHash<int, QByteArray> DeviceContentModel::roleNames() const
 {
     QHash<int, QByteArray> roles;
-    roles[ContentNode::ListRoles::NodeNameRole] = "path";
-    roles[ContentNode::ListRoles::NodeTypeRole] = "nodeType";
+    roles[ContentNode::ListRoles::NodeNameRole] = "name";
+    roles[ContentNode::ListRoles::NodeTypeRole] = "type";
+    roles[ContentNode::ListRoles::NodePathRole] = "path";
     roles[ContentNode::ListRoles::PreviewDataRole] = "previewData";
     return roles;
 }
@@ -118,7 +114,8 @@ void DeviceContentModel::slContentDataUpdate(Data::File dataType, QVariantList d
         fullFolderPath.remove(librarySdcardPath);
 
         QStringList pathList = fullFolderPath.split("/", Qt::SkipEmptyParts);
-        ContentNode* currentPathNode = rootItem;
+//        ContentNode* currentPathNode = rootNode;
+        ContentNode* currentPathNode = sdCardNode;
         foreach(auto pathElement, pathList)
         {
             ContentNode* nextPathNode = currentPathNode->childByName(pathElement);
@@ -128,7 +125,7 @@ void DeviceContentModel::slContentDataUpdate(Data::File dataType, QVariantList d
             }
             else
             {
-                ContentNode* newPathElement = new ContentNode(pathElement, NodeType::Folder);
+                ContentNode* newPathElement = new ContentNode(pathElement, ContentNode::NodeType::Folder);
                 appendNode(currentPathNode, newPathElement);
                 currentPathNode = newPathElement;
             }
@@ -143,8 +140,7 @@ void DeviceContentModel::slContentDataUpdate(Data::File dataType, QVariantList d
             {
                 contentName.remove(0, 4);
 
-//                currentPathNode->appendChild(new ContentNode(contentName, NodeType::Folder));
-                appendNode(currentPathNode, new ContentNode(contentName, NodeType::Folder));
+                appendNode(currentPathNode, new ContentNode(contentName, ContentNode::NodeType::Folder));
 
                 QVariantList data;
                 data.append(librarySdcardPath + fullFolderPath + contentName + "/");
@@ -152,7 +148,7 @@ void DeviceContentModel::slContentDataUpdate(Data::File dataType, QVariantList d
             }
             else
             {
-                appendNode(currentPathNode, new ContentNode(contentName, NodeType::File));
+                appendNode(currentPathNode, new ContentNode(contentName, ContentNode::NodeType::File));
             }
         }
         break;
@@ -164,10 +160,8 @@ void DeviceContentModel::slContentDataUpdate(Data::File dataType, QVariantList d
 
 void DeviceContentModel::appendNode(ContentNode *destNode, ContentNode *newNode)
 {
-    ContentNode* parentItem = destNode->parentItem();
     int row = destNode->childCount();
-    QModelIndex index;
-    if(parentItem) index = createIndex(row, 0, parentItem);
+    QModelIndex index = createIndex(row, 0, destNode);
 
     beginInsertRows(index, row, row);
     destNode->appendChild(newNode);

@@ -1,7 +1,7 @@
 #include "contentnode.h"
 
 ContentNode::ContentNode(const QString& nodeName, NodeType nodeType, ContentNode *parentItem)
-    : m_nodeName(nodeName), m_nodeType(nodeType) ,m_parentItem(parentItem)
+    : m_nodeName(nodeName), m_nodeType(nodeType), m_parentItem(parentItem)
 {
 
 }
@@ -67,9 +67,12 @@ QVariant ContentNode::data(int role) const
     }
     case ContentNode::ListRoles::NodeTypeRole:
     {
-        //TODO enum class to qml
-        if(m_nodeType == NodeType::File) return 1;
-        else return 0;
+        return QVariant::fromValue(m_nodeType);
+    }
+    case ContentNode::ListRoles::NodePathRole:
+    {
+        return nodePath();
+        break;
     }
     default: return QVariant();
     }
@@ -83,6 +86,24 @@ ContentNode *ContentNode::parentItem()
 QString ContentNode::nodeName() const
 {
     return m_nodeName;
+}
+
+QString ContentNode::nodePath() const
+{
+    ContentNode* currentParent = m_parentItem;
+    ContentNode* previousNode;
+    QString path = "/";
+
+    if(m_parentItem == nullptr) return path;
+
+    while(currentParent != nullptr)
+    {
+        if(currentParent->m_nodeType == NodeType::Folder)
+            path += currentParent->nodeName() + "/";
+
+        currentParent = currentParent->parentItem();
+    }
+    return path;
 }
 
 void ContentNode::setParent(ContentNode *parent)

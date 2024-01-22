@@ -3,25 +3,27 @@
 
 #include <QVariant>
 
-enum class NodeType
-{
-    Folder = 0,
-    File
-};
-
-
 class ContentNode : public QObject
 {
     Q_OBJECT
 public:
-    ContentNode(const QString& nodeName, NodeType nodeType, ContentNode *parentItem = nullptr);
-    ~ContentNode();
-
     enum ListRoles{
         NodeNameRole = Qt::UserRole + 1,
         NodeTypeRole,
-        PreviewDataRole
+        NodePathRole,
+        PreviewDataRole,
     };
+
+    enum class NodeType
+    {
+        Root,
+        Folder,
+        File
+    };
+    Q_ENUM(NodeType);
+
+    ContentNode(const QString& nodeName, NodeType nodeType, ContentNode *parentItem = nullptr);
+    ~ContentNode();
 
     void appendChild(ContentNode *child);
 
@@ -36,6 +38,7 @@ public:
     ContentNode *parentItem();
 
     QString nodeName() const;
+    QString nodePath() const;
 
 private:
     QVector<ContentNode*> m_childNodes;

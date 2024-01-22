@@ -8,7 +8,7 @@ import UiObjects
 Item {
     id: treeDelegate
 
-    implicitWidth: _treeView.width//padding + label.x + label.implicitWidth + padding + _button.width
+    implicitWidth: (_treeView.width == 0) ? 30 : _treeView.width//padding + label.x + label.implicitWidth + padding + _button.width
     implicitHeight: label.implicitHeight * 2
 
     readonly property real indent: 20
@@ -50,11 +50,11 @@ Item {
                 x: padding + (treeDelegate.isTreeNode ? (treeDelegate.depth + 1) * treeDelegate.indent : 0)
                 width: treeDelegate.width - treeDelegate.padding - x
                 clip: true
-                text: model.path
+                text: model.name
 
                 anchors.verticalCenter: _thing.verticalCenter
 
-                color: (model.nodeType) ? "white" : "lightgreen"
+                color: (model.type === ContentNode.File) ? "white" : "lightgreen"
             }
         }
 
@@ -64,13 +64,18 @@ Item {
             width: parent.height
             height: parent.height
 
-            text: (model.nodeType) ? ">>" : "+"
+            text: (model.type === ContentNode.File) ? ">>" : "+"
 
             onClicked: function(){
-                if(model.nodeType)
+                if(model.type === ContentNode.File)
                 {
-                    console.log("append to playlist, size: ", PlaylistModel.rowCount());
-                    PlaylistModel.insert(PlaylistModel.rowCount(), model.path);
+                    console.log("append to playlist, size: ", model.path + model.name, PlaylistModel.rowCount());
+                    PlaylistModel.insert(PlaylistModel.rowCount(), model.path + model.name);
+                }
+
+                if(model.type === ContentNode.Folder)
+                {
+                    console.log("uploading file");
                 }
             }
         }

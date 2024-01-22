@@ -52,10 +52,12 @@ int main(int argc, char *argv[])
 
     QObject::connect(deviceContentModel, &DeviceContentModel::sgRequest, netManager, &NetManager::sendRequest);
     QObject::connect(deviceContentModel, &DeviceContentModel::sgUpdateData, netManager, &NetManager::updateData);
-    QObject::connect(deviceContentModel, &DeviceContentModel::sgRequestFileData, fileManager, &FileManager::processFileLoadRequest);
+    QObject::connect(deviceContentModel, &DeviceContentModel::sgRequestFileData, fileManager, &FileManager::processFileLoadRequest, Qt::QueuedConnection);
 
     QObject::connect(fileManager, &FileManager::sgFileDataReady, playlistModel, &PlaylistModel::slFileDataReady);
     QObject::connect(fileManager, &FileManager::sgUpdateData, netManager, &NetManager::updateData);
+
+    qmlRegisterUncreatableType<ContentNode>("UiObjects", 1, 0, "ContentNode", "Cannot create ContentNode in QML");
 
     qmlRegisterSingletonInstance("UiObjects", 1, 0, "TransportCore", uiTransport);
     qmlRegisterSingletonInstance("UiObjects", 1, 0, "PlaylistModel", playlistModel);
