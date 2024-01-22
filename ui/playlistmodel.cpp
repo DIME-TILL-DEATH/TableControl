@@ -22,6 +22,7 @@ QHash<int, QByteArray> PlaylistModel::roleNames() const
 {
     QHash<int, QByteArray> roles;
     roles[ListRoles::FileNameRole] = "fileName";
+    roles[ListRoles::FilePathRole] = "filePath";
     roles[ListRoles::PreviewDataRole] = "previewData";
     roles[ListRoles::FileAvaliableRole] = "isFileAvaliable";
     return roles;
@@ -38,7 +39,19 @@ QVariant PlaylistModel::data(const QModelIndex &index, int role) const
     {
     case ListRoles::FileNameRole:
     {
-        return QVariant::fromValue(m_playlist.at(index.row()));
+        QString fullPath = m_playlist.at(index.row());
+        QStringList pathElements = fullPath.split("/", Qt::SkipEmptyParts);
+        return pathElements.last();
+//        return QVariant::fromValue(m_playlist.at(index.row()));
+    }
+
+    case ListRoles::FilePathRole:
+    {
+        QString fullPath = m_playlist.at(index.row());
+        QStringList pathElements = fullPath.split("/", Qt::SkipEmptyParts);
+        pathElements.pop_back();
+        QString path = pathElements.join("/");
+        return path;
     }
 
     case ListRoles::PreviewDataRole:
@@ -46,6 +59,7 @@ QVariant PlaylistModel::data(const QModelIndex &index, int role) const
         QString fileName = m_playlist.at(index.row());
         if(!m_previewData.contains(fileName))
         {
+            qDebug() << "Model. Requesting file data: " << fileName;
             emit sgRequestFileData(fileName);
             return QVariantList();
         }
@@ -95,7 +109,7 @@ void PlaylistModel::slDeviceUnavaliable()
     {
         beginRemoveRows(QModelIndex(), 0, m_playlist.size()-1);
         m_playlist.clear();
-        setCurPrintFileName("undefined");
+        setCurPlaylistPosition(-1);
         endRemoveRows();
     }
 
@@ -120,11 +134,7 @@ void PlaylistModel::slPlaylistDataUpdate(Data::Playlist dataType, QVariantList d
     case Data::Playlist::PLAYLIST_POSITION:
     {
         qint16 plsPos = dataList.at(0).toInt();
-        m_currentPlsPos = plsPos;
-        if(plsPos < m_playlist.size())
-        {
-            setCurPrintFileName(m_playlist.at(plsPos));
-        }
+        setCurPlaylistPosition(plsPos);
         break;
     }
     }
@@ -132,7 +142,7 @@ void PlaylistModel::slPlaylistDataUpdate(Data::Playlist dataType, QVariantList d
 
 void PlaylistModel::slFileDataReady(QString fileName, QList<QVariant> fileData)
 {
-    qDebug() << "Updating file data: " << fileName;
+    //qDebug() << "Updating file data: " << fileName;
 
     m_previewData.insert(fileName, fileData);
     for(int pos=0; pos<m_playlist.size();pos++)
@@ -146,7 +156,7 @@ void PlaylistModel::slFileDataReady(QString fileName, QList<QVariant> fileData)
 
 void PlaylistModel::refreshModel(QList<QString> newPlayList)
 {
-    for(int pos=0; pos < newPlayList.size()-1; pos++)
+    for(int pos=0; pos < newPlayList.size(); pos++)
     {
         QString newFileName = newPlayList.at(pos);
 
@@ -181,7 +191,7 @@ void PlaylistModel::refreshModel(QList<QString> newPlayList)
         m_playlist.remove(m_playlist.size(), rowsToDelete);
         endRemoveRows();
     }
-    setCurPrintFileName(m_playlist.at(m_currentPlsPos));
+    //setCurPrintFileName(m_playlist.at(m_currentPlsPos));
 }
 
 void PlaylistModel::move(int from, int to)
@@ -233,28 +243,11 @@ void PlaylistModel::sendUpdatedPlaylist()
         resultData.append(QVariant(name));
     }
 
-    auto it = std::find(m_playlist.begin(), m_playlist.end(), m_curPrintFileName);
-    m_currentPlsPos = std::distance(m_playlist.begin(), it);
-
     emit sgUpdateData(FrameType::PLAYLIST_ACTIONS, (uint8_t)Requests::Playlist::CHANGE_PLAYLIST, resultData);
     resultData.clear();
-    resultData.append(m_currentPlsPos);
+    resultData.append(m_curPlaylistPosition);
     emit sgUpdateData(FrameType::PLAYLIST_ACTIONS, (uint8_t)Requests::Playlist::CHANGE_PLAYLIST_POSITION, resultData);
     qDebug() << "Updating playlist";
-}
-
-QString PlaylistModel::curPrintFileName() const
-{
-    return m_curPrintFileName;
-}
-
-void PlaylistModel::setCurPrintFileName(const QString &newCurPrintFileName)
-{
-    if (m_curPrintFileName == newCurPrintFileName)
-        return;
-    m_curPrintFileName = newCurPrintFileName;
-    emit curPrintFileNameChanged();
-
 }
 
 bool PlaylistModel::deviceAvaliable() const
@@ -266,4 +259,15 @@ void PlaylistModel::setDeviceAvaliable(bool newDeviceAvaliable)
 {
     m_deviceAvaliable = newDeviceAvaliable;
     emit deviceAvaliableChanged();
+}
+
+qint32 PlaylistModel::curPlaylistPosition() const
+{
+    return m_curPlaylistPosition;
+}
+
+void PlaylistModel::setCurPlaylistPosition(qint32 newCurPlaylistPosition)
+{
+    m_curPlaylistPosition = newCurPlaylistPosition;
+    emit curPlaylistPositionChanged();
 }

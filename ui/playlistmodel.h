@@ -11,7 +11,7 @@
 class PlaylistModel : public QAbstractListModel
 {
     Q_OBJECT
-    Q_PROPERTY(QString curPrintFileName READ curPrintFileName WRITE setCurPrintFileName NOTIFY curPrintFileNameChanged FINAL)
+    Q_PROPERTY(qint32 curPlaylistPosition READ curPlaylistPosition WRITE setCurPlaylistPosition NOTIFY curPlaylistPositionChanged FINAL)
     Q_PROPERTY(bool deviceAvaliable READ deviceAvaliable WRITE setDeviceAvaliable NOTIFY deviceAvaliableChanged FINAL)
 public:
     explicit PlaylistModel(QObject *parent = nullptr);
@@ -25,14 +25,14 @@ public:
     Q_INVOKABLE void move(int from, int to);
     Q_INVOKABLE void remove(int pos);
 
-    QString curPrintFileName() const;
-    void setCurPrintFileName(const QString &newCurPrintFileName);
-
     float progress() const;
     void setProgress(float newProgress);
 
     bool deviceAvaliable() const;
     void setDeviceAvaliable(bool newDeviceAvaliable);
+
+    qint32 curPlaylistPosition() const;
+    void setCurPlaylistPosition(qint32 newCurPlaylistPosition);
 
 signals:
     void sgUpdateData(FrameType frameType, uint8_t dataType, QVariantList data);
@@ -41,13 +41,13 @@ signals:
                    uint32_t data1 = 0,
                    uint32_t parameters = 0);
 
-    void curPrintFileNameChanged();
-
     void sgRequestFileData(QString fileName) const;
 
     void sgProgressChanged();
 
     void deviceAvaliableChanged();
+
+    void curPlaylistPositionChanged();
 
 public slots:
     void slPlaylistDataUpdate(Data::Playlist dataType, QVariantList dataList);
@@ -63,6 +63,7 @@ private:
     void refreshModel(QList<QString> playList);
     enum ListRoles{
         FileNameRole = Qt::UserRole + 1,
+        FilePathRole,
         PreviewDataRole,
         FileAvaliableRole
     };
@@ -70,8 +71,7 @@ private:
     void checkDataUpdate();
     void sendUpdatedPlaylist();
 
-    qint16 m_currentPlsPos{0};
-    QString m_curPrintFileName{"undefined"};
+    qint32 m_curPlaylistPosition{-1};
 
     QTimer* updateDataTimer;
     float m_progress;

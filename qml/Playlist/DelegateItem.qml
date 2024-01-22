@@ -63,6 +63,7 @@ DropArea{
 
                     onPressed: showLargePreview(previewData)
 
+
                     onReleased: hideLargePreview()
                 }
             }
@@ -81,7 +82,7 @@ DropArea{
                    color: (model.isFileAvaliable) ? "white" : "red";
                 }
                 DefaultText{
-                   text: "default"
+                   text: model.filePath
                    font.bold: false
                 }
             }
