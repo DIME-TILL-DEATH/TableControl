@@ -29,7 +29,8 @@ public:
 
     QHash<int, QByteArray> roleNames() const override;
 
-    QString librarySdcardPath{"/sdcard/library/"};
+   // QString librarySdcardPath{"/sdcard/library/"};
+    constexpr static const char librarySdcardPath[] = "/sdcard/library/";
 
 signals:
     void sgUpdateData(FrameType frameType, uint8_t dataType, QVariantList data);

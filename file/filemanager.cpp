@@ -3,6 +3,7 @@
 #include <QDebug>
 
 #include "filemanager.h"
+#include "devicecontentmodel.h"
 
 FileManager::FileManager(QObject *parent)
     : QObject{parent}
@@ -94,7 +95,7 @@ void FileManager::processFileLoadRequest(QString fileName)
         {
             //qDebug() << "try to download file";
             QVariantList data;
-            data.append(fileName);
+            data.append(DeviceContentModel::librarySdcardPath + fileName);
             emit sgUpdateData(FrameType::FILE_ACTIONS, (uint8_t)(Requests::File::GET_FILE), data);
         }
     }
