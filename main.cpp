@@ -47,15 +47,15 @@ int main(int argc, char *argv[])
     QObject::connect(netManager, &NetManager::sgContentDataUpdated, deviceContentModel, &DeviceContentModel::slContentDataUpdate);
 
     QObject::connect(playlistModel, &PlaylistModel::sgRequest, netManager, &NetManager::sendRequest);
-    QObject::connect(playlistModel, &PlaylistModel::sgUpdateData, netManager, &NetManager::updateData);
+    QObject::connect(playlistModel, &PlaylistModel::sgUpdateData, netManager, &NetManager::slUpdateData);
     QObject::connect(playlistModel, &PlaylistModel::sgRequestFileData, fileManager, &FileManager::processFileLoadRequest);
 
     QObject::connect(deviceContentModel, &DeviceContentModel::sgRequest, netManager, &NetManager::sendRequest);
-    QObject::connect(deviceContentModel, &DeviceContentModel::sgUpdateData, netManager, &NetManager::updateData);
+    QObject::connect(deviceContentModel, &DeviceContentModel::sgUpdateData, netManager, &NetManager::slUpdateData);
     QObject::connect(deviceContentModel, &DeviceContentModel::sgRequestFileData, fileManager, &FileManager::processFileLoadRequest, Qt::QueuedConnection);
 
     QObject::connect(fileManager, &FileManager::sgFileDataReady, playlistModel, &PlaylistModel::slFileDataReady);
-    QObject::connect(fileManager, &FileManager::sgUpdateData, netManager, &NetManager::updateData);
+    QObject::connect(fileManager, &FileManager::sgUpdateData, netManager, &NetManager::slUpdateData);
 
     qmlRegisterUncreatableType<ContentNode>("UiObjects", 1, 0, "ContentNode", "Cannot create ContentNode in QML");
 

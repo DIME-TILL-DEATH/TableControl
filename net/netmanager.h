@@ -28,13 +28,13 @@ public slots:
                                             uint32_t data1 = 0,
                                             uint32_t parameters = 0);
 
-    void updateData(FrameType frameType, uint8_t dataType, QVariantList data);
+    void slUpdateData(FrameType frameType, uint8_t dataType, QVariantList data);
 
 private slots:
     void processRecievedData(QByteArray data);
-    QByteArray formUpdatedTransportData(uint8_t dataType, QVariantList data);
-    QByteArray formUpdatedPlaylistData(uint8_t dataType, QVariantList data);
-    QByteArray formUpdatedFileData(uint8_t dataType, QVariantList data);
+    void sendTransportData(uint8_t dataType, QVariantList& data, FrameHeader_uni& frameHeader);
+    void sendPlaylistData(uint8_t dataType, QVariantList& data, FrameHeader_uni& frameHeader);
+    void sendFileData(uint8_t dataType, QVariantList& data, FrameHeader_uni& frameHeader);
 
 private:
     FrameHeader lastRecvFrameHeader;

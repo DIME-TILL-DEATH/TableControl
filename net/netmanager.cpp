@@ -52,44 +52,43 @@ void NetManager::updateData(FrameType frameType, uint8_t dataType, QVariantList 
     memset(frameHeader.rawData, 0, sizeof(FrameHeader));
     frameHeader.structData.frameType = frameType;
     frameHeader.structData.actionType = dataType;
-    QByteArray dataToSend;
+//    QByteArray dataToSend;
 
     switch(frameType)
     {
     case FrameType::TRANSPORT_ACTIONS:
     {
-        dataToSend = formUpdatedTransportData(dataType, data);
+        formUpdatedTransportData(dataType, data, frameHeader);
         break;
     }
     case FrameType::PLAYLIST_ACTIONS:
     {
-        dataToSend = formUpdatedPlaylistData(dataType, data);
+        formUpdatedPlaylistData(dataType, data, frameHeader);
         break;
     }
     case FrameType::FILE_ACTIONS:
     {
-        dataToSend = formUpdatedFileData(dataType, data);
+        formUpdatedFileData(dataType, data, frameHeader);
         break;
     }
     default: break;
     }
 
-    frameHeader.structData.frameSize = sizeof(FrameHeader) + dataToSend.size();
-    dataToSend.prepend(frameHeader.rawData, sizeof(FrameHeader));
-    netClient->sendData(dataToSend);
+//    frameHeader.structData.frameSize = sizeof(FrameHeader) + dataToSend.size();
+//    dataToSend.prepend(frameHeader.rawData, sizeof(FrameHeader));
+//    netClient->sendData(dataToSend);
 }
 
 
-QByteArray NetManager::formUpdatedTransportData(uint8_t dataType, QVariantList data)
+void NetManager::formUpdatedTransportData(uint8_t dataType, QVariantList& data, FrameHeader_uni& frameHeader)
 {
-    QByteArray result;
-
-    return result;
+    frameHeader.structData.frameSize = sizeof(FrameHeader);
+    netClient->sendData(QByteArray(frameHeader.rawData, sizeof(FrameHeader)));
 }
 
-QByteArray NetManager::formUpdatedPlaylistData(uint8_t dataType, QVariantList data)
+void NetManager::formUpdatedPlaylistData(uint8_t dataType, QVariantList& data, FrameHeader_uni& frameHeader)
 {
-    QByteArray result;
+    QByteArray dataToSend;
     switch((Requests::Playlist)dataType)
     {
     case Requests::Playlist::CHANGE_PLAYLIST:
@@ -97,43 +96,55 @@ QByteArray NetManager::formUpdatedPlaylistData(uint8_t dataType, QVariantList da
         foreach (QVariant item, data)
         {
             QString curName = item.toString();
-            result.append(curName.toLocal8Bit());
-            result.append("|");
+            dataToSend.append(curName.toLocal8Bit());
+            dataToSend.append("|");
         }
         break;
     }
     case Requests::Playlist::CHANGE_PLAYLIST_POSITION:
     {
         qint16 plsPosition = data.at(0).toInt();
-        result = QByteArray((const char*)&plsPosition, 2);
+        dataToSend = QByteArray((const char*)&plsPosition, 2);
         break;
     }
     default: {}
     }
-    return result;
+
+    frameHeader.structData.frameSize = sizeof(FrameHeader) + dataToSend.size();
+    dataToSend.prepend(frameHeader.rawData, sizeof(FrameHeader));
+    netClient->sendData(dataToSend);
 }
 
-QByteArray NetManager::formUpdatedFileData(uint8_t dataType, QVariantList data)
+void NetManager::formUpdatedFileData(uint8_t dataType, QVariantList& data, FrameHeader_uni &frameHeader)
 {
-    QByteArray result;
+    QByteArray dataToSend;
+
+    QString name = data.at(0).toString();
+    dataToSend.append(name.toLocal8Bit());
+
+    frameHeader.structData.data0 = name.size();
+
     switch((Requests::File)dataType)
     {
     case Requests::File::GET_FILE:
     {
-        QString name = data.at(0).toString();
-        result.append(name.toLocal8Bit());
         qDebug() << "Requesting file: " << name;
+        frameHeader.structData.frameSize = sizeof(FrameHeader) + dataToSend.size();
+        dataToSend.prepend(frameHeader.rawData, sizeof(FrameHeader));
+        netClient->sendData(dataToSend);
         break;
     }
     case Requests::File::GET_FOLDER_CONTENT:
     {
-        QString name = data.at(0).toString();
-        result.append(name.toLocal8Bit());
         qDebug() << "Requesting folder: " << name;
+        frameHeader.structData.frameSize = sizeof(FrameHeader) + dataToSend.size();
+        dataToSend.prepend(frameHeader.rawData, sizeof(FrameHeader));
+        netClient->sendData(dataToSend);
         break;
     }
+    default: {}
     }
-    return result;
+
 }
 
 void NetManager::processRecievedData(QByteArray data)
