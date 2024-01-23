@@ -106,7 +106,22 @@ QString ContentNode::nodePath() const
     return path;
 }
 
+void ContentNode::sortChilds()
+{
+    std::sort(m_childNodes.begin(), m_childNodes.end(), ContentNodeCompare());
+}
+
 void ContentNode::setParent(ContentNode *parent)
 {
     m_parentItem = parent;
+}
+
+bool ContentNode::operator<(const ContentNode& r) const
+{
+    if(this->m_nodeType > r.m_nodeType) return true;
+    if(this->m_nodeType < r.m_nodeType) return false;
+
+    if(this->m_nodeName < r.m_nodeName) return true;
+
+    return false;
 }

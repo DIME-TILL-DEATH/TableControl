@@ -16,9 +16,9 @@ public:
 
     enum class NodeType
     {
-        Root,
+        File = 0,
         Folder,
-        File
+        Root
     };
     Q_ENUM(NodeType);
 
@@ -40,6 +40,10 @@ public:
     QString nodeName() const;
     QString nodePath() const;
 
+    void sortChilds();
+
+    bool operator<(const ContentNode& r) const;
+
 private:
     QVector<ContentNode*> m_childNodes;
 
@@ -50,6 +54,14 @@ private:
     ContentNode *m_parentItem;
 
     void setParent(ContentNode* parent);
+};
+
+struct ContentNodeCompare
+{
+    bool operator()(const ContentNode *l, const ContentNode *r)
+    {
+        return *l < *r;
+    }
 };
 
 #endif // CONTENTNODE_H

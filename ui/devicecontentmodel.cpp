@@ -151,6 +151,8 @@ void DeviceContentModel::slContentDataUpdate(Data::File dataType, QVariantList d
                 appendNode(currentPathNode, new ContentNode(contentName, ContentNode::NodeType::File));
             }
         }
+        currentPathNode->sortChilds();
+        emit dataChanged(createIndex(0, 0, currentPathNode), createIndex(currentPathNode->childCount()-1, 0, currentPathNode));
         break;
     }
     default:

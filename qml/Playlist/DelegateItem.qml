@@ -121,7 +121,10 @@ DropArea{
                 for(var i = firstModelIndex.row; i<=lastModelIndex.row; i++)
                 {
                     if(i === _delegateRoot.visualIndex)
+                    {
+                        console.log("request update for index:", i);
                         _previewIcon.update();
+                    }
                 }
             }
         }

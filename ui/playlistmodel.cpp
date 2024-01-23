@@ -143,13 +143,15 @@ void PlaylistModel::slPlaylistDataUpdate(Data::Playlist dataType, QVariantList d
 void PlaylistModel::slFileDataReady(QString fileName, QList<QVariant> fileData)
 {
     //qDebug() << "Updating file data: " << fileName;
-
-    m_previewData.insert(fileName, fileData);
-    for(int pos=0; pos<m_playlist.size();pos++)
+    if(m_previewData.value(fileName) != fileData)
     {
-        if(m_playlist.at(pos) == fileName)
+        m_previewData.insert(fileName, fileData);
+        for(int pos=0; pos<m_playlist.size();pos++)
         {
-            emit dataChanged(createIndex(pos, 0), createIndex(pos, 0));
+            if(m_playlist.at(pos) == fileName)
+            {
+                emit dataChanged(createIndex(pos, 0), createIndex(pos, 0));
+            }
         }
     }
 }
