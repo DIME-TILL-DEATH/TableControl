@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.21.1)
 
-project(TableControl VERSION 0.1 LANGUAGES CXX)
+project(TableControl VERSION 0.4.0 LANGUAGES CXX)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_STANDARD 17)
@@ -28,6 +28,8 @@ qt_add_executable(appTableControl WIN32 MACOSX_BUNDLE
     ui/devicecontentmodel.h ui/devicecontentmodel.cpp
     ui/playlistmodel.h ui/playlistmodel.cpp
     ui/uitransport.h ui/uitransport.cpp
+    ui/progressmanager.h ui/progressmanager.cpp
+    ui/firmwaremanager.h ui/firmwaremanager.cpp
 
     net/netclient.h net/netclient.cpp
     net/netmanager.h net/netmanager.cpp
@@ -61,6 +63,14 @@ target_link_libraries(appTableControl PUBLIC
     Qt6::Svg
     Qt6::Network
 )
+
+if(ANDROID)
+    set_target_properties(appTableControl PROPERTIES
+        QT_ANDROID_VERSION_NAME ${PROJECT_VERSION}
+        QT_ANDROID_VERSION_CODE 1
+        QT_ANDROID_PACKAGE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/android
+    )
+endif()
 
 if(ANDROID)
     target_link_libraries(appTableControl PUBLIC

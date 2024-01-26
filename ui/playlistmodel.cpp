@@ -2,9 +2,16 @@
 
 #include "playlistmodel.h"
 
-PlaylistModel::PlaylistModel(QObject *parent)
+PlaylistModel::PlaylistModel(NetManager *netManager, QObject *parent)
     : QAbstractListModel{parent}
 {
+    QObject::connect(netManager, &NetManager::sgPlaylistDataUpdated, this, &PlaylistModel::slPlaylistDataUpdate);
+    QObject::connect(netManager, &NetManager::sgDeviceConnected, this, &PlaylistModel::slDeviceAvaliable);
+    QObject::connect(netManager, &NetManager::sgDeviceDisconnected, this, &PlaylistModel::slDeviceUnavaliable);
+
+    QObject::connect(this, &PlaylistModel::sgRequest, netManager, &NetManager::sendRequest);
+    QObject::connect(this, &PlaylistModel::sgUpdateData, netManager, &NetManager::slUpdateData);
+
     updateDataTimer = new QTimer(this);
     updateDataTimer->setInterval(1000);
     m_deviceAvaliable = false;

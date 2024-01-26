@@ -4,6 +4,8 @@
 #include <QAbstractListModel>
 #include <QObject>
 
+#include "netmanager.h"
+
 #include "contentnode.h"
 
 #include "frames.h"
@@ -13,7 +15,7 @@ class DeviceContentModel : public QAbstractItemModel
 {
     Q_OBJECT
 public:
-    explicit DeviceContentModel(QObject *parent = nullptr);
+    explicit DeviceContentModel(NetManager *netManager, QObject *parent = nullptr);
     ~DeviceContentModel();
 
     QModelIndex index(int row, int column,
@@ -29,8 +31,9 @@ public:
 
     QHash<int, QByteArray> roleNames() const override;
 
-   // QString librarySdcardPath{"/sdcard/library/"};
     constexpr static const char librarySdcardPath[] = "/sdcard/library/";
+
+    Q_INVOKABLE void uploadFileToDevice(QString dstPath, QString srcPath);
 
 signals:
     void sgUpdateData(FrameType frameType, uint8_t dataType, QVariantList data);

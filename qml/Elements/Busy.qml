@@ -5,11 +5,12 @@ import UiObjects
 
 Item
 {
+    id : rWait
+
     property bool busy: !PlaylistModel.deviceAvaliable
 
     property string extText: "Scanning for device"
 
-    id : rWait
     visible: busy
     anchors.centerIn: parent
 
@@ -58,5 +59,9 @@ Item
         id : mWait
         enabled: busy
         anchors.fill: parent
+
+        onPressed: {
+            console.log("clc")
+        }
     }
 }

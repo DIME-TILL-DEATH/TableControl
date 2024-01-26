@@ -1,8 +1,14 @@
 #include "devicecontentmodel.h"
 
-DeviceContentModel::DeviceContentModel(QObject *parent)
+DeviceContentModel::DeviceContentModel(NetManager *netManager, QObject *parent)
     : QAbstractItemModel{parent}
 {
+    QObject::connect(this, &DeviceContentModel::sgRequest, netManager, &NetManager::sendRequest);
+    QObject::connect(this, &DeviceContentModel::sgUpdateData, netManager, &NetManager::slUpdateData);
+
+    QObject::connect(netManager, &NetManager::sgDeviceConnected, this, &DeviceContentModel::slDeviceAvaliable);
+    QObject::connect(netManager, &NetManager::sgContentDataUpdated, this, &DeviceContentModel::slContentDataUpdate);
+
     rootNode = new ContentNode("", ContentNode::NodeType::Root);
     sdCardNode = new ContentNode("SD card", ContentNode::NodeType::Root);
     rootNode->appendChild(sdCardNode);
@@ -97,6 +103,14 @@ QHash<int, QByteArray> DeviceContentModel::roleNames() const
     return roles;
 }
 
+void DeviceContentModel::uploadFileToDevice(QString dstPath, QString srcPath)
+{
+    QVariantList data;
+    data.append(librarySdcardPath + dstPath);
+    data.append(srcPath);
+    emit sgUpdateData(FrameType::FILE_ACTIONS, (uint8_t)(Requests::File::FILE_CREATE), data);
+}
+
 void DeviceContentModel::slDeviceAvaliable()
 {
     QVariantList data;
@@ -130,7 +144,16 @@ void DeviceContentModel::slContentDataUpdate(Data::File dataType, QVariantList d
                 currentPathNode = newPathElement;
             }
         }
-        currentPathNode->deleteAllChilds();
+
+        int row = currentPathNode->childCount();
+        if(row>0)
+        {
+            QModelIndex index = createIndex(currentPathNode->row(), 0, currentPathNode);
+
+            beginRemoveRows(index, 0, row-1);
+            currentPathNode->deleteAllChilds();
+            endRemoveRows();
+        }
 
         dataList.pop_front();
         foreach (auto contentNameVariant, dataList)
@@ -151,8 +174,11 @@ void DeviceContentModel::slContentDataUpdate(Data::File dataType, QVariantList d
                 appendNode(currentPathNode, new ContentNode(contentName, ContentNode::NodeType::File));
             }
         }
-        currentPathNode->sortChilds();
-        emit dataChanged(createIndex(0, 0, currentPathNode), createIndex(currentPathNode->childCount()-1, 0, currentPathNode));
+        if(currentPathNode->childCount() >= 2)
+        {
+            currentPathNode->sortChilds();
+            emit dataChanged(createIndex(0, 0, currentPathNode), createIndex(currentPathNode->childCount()-1, 0, currentPathNode));
+        }
         break;
     }
     default:

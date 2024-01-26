@@ -16,5 +16,6 @@
         <file>qml/Content/ContentPage.qml</file>
         <file>qml/Content/qmldir</file>
         <file>qml/Content/ContentDelegate.qml</file>
+        <file>qml/Elements/ProgressScreen.qml</file>
     </qresource>
 </RCC>

@@ -1,9 +1,11 @@
 #include "uitransport.h"
 
 
-UiTransport::UiTransport(QObject *parent)
+UiTransport::UiTransport(NetManager *netManager, QObject *parent)
     : QObject{parent}
 {
+    QObject::connect(this, &UiTransport::sgRequest, netManager, &NetManager::sendRequest);
+    QObject::connect(netManager, &NetManager::sgTransportDataUpdated, this, &UiTransport::slTransportUpdate);
 
 }
 

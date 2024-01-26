@@ -8,6 +8,8 @@
 #include "frames.h"
 #include "requestactions.h"
 
+#include "netmanager.h"
+
 // TODO: save data only here. Send others itterotros or pointers
 typedef QMapIterator<QString, QList<QVariant> > PreviewFileData;
 
@@ -15,7 +17,7 @@ class FileManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit FileManager(QObject *parent = nullptr);
+    explicit FileManager(NetManager* netManager, QObject *parent = nullptr);
 
     static bool getPointsFromFile(QString fileName, QList<QVariant>& result);
     static void savePreviewFile(QString filePath, const QByteArray& fileData);

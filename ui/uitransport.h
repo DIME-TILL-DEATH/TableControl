@@ -4,8 +4,11 @@
 #include <QObject>
 #include <QVariant>
 
+#include "netmanager.h"
+
 #include "frames.h"
 #include "requestactions.h"
+
 
 class UiTransport : public QObject
 {
@@ -14,7 +17,7 @@ class UiTransport : public QObject
     Q_PROPERTY(float progress READ progress WRITE setProgress NOTIFY sgProgressChanged FINAL)
 
 public:
-    explicit UiTransport(QObject *parent = nullptr);
+    explicit UiTransport(NetManager* netManager, QObject *parent = nullptr);
 
     float progress() const;
     void setProgress(float newProgress);

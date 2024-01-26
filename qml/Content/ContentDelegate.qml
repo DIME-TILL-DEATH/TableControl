@@ -21,6 +21,8 @@ Item {
     required property int hasChildren
     required property int depth
 
+    signal openFileDialog(var dstPath);
+
     Row{
         id: _content
 
@@ -75,7 +77,12 @@ Item {
 
                 if(model.type === ContentNode.Folder)
                 {
-                    console.log("uploading file");
+                    openFileDialog(model.path + model.name)
+                }
+
+                if(model.type === ContentNode.Root)
+                {
+                    openFileDialog("/")
                 }
             }
         }

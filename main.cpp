@@ -8,6 +8,8 @@
 #include "netmanager.h"
 #include "playlistmodel.h"
 #include "devicecontentmodel.h"
+#include "progressmanager.h"
+#include "firmwaremanager.h"
 
 #include "threadcontroller.h"
 
@@ -16,6 +18,8 @@ UiTransport* uiTransport;
 NetManager* netManager;
 PlaylistModel* playlistModel;
 DeviceContentModel* deviceContentModel;
+ProgressManager* progressManager;
+FirmwareManager* firmwareManager;
 
 int main(int argc, char *argv[])
 {
@@ -26,42 +30,30 @@ int main(int argc, char *argv[])
     app.setApplicationName("Kinetic table");
 
     netManager = new NetManager();
-    uiTransport = new UiTransport();
-    playlistModel = new PlaylistModel();
-    fileManager = new FileManager();
-    deviceContentModel = new DeviceContentModel();
+    fileManager = new FileManager(netManager);
+
+    uiTransport = new UiTransport(netManager);
+    playlistModel = new PlaylistModel(netManager);
+    deviceContentModel = new DeviceContentModel(netManager);
+    progressManager = new ProgressManager(netManager);
+    firmwareManager = new FirmwareManager(netManager);
 
     ThreadController threadController(QThread::currentThread());
     netManager->moveToThread(threadController.backendThread());
     fileManager->moveToThread(threadController.backendThread());
 
-    QObject::connect(uiTransport, &UiTransport::sgRequest, netManager, &NetManager::sendRequest);
-    QObject::connect(netManager, &NetManager::sgTransportDataUpdated, uiTransport, &UiTransport::slTransportUpdate);
-
-    QObject::connect(netManager, &NetManager::sgPlaylistDataUpdated, playlistModel, &PlaylistModel::slPlaylistDataUpdate);
-    QObject::connect(netManager, &NetManager::sgContentDataUpdated, fileManager, &FileManager::processDownloadedFile);
-    QObject::connect(netManager, &NetManager::sgDeviceConnected, playlistModel, &PlaylistModel::slDeviceAvaliable);
-    QObject::connect(netManager, &NetManager::sgDeviceDisconnected, playlistModel, &PlaylistModel::slDeviceUnavaliable);
-
-    QObject::connect(netManager, &NetManager::sgDeviceConnected, deviceContentModel, &DeviceContentModel::slDeviceAvaliable);
-    QObject::connect(netManager, &NetManager::sgContentDataUpdated, deviceContentModel, &DeviceContentModel::slContentDataUpdate);
-
-    QObject::connect(playlistModel, &PlaylistModel::sgRequest, netManager, &NetManager::sendRequest);
-    QObject::connect(playlistModel, &PlaylistModel::sgUpdateData, netManager, &NetManager::slUpdateData);
+    QObject::connect(fileManager, &FileManager::sgFileDataReady, playlistModel, &PlaylistModel::slFileDataReady);
     QObject::connect(playlistModel, &PlaylistModel::sgRequestFileData, fileManager, &FileManager::processFileLoadRequest);
 
-    QObject::connect(deviceContentModel, &DeviceContentModel::sgRequest, netManager, &NetManager::sendRequest);
-    QObject::connect(deviceContentModel, &DeviceContentModel::sgUpdateData, netManager, &NetManager::slUpdateData);
     QObject::connect(deviceContentModel, &DeviceContentModel::sgRequestFileData, fileManager, &FileManager::processFileLoadRequest, Qt::QueuedConnection);
-
-    QObject::connect(fileManager, &FileManager::sgFileDataReady, playlistModel, &PlaylistModel::slFileDataReady);
-    QObject::connect(fileManager, &FileManager::sgUpdateData, netManager, &NetManager::slUpdateData);
 
     qmlRegisterUncreatableType<ContentNode>("UiObjects", 1, 0, "ContentNode", "Cannot create ContentNode in QML");
 
     qmlRegisterSingletonInstance("UiObjects", 1, 0, "TransportCore", uiTransport);
     qmlRegisterSingletonInstance("UiObjects", 1, 0, "PlaylistModel", playlistModel);
     qmlRegisterSingletonInstance("UiObjects", 1, 0, "DeviceContentModel", deviceContentModel);
+    qmlRegisterSingletonInstance("UiObjects", 1, 0, "ProgressManager", progressManager);
+    qmlRegisterSingletonInstance("UiObjects", 1, 0, "FirmwareManager", firmwareManager);
 
     QQmlApplicationEngine engine;
     engine.addImportPath(":/qml/");
