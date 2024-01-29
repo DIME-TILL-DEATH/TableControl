@@ -45,7 +45,8 @@ signals:
     void sgRequestFileData(QString fileName);
 
 public slots:
-    void slContentDataUpdate(Data::File dataType, QVariantList dataList);
+    void slDataUpdated(FrameType frameType, uint8_t dataType, QVariantList dataList);
+
     void slFileDataReady(QString fileName, QList<QVariant> fileData);
 
     void slDeviceAvaliable();

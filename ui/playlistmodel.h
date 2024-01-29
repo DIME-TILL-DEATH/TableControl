@@ -52,7 +52,8 @@ signals:
     void curPlaylistPositionChanged();
 
 public slots:
-    void slPlaylistDataUpdate(Data::Playlist dataType, QVariantList dataList);
+    void slDataUpdated(FrameType frameType, uint8_t dataType, QVariantList dataList);
+
     void slFileDataReady(QString fileName, QList<QVariant> fileData);
 
     void slDeviceAvaliable();

@@ -7,7 +7,7 @@ DeviceContentModel::DeviceContentModel(NetManager *netManager, QObject *parent)
     QObject::connect(this, &DeviceContentModel::sgUpdateData, netManager, &NetManager::slUpdateData);
 
     QObject::connect(netManager, &NetManager::sgDeviceConnected, this, &DeviceContentModel::slDeviceAvaliable);
-    QObject::connect(netManager, &NetManager::sgContentDataUpdated, this, &DeviceContentModel::slContentDataUpdate);
+    QObject::connect(netManager, &NetManager::sgDataUpdated, this, &DeviceContentModel::slDataUpdated);
 
     rootNode = new ContentNode("", ContentNode::NodeType::Root);
     sdCardNode = new ContentNode("SD card", ContentNode::NodeType::Root);
@@ -118,9 +118,11 @@ void DeviceContentModel::slDeviceAvaliable()
     emit sgUpdateData(FrameType::FILE_ACTIONS, (uint8_t)(Requests::File::GET_FOLDER_CONTENT), data);
 }
 
-void DeviceContentModel::slContentDataUpdate(Data::File dataType, QVariantList dataList)
+void DeviceContentModel::slDataUpdated(FrameType frameType, uint8_t dataType, QVariantList dataList)
 {
-    switch (dataType)
+    if(frameType != FrameType::FILE_ACTIONS) return;
+
+    switch ((Data::File)dataType)
     {
     case Data::File::REQUESTED_FOLDER:
     {
@@ -128,7 +130,6 @@ void DeviceContentModel::slContentDataUpdate(Data::File dataType, QVariantList d
         fullFolderPath.remove(librarySdcardPath);
 
         QStringList pathList = fullFolderPath.split("/", Qt::SkipEmptyParts);
-//        ContentNode* currentPathNode = rootNode;
         ContentNode* currentPathNode = sdCardNode;
         foreach(auto pathElement, pathList)
         {

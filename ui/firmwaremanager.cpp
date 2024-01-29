@@ -38,15 +38,14 @@ void FirmwareManager::slDeviceAvaliable()
 
 void FirmwareManager::slDataUpdated(FrameType frameType, uint8_t dataType, QVariantList data)
 {
-    if(frameType == FrameType::FIRMWARE_ACTIONS)
+    if(frameType != FrameType::FIRMWARE_ACTIONS) return;
+
+    switch((Data::Firmware)dataType)
     {
-        switch((Data::Firmware)dataType)
-        {
-        case Data::Firmware::FIRMWARE_VERSION:
-        {
-            setCurrentFwVersion(data.at(0).toString());
-            break;
-        }
-        }
+    case Data::Firmware::FIRMWARE_VERSION:
+    {
+        setCurrentFwVersion(data.at(0).toString());
+        break;
+    }
     }
 }

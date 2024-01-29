@@ -22,7 +22,7 @@ NetManager::NetManager(QObject *parent)
     lastRecvFrameHeader.frameSize = 0;
 }
 
-void NetManager::sendRequest(FrameType frameType, uint8_t requestType,
+void NetManager::sendRequest(FrameType frameType, uint8_t request,
                                                      uint32_t data0,
                                                      uint32_t data1,
                                                      uint32_t parameters)
@@ -31,7 +31,7 @@ void NetManager::sendRequest(FrameType frameType, uint8_t requestType,
     {
         FrameHeader frameHeader;
         frameHeader.frameType = frameType;
-        frameHeader.actionType = requestType;
+        frameHeader.action = request;
         frameHeader.frameSize = sizeof(FrameHeader);
 
         frameHeader.data0 = data0;
@@ -52,7 +52,7 @@ void NetManager::slUpdateData(FrameType frameType, uint8_t dataType, QVariantLis
     FrameHeader_uni frameHeader;
     memset(frameHeader.rawData, 0, sizeof(FrameHeader));
     frameHeader.structData.frameType = frameType;
-    frameHeader.structData.actionType = dataType;
+    frameHeader.structData.action = dataType;
 
     switch(frameType)
     {
@@ -89,7 +89,7 @@ void NetManager::sendTransportData(const QVariantList &data, FrameHeader_uni fra
 void NetManager::sendPlaylistData(const QVariantList &data, FrameHeader_uni frameHeader)
 {
     QByteArray dataToSend;
-    switch((Requests::Playlist)frameHeader.structData.actionType)
+    switch((Requests::Playlist)frameHeader.structData.action)
     {
     case Requests::Playlist::CHANGE_PLAYLIST:
     {
@@ -125,7 +125,7 @@ void NetManager::sendFileData(const QVariantList& data, FrameHeader_uni frameHea
     // TODO: dstPath.size to frame parameters
     frameHeader.structData.data0 = dstPath.size();
 
-    switch((Requests::File)frameHeader.structData.actionType)
+    switch((Requests::File)frameHeader.structData.action)
     {
     case Requests::File::GET_FILE:
     {
@@ -166,7 +166,7 @@ void NetManager::sendFileData(const QVariantList& data, FrameHeader_uni frameHea
             int partSize = 8192;
             QByteArray fileData = file.read(partSize);
 
-            frameHeader.structData.actionType = (uint8_t)Requests::File::FILE_APPEND_DATA;
+            frameHeader.structData.action = (uint8_t)Requests::File::FILE_APPEND_DATA;
             frameHeader.structData.frameSize = sizeof(frameHeader) + dstPath.size() + fileData.size();
             frameHeader.structData.data1 = fileData.size();
 
@@ -197,7 +197,7 @@ void NetManager::sendFirmwareData(const QVariantList &data, FrameHeader_uni fram
 {
     QByteArray dataToSend;
 
-    switch((Requests::Firmware)frameHeader.structData.actionType)
+    switch((Requests::Firmware)frameHeader.structData.action)
     {
 
     case Requests::Firmware::FIRMWARE_UPLOAD_START:
@@ -224,7 +224,7 @@ void NetManager::sendFirmwareData(const QVariantList &data, FrameHeader_uni fram
             int partSize = 8192;
             QByteArray fileData = file.read(partSize);
 
-            frameHeader.structData.actionType = (uint8_t)Requests::Firmware::FIRMWARE_UPLOAD_PROCEED;
+            frameHeader.structData.action = (uint8_t)Requests::Firmware::FIRMWARE_UPLOAD_PROCEED;
             frameHeader.structData.frameSize = sizeof(frameHeader) + fileData.size();
             frameHeader.structData.data0 = fileData.size();
 
@@ -305,14 +305,14 @@ void NetManager::processRecievedData(QByteArray data)
 
 void NetManager::processTransportAnswer()
 {
-    switch((Requests::Transport)lastRecvFrameHeader.actionType)
+    switch((Requests::Transport)lastRecvFrameHeader.action)
     {
     case Requests::Transport::REQUEST_PROGRESS:
     {
         QVariantList dataList;
         dataList.append(lastRecvFrameHeader.data0);
         dataList.append(lastRecvFrameHeader.data1);
-        emit sgTransportDataUpdated(Data::Transport::PROGRESS, dataList);
+        emit sgDataUpdated(FrameType::TRANSPORT_ACTIONS, (uint8_t)Data::Transport::PROGRESS, dataList);
         break;
     }
     case Requests::Transport::PAUSE_PRINTING:
@@ -325,7 +325,7 @@ void NetManager::processTransportAnswer()
 
 void NetManager::processPlaylistAnswer()
 {
-    switch((Requests::Playlist)lastRecvFrameHeader.actionType)
+    switch((Requests::Playlist)lastRecvFrameHeader.action)
     {
     case Requests::Playlist::REQUEST_PLAYLIST:
     {
@@ -337,7 +337,7 @@ void NetManager::processPlaylistAnswer()
         {
             resultData.append(QVariant(name));
         }
-        emit sgPlaylistDataUpdated(Data::Playlist::PLAYLIST, resultData);
+        emit sgDataUpdated(FrameType::PLAYLIST_ACTIONS, (uint8_t)Data::Playlist::PLAYLIST, resultData);
         break;
     }
 
@@ -346,7 +346,7 @@ void NetManager::processPlaylistAnswer()
         QVariantList resultData;
         resultData.append(lastRecvFrameHeader.data0);
         resultData.append(lastRecvFrameHeader.data1);
-        emit sgPlaylistDataUpdated(Data::Playlist::PLAYLIST_POSITION, resultData);
+        emit sgDataUpdated(FrameType::PLAYLIST_ACTIONS, (uint8_t)Data::Playlist::PLAYLIST_POSITION, resultData);
         break;
     }
 
@@ -366,7 +366,7 @@ void NetManager::processFileAnswer()
 {
     lastRecvFrame.remove(0, sizeof(FrameHeader));
 
-    switch((Requests::File)lastRecvFrameHeader.actionType)
+    switch((Requests::File)lastRecvFrameHeader.action)
     {
     case Requests::File::GET_FILE:
     { 
@@ -381,7 +381,7 @@ void NetManager::processFileAnswer()
         if(filesize == -1)
         {
             qDebug() << "Requested file not found" << fileName;
-            emit sgContentDataUpdated(Data::File::REQUESTED_FILE_NOT_FOUND, dataList);
+            emit sgDataUpdated(FrameType::FILE_ACTIONS, (uint8_t)Data::File::REQUESTED_FILE_NOT_FOUND, dataList);
         }
         else
         {
@@ -389,7 +389,7 @@ void NetManager::processFileAnswer()
 
             FileManager::savePreviewFile(fileName, lastRecvFrame);
 
-            emit sgContentDataUpdated(Data::File::REQUESTED_FILE, dataList);
+            emit sgDataUpdated(FrameType::FILE_ACTIONS, (uint8_t)Data::File::REQUESTED_FILE, dataList);
             qDebug() << "File downloaded" << fileName;
         }
         break;
@@ -417,7 +417,7 @@ void NetManager::processFileAnswer()
                 resultData.append(QVariant(name));
             }
         }
-        emit sgContentDataUpdated(Data::File::REQUESTED_FOLDER, resultData);
+        emit sgDataUpdated(FrameType::FILE_ACTIONS, (uint8_t)Data::File::REQUESTED_FOLDER, resultData);
         break;
     }
     case Requests::File::FILE_CREATE:
@@ -446,7 +446,7 @@ void NetManager::processFirmwareAnswer()
 {
     lastRecvFrame.remove(0, sizeof(FrameHeader));
 
-    switch((Requests::Firmware)lastRecvFrameHeader.actionType)
+    switch((Requests::Firmware)lastRecvFrameHeader.action)
     {
     case Requests::Firmware::FIRMWARE_UPLOAD_START:
     {

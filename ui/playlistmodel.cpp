@@ -5,7 +5,7 @@
 PlaylistModel::PlaylistModel(NetManager *netManager, QObject *parent)
     : QAbstractListModel{parent}
 {
-    QObject::connect(netManager, &NetManager::sgPlaylistDataUpdated, this, &PlaylistModel::slPlaylistDataUpdate);
+    QObject::connect(netManager, &NetManager::sgDataUpdated, this, &PlaylistModel::slDataUpdated);
     QObject::connect(netManager, &NetManager::sgDeviceConnected, this, &PlaylistModel::slDeviceAvaliable);
     QObject::connect(netManager, &NetManager::sgDeviceDisconnected, this, &PlaylistModel::slDeviceUnavaliable);
 
@@ -124,10 +124,12 @@ void PlaylistModel::slDeviceUnavaliable()
     qDebug() << "Device unavaliable";
 }
 
-// TODO заменить на update data
-void PlaylistModel::slPlaylistDataUpdate(Data::Playlist dataType, QVariantList dataList)
+
+void PlaylistModel::slDataUpdated(FrameType frameType, uint8_t dataType, QVariantList dataList)
 {
-    switch(dataType)
+    if(frameType != FrameType::PLAYLIST_ACTIONS) return;
+
+    switch((Data::Playlist)dataType)
     {
     case Data::Playlist::PLAYLIST:
     {
@@ -150,7 +152,6 @@ void PlaylistModel::slPlaylistDataUpdate(Data::Playlist dataType, QVariantList d
 
 void PlaylistModel::slFileDataReady(QString fileName, QList<QVariant> fileData)
 {
-    //qDebug() << "Updating file data: " << fileName;
     if(m_previewData.value(fileName) != fileData)
     {
         m_previewData.insert(fileName, fileData);
@@ -201,7 +202,6 @@ void PlaylistModel::refreshModel(QList<QString> newPlayList)
         m_playlist.remove(m_playlist.size(), rowsToDelete);
         endRemoveRows();
     }
-    //setCurPrintFileName(m_playlist.at(m_currentPlsPos));
 }
 
 void PlaylistModel::move(int from, int to)

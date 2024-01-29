@@ -5,7 +5,6 @@
 #include <QVariant>
 #include <QPointF>
 
-#include "frames.h"
 #include "requestactions.h"
 
 #include "netmanager.h"
@@ -29,7 +28,8 @@ signals:
 
 public slots:
     void processFileLoadRequest(QString fileName);
-    void processDownloadedFile(Data::File dataType, QVariantList dataList);
+
+    void slDataUpdated(FrameType frameType, uint8_t dataType, QVariantList dataList);
 
 private:
     QMap<QString, QList<QVariant> > m_loadedData;

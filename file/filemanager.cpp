@@ -8,7 +8,7 @@
 FileManager::FileManager(NetManager *netManager, QObject *parent)
     : QObject{parent}
 {
-    QObject::connect(netManager, &NetManager::sgContentDataUpdated, this, &FileManager::processDownloadedFile);
+    QObject::connect(netManager, &NetManager::sgDataUpdated, this, &FileManager::slDataUpdated);
     QObject::connect(this, &FileManager::sgUpdateData, netManager, &NetManager::slUpdateData);
 }
 
@@ -102,9 +102,11 @@ void FileManager::processFileLoadRequest(QString fileName)
     }
 }
 
-void FileManager::processDownloadedFile(Data::File dataType, QVariantList dataList)
+void FileManager::slDataUpdated(FrameType frameType, uint8_t dataType, QVariantList dataList)
 {
-    switch(dataType)
+    if(frameType != FrameType::FILE_ACTIONS) return;
+
+    switch((Data::File)dataType)
     {
     case Data::File::REQUESTED_FILE:
     {

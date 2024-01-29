@@ -6,7 +6,6 @@
 
 #include "netmanager.h"
 
-#include "frames.h"
 #include "requestactions.h"
 
 
@@ -26,12 +25,11 @@ public:
 
 signals:
     void sgRequest(FrameType frameType, uint8_t requestType, uint32_t data0 = 0, uint32_t data1 = 0, uint32_t parameters = 0);
-    void sgTransportAction(Requests::Transport action, QVariant data);
 
     void sgProgressChanged();
 
 public slots:
-    void slTransportUpdate(Data::Transport transportData, QVariantList dataList);
+    void slDataUpdated(FrameType frameType, uint8_t dataType, QVariantList data);
 
 private:
     float m_progress{0};

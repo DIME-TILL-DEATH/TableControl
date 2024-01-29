@@ -7,7 +7,7 @@
 typedef struct
 {
     FrameType frameType;
-    uint8_t actionType;
+    uint8_t action;
     uint32_t frameSize;
     uint16_t frameParameters;
     uint32_t data0;

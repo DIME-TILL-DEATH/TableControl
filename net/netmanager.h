@@ -29,10 +29,6 @@ public:
     explicit NetManager(QObject *parent = nullptr);
 
 signals:
-    // Общий сигнал
-    void sgTransportDataUpdated(Data::Transport dataType, QVariantList dataList);
-    void sgPlaylistDataUpdated(Data::Playlist dataType, QVariantList dataList);
-    void sgContentDataUpdated(Data::File dataType, QVariantList dataList);
     void sgDataUpdated(FrameType frameType, uint8_t dataType, QVariantList data);
 
     void sgDeviceConnected();
@@ -41,7 +37,7 @@ signals:
     void sgNetEvent(NetEvents eventType, QString target, QVariantList data = {});
 
 public slots:
-    void sendRequest(FrameType frameType, uint8_t requestType,
+    void sendRequest(FrameType frameType, uint8_t request,
                                             uint32_t data0 = 0,
                                             uint32_t data1 = 0,
                                             uint32_t parameters = 0);
