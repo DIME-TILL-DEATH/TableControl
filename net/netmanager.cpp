@@ -122,6 +122,7 @@ void NetManager::sendFileData(const QVariantList& data, FrameHeader_uni frameHea
     QString dstPath = data.at(0).toString();
     dataToSend.append(dstPath.toLocal8Bit());
 
+    // TODO: dstPath.size to frame parameters
     frameHeader.structData.data0 = dstPath.size();
 
     switch((Requests::File)frameHeader.structData.actionType)
@@ -269,6 +270,7 @@ void NetManager::processRecievedData(QByteArray data)
             lastRecvFrame = txBuffer.left(lastRecvFrameHeader.frameSize);
             switch(lastRecvFrameHeader.frameType)
             {
+
             case FrameType::TRANSPORT_ACTIONS:
             {
                 processTransportAnswer();
@@ -284,7 +286,11 @@ void NetManager::processRecievedData(QByteArray data)
                 processFileAnswer();
                 break;
             }
-            default: break;
+            case FrameType::FIRMWARE_ACTIONS:
+            {
+                processFirmwareAnswer();
+                break;
+            }
             }
 
             txBuffer.remove(0, lastRecvFrameHeader.frameSize);
@@ -392,6 +398,8 @@ void NetManager::processFileAnswer()
     {
         QString result(lastRecvFrame);
         QStringList resultList = result.split("*", Qt::SkipEmptyParts);
+
+        // TODO путь к папке не сепаратором, а просто длинной в frameParameters, как для имени файла в остальных местах
         QString folderName = resultList.at(0);
 
         QVariantList resultData;
@@ -446,16 +454,16 @@ void NetManager::processFirmwareAnswer()
     }
     case Requests::Firmware::FIRMWARE_UPLOAD_PROCEED:
     {
-        QString filePath = lastRecvFrame.left(lastRecvFrameHeader.data0);
+        qint32 dataProcessed = static_cast<qint32>(lastRecvFrameHeader.data0);
         qint32 fileSize = static_cast<qint32>(lastRecvFrameHeader.data1);
 
         if(fileSize != -1)
         {
-            updateFileUploadProgress(NetEvents::UploadFirmwareCompleted, filePath, fileSize, 0);
+            updateFileUploadProgress(NetEvents::UploadFirmwareCompleted, "firmware.bin", dataProcessed ,fileSize);
         }
         else
         {
-            emit sgNetEvent(NetEvents::UploadDataError, filePath);
+            emit sgNetEvent(NetEvents::UploadDataError, "firmware.bin");
         }
         break;
     }
@@ -466,6 +474,9 @@ void NetManager::processFirmwareAnswer()
     }
     case Requests::Firmware::FIRMWARE_VERSION:
     {
+        QVariantList data;
+        data.append(lastRecvFrame.left(lastRecvFrameHeader.data0));
+        emit sgDataUpdated(FrameType::FIRMWARE_ACTIONS, (uint8_t)Data::Firmware::FIRMWARE_VERSION, data);
         break;
     }
     default: {}

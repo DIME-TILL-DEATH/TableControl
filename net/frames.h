@@ -2,15 +2,7 @@
 #define FRAMES_H
 
 #include <stdint.h>
-
-typedef enum : uint8_t
-{
-    UNDEFINED = 0,
-    PLAYLIST_ACTIONS,
-    TRANSPORT_ACTIONS,
-    FILE_ACTIONS,
-    FIRMWARE_ACTIONS
-}FrameType;
+#include "requestactions.h"
 
 typedef struct
 {

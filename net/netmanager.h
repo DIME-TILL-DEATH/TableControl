@@ -29,9 +29,11 @@ public:
     explicit NetManager(QObject *parent = nullptr);
 
 signals:
+    // Общий сигнал
     void sgTransportDataUpdated(Data::Transport dataType, QVariantList dataList);
     void sgPlaylistDataUpdated(Data::Playlist dataType, QVariantList dataList);
     void sgContentDataUpdated(Data::File dataType, QVariantList dataList);
+    void sgDataUpdated(FrameType frameType, uint8_t dataType, QVariantList data);
 
     void sgDeviceConnected();
     void sgDeviceDisconnected();

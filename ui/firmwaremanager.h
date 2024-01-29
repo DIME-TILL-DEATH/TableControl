@@ -1,8 +1,9 @@
 #ifndef FIRMWAREMANAGER_H
 #define FIRMWAREMANAGER_H
 
-#include "netmanager.h"
 #include <QObject>
+
+#include "netmanager.h"
 
 class FirmwareManager : public QObject
 {
@@ -24,6 +25,11 @@ signals:
                    uint32_t parameters = 0);
 
     void currentFwVersionChanged();
+
+public slots:
+    void slDeviceAvaliable();
+    void slDataUpdated(FrameType frameType, uint8_t dataType, QVariantList data);
+
 private:
     QString m_currentFwVersion;
 };

@@ -124,6 +124,7 @@ void PlaylistModel::slDeviceUnavaliable()
     qDebug() << "Device unavaliable";
 }
 
+// TODO заменить на update data
 void PlaylistModel::slPlaylistDataUpdate(Data::Playlist dataType, QVariantList dataList)
 {
     switch(dataType)

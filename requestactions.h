@@ -1,6 +1,17 @@
 #ifndef REQUESTACTIONS_H
 #define REQUESTACTIONS_H
 
+#include <stdint.h>
+
+typedef enum : uint8_t
+{
+    UNDEFINED = 0,
+    PLAYLIST_ACTIONS,
+    TRANSPORT_ACTIONS,
+    FILE_ACTIONS,
+    FIRMWARE_ACTIONS
+}FrameType;
+
 namespace Requests
 {
 enum class Transport
@@ -59,6 +70,11 @@ enum class File
     REQUESTED_FOLDER_NOT_FOUND,
     UPLOAD_DATA_SAVED,
     UPLOAD_DATA_NOT_SAVED
+};
+
+enum class Firmware
+{
+    FIRMWARE_VERSION
 };
 
 }
