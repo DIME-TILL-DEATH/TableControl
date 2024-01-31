@@ -46,6 +46,8 @@ Item{
 
         property string dstPath
 
+        nameFilters: ["GCode files (*.gcode)"]
+
         onAccepted:
         {
             var cleanPathFile = selectedFile.toString();

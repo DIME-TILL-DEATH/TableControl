@@ -14,7 +14,7 @@ DropArea{
     signal hideLargePreview()
 
     onEntered: function (drag) {
-        var from = (drag.source as Item).visualIndex;
+        var from = drag.source.visualIndex;
         var to = _thing.visualIndex;
         _visualModel.items.move(from, to);
     }
@@ -33,6 +33,11 @@ DropArea{
         width: _delegateRoot.width
         height: _delegateRoot.height
 
+        anchors {
+            horizontalCenter: parent.horizontalCenter
+            verticalCenter: parent.verticalCenter
+        }
+
         Drag.active: mouseArea.drag.active
         Drag.source: _thing
         Drag.hotSpot.x: width / 2
@@ -44,6 +49,8 @@ DropArea{
         Row{
             width: parent.width
             height: parent.height
+
+            anchors.verticalCenter: parent.verticalCenter
 
             spacing: _previewIcon.width/10
 
@@ -61,10 +68,16 @@ DropArea{
 
                     anchors.fill: parent
 
-                    onPressed: showLargePreview(previewData)
+                    onPressed:
+                    {
+                        console.log("index:", model.index)
+                        _delegateRoot.showLargePreview(previewData)
+                    }
 
-
-                    onReleased: hideLargePreview()
+                    onReleased:
+                    {
+                        _delegateRoot.hideLargePreview()
+                    }
                 }
             }
 
@@ -104,6 +117,7 @@ DropArea{
                     id: mouseArea
                     anchors.fill: parent
                     drag.target: _thing
+                    drag.axis: Drag.YAxis
 
                     onPressed: _delegateRoot.modelIndex = visualIndex
 
@@ -122,19 +136,18 @@ DropArea{
                 {
                     if(i === _delegateRoot.visualIndex)
                     {
-                        console.log("request update for index:", i);
+                        //console.log("request update for index:", i);
                         _previewIcon.update();
                     }
                 }
             }
         }
 
-        states: [
-            State {
+        states: State {
                 when: mouseArea.drag.active
                 ParentChange {
                     target: _thing
-                    parent: _thing.dragParent
+                    parent: _listView
                 }
 
                 AnchorChanges {
@@ -143,6 +156,5 @@ DropArea{
                     anchors.verticalCenter: undefined
                 }
             }
-        ]
     }
 }

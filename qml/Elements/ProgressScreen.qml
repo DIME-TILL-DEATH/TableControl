@@ -8,6 +8,9 @@ Item {
 
     z: 10
 
+    property string text: "Uploading file..."
+    property real progress: ProgressManager.currentProgress
+
     visible: (ProgressManager.currentProgress < 1.0)
 
     Column{
@@ -23,7 +26,7 @@ Item {
             id: progressBar
 
             anchors.horizontalCenter: parent.horizontalCenter
-            value: ProgressManager.currentProgress
+            value: _progressRoot.progress
 
             width: parent.width*0.6
             height: parent.height*0.4
@@ -31,7 +34,7 @@ Item {
         }
 
         DefaultText{
-            text: "Uploading file..."
+            text: _progressRoot.text
             anchors.horizontalCenter: parent.horizontalCenter
 
             color: "blue"

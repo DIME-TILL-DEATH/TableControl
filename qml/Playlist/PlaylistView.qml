@@ -16,9 +16,9 @@ ListView
 
     model: DelegateModel{
         id: _visualModel
-        model:PlaylistModel
+        model: PlaylistModel
 
-        delegate: DelegateSwipable{           
+        delegate: DelegateSwipable{
             width:  _listView.width
             height: _listView.height/6
 
@@ -62,6 +62,10 @@ ListView
         NumberAnimation {
             properties: "x,y";
             easing.type: Easing.OutQuad;}
+    }
+
+    moveDisplaced: Transition {
+             NumberAnimation { properties: "y"; duration: 150 }
     }
 
     remove: Transition{
