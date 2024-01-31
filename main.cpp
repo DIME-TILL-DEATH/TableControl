@@ -49,6 +49,8 @@ int main(int argc, char *argv[])
 
     qmlRegisterUncreatableType<ContentNode>("UiObjects", 1, 0, "ContentNode", "Cannot create ContentNode in QML");
 
+    //qRegisterMetaType<PlaylistElement>("PlaylistElement");
+
     qmlRegisterSingletonInstance("UiObjects", 1, 0, "TransportCore", uiTransport);
     qmlRegisterSingletonInstance("UiObjects", 1, 0, "PlaylistModel", playlistModel);
     qmlRegisterSingletonInstance("UiObjects", 1, 0, "DeviceContentModel", deviceContentModel);

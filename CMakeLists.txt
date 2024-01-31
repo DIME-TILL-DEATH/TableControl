@@ -10,7 +10,6 @@ message(VERBOSE "Architecture: ${ANDROID_TARGET_ARCH}")
 
 find_package(Qt6 6.4 REQUIRED COMPONENTS Quick)
 
-
 qt6_add_resources(SOURCES
         "qml.qrc"
 )
@@ -26,6 +25,7 @@ qt_add_executable(appTableControl WIN32 MACOSX_BUNDLE
 
     ui/contentnode.h ui/contentnode.cpp
     ui/devicecontentmodel.h ui/devicecontentmodel.cpp
+    ui/playlistelement.h ui/playlistelement.cpp
     ui/playlistmodel.h ui/playlistmodel.cpp
     ui/uitransport.h ui/uitransport.cpp
     ui/progressmanager.h ui/progressmanager.cpp
@@ -35,6 +35,14 @@ qt_add_executable(appTableControl WIN32 MACOSX_BUNDLE
     net/netmanager.h net/netmanager.cpp
     net/frames.h
 )
+
+# Android problem
+#qt_add_qml_module(appTableControl
+#  URI Settings
+#  VERSION 1.0
+#  QML_FILES
+#    qml/Settings/SettingsPage.qml
+#)
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
@@ -63,14 +71,6 @@ target_link_libraries(appTableControl PUBLIC
     Qt6::Svg
     Qt6::Network
 )
-
-if(ANDROID)
-    set_target_properties(appTableControl PROPERTIES
-        QT_ANDROID_VERSION_NAME ${PROJECT_VERSION}
-        QT_ANDROID_VERSION_CODE 1
-        QT_ANDROID_PACKAGE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/android
-    )
-endif()
 
 if(ANDROID)
     target_link_libraries(appTableControl PUBLIC

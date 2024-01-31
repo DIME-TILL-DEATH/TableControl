@@ -5,25 +5,14 @@ ProgressManager::ProgressManager(NetManager *netManager, QObject *parent)
     : QObject{parent}
 {
     QObject::connect(netManager, &NetManager::sgNetEvent, this, &ProgressManager::slUpdate);
-}
-
-qreal ProgressManager::currentProgress() const
-{
-    return m_currentProgress;
-}
-
-void ProgressManager::setCurrentProgress(qreal newCurrentProgress)
-{
-    if (m_currentProgress == newCurrentProgress)
-        return;
-    m_currentProgress = newCurrentProgress;
-    emit currentProgressChanged();
+    QObject::connect(netManager, &NetManager::sgDeviceConnected, this, &ProgressManager::slDeviceAvalible);
 }
 
 void ProgressManager::slUpdate(NetEvents eventType, QString target, QVariantList data)
 {
     switch (eventType)
     {
+        // TODO one event
     case NetEvents::UploadData:
     {
         qint64 partSize = data.at(0).toInt();
@@ -54,6 +43,27 @@ void ProgressManager::slUpdate(NetEvents eventType, QString target, QVariantList
         emit errorOccured(Error::UploadFailed, target);
         break;
     }
+    case NetEvents::UploadFirmware:
+    {
+        firmwareUploadedBytes += data.at(0).toInt();
+        qint32 fileSize = data.at(1).toInt();
+        if(fileSize>0) setFirmwareUploadProgress((qreal)firmwareUploadedBytes/(qreal)fileSize);
+
+        // TODO не отображает этот этап. Не срабатывает
+        if(firmwareUploadedBytes >= fileSize) setUpdatingAndReboot(true);
+        break;
+    }
+    case NetEvents::UploadFirmwareError:
+    {
+        qDebug() << "Failed to upload file " << target;
+        setFirmwareUploadProgress(1.0);
+        emit errorOccured(Error::FirmwareUploadFailed, target);
+        break;
+    }
+    // case NetEvents::UpdatingFirmware:
+    // {
+    //     setUpdatingAndReboot(true);
+    // }
     default:
         break;
     }
@@ -90,6 +100,47 @@ void ProgressManager::slUpdate(NetEvents eventType, QString target, QVariantList
     {
         setCurrentProgress(overallProgress/overallTask);
     }
+}
 
+void ProgressManager::slDeviceAvalible()
+{
+    setFirmwareUploadProgress(1.0);
+    setUpdatingAndReboot(false);
+}
 
+qreal ProgressManager::currentProgress() const
+{
+    return m_currentProgress;
+}
+
+void ProgressManager::setCurrentProgress(qreal newCurrentProgress)
+{
+    if (m_currentProgress == newCurrentProgress)
+        return;
+    m_currentProgress = newCurrentProgress;
+    emit currentProgressChanged();
+}
+
+qreal ProgressManager::firmwareUploadProgress() const
+{
+    return m_firmwareUploadProgress;
+}
+
+void ProgressManager::setFirmwareUploadProgress(qreal newFirmwareUploadProgress)
+{
+    if (qFuzzyCompare(m_firmwareUploadProgress, newFirmwareUploadProgress))
+        return;
+    m_firmwareUploadProgress = newFirmwareUploadProgress;
+    emit firmwareUploadProgressChanged();
+}
+
+bool ProgressManager::updatingAndReboot() const
+{
+    return m_updatingAndReboot;
+}
+
+void ProgressManager::setUpdatingAndReboot(bool newUpdatingAndReboot)
+{
+    m_updatingAndReboot = newUpdatingAndReboot;
+    emit updatingAndRebootChanged();
 }

@@ -122,8 +122,7 @@ void NetManager::sendFileData(const QVariantList& data, FrameHeader_uni frameHea
     QString dstPath = data.at(0).toString();
     dataToSend.append(dstPath.toLocal8Bit());
 
-    // TODO: dstPath.size to frame parameters
-    frameHeader.structData.data0 = dstPath.size();
+    frameHeader.structData.frameParameters = dstPath.size();
 
     switch((Requests::File)frameHeader.structData.action)
     {
@@ -155,28 +154,29 @@ void NetManager::sendFileData(const QVariantList& data, FrameHeader_uni frameHea
             return;
         }
         frameHeader.structData.frameSize = sizeof(frameHeader) + dstPath.size();
-        frameHeader.structData.data1 = 0;
+        frameHeader.structData.data0 = 0;
+        frameHeader.structData.data1 = file.size();
         dataToSend.prepend(frameHeader.rawData, sizeof(FrameHeader));
         netClient->sendData(dataToSend);
 
-        updateFileUploadProgress(NetEvents::UploadData,dstPath, 0, file.size());
+        updateFileUploadProgress(NetEvents::UploadData, dstPath, 0, file.size());
 
         while(!file.atEnd())
         {
             int partSize = 8192;
-            QByteArray fileData = file.read(partSize);
+            QByteArray partData = file.read(partSize);
 
             frameHeader.structData.action = (uint8_t)Requests::File::FILE_APPEND_DATA;
-            frameHeader.structData.frameSize = sizeof(frameHeader) + dstPath.size() + fileData.size();
-            frameHeader.structData.data1 = fileData.size();
+            frameHeader.structData.frameSize = sizeof(frameHeader) + dstPath.size() + partData.size();
+            frameHeader.structData.data0 = partData.size();
 
             dataToSend.clear();
             dataToSend.append(frameHeader.rawData, sizeof(FrameHeader));
             dataToSend.append(dstPath.toLocal8Bit());
-            dataToSend.append(fileData);
+            dataToSend.append(partData);
 
             netClient->sendData(dataToSend);
-            updateFileUploadProgress(NetEvents::UploadData, dstPath, fileData.size(), file.size());
+            updateFileUploadProgress(NetEvents::UploadData, dstPath, 0, file.size());
         }
         file.close();
 
@@ -234,20 +234,13 @@ void NetManager::sendFirmwareData(const QVariantList &data, FrameHeader_uni fram
 
             netClient->sendData(dataToSend);
 
-            updateFileUploadProgress(NetEvents::UploadData, "firmware.bin", fileData.size(), file.size());
+            updateFileUploadProgress(NetEvents::UploadFirmware, "firmware.bin", 0, file.size());
         }
         file.close();
 
+        sendRequest(FrameType::FIRMWARE_ACTIONS, (uint8_t)Requests::Firmware::FIRMWARE_UPDATE);
         break;
     }
-//    case Requests::Firmware::FIRMWARE_UPDATE:
-//    {
-//        qDebug() << "Trigger firmware update";
-//        frameHeader.structData.frameSize = sizeof(FrameHeader);
-//        dataToSend.prepend(frameHeader.rawData, sizeof(FrameHeader));
-//        netClient->sendData(dataToSend);
-//        break;
-//    }
     default: {}
     }
 }
@@ -270,6 +263,7 @@ void NetManager::processRecievedData(QByteArray data)
             lastRecvFrame = txBuffer.left(lastRecvFrameHeader.frameSize);
             switch(lastRecvFrameHeader.frameType)
             {
+            case FrameType::UNDEFINED: break;
 
             case FrameType::TRANSPORT_ACTIONS:
             {
@@ -370,8 +364,8 @@ void NetManager::processFileAnswer()
     {
     case Requests::File::GET_FILE:
     { 
-        QString fileName = lastRecvFrame.left(lastRecvFrameHeader.data0);
-        qint32 filesize = static_cast<qint32>(lastRecvFrameHeader.data1);
+        QString fileName = lastRecvFrame.left(lastRecvFrameHeader.frameParameters);
+        qint32 filesize = static_cast<qint32>(lastRecvFrameHeader.data0);
 
         fileName.remove(DeviceContentModel::librarySdcardPath);
 
@@ -396,27 +390,20 @@ void NetManager::processFileAnswer()
     }
     case Requests::File::GET_FOLDER_CONTENT:
     {
+        QString folderName = lastRecvFrame.left(lastRecvFrameHeader.frameParameters);
+        lastRecvFrame.remove(0, lastRecvFrameHeader.frameParameters);
         QString result(lastRecvFrame);
-        QStringList resultList = result.split("*", Qt::SkipEmptyParts);
-
-        // TODO путь к папке не сепаратором, а просто длинной в frameParameters, как для имени файла в остальных местах
-        QString folderName = resultList.at(0);
 
         QVariantList resultData;
         resultData.append(folderName);
 
-        if(resultList.size() > 1)
+        QStringList resultList = result.split("\r", Qt::SkipEmptyParts);
+
+        foreach (QString name, resultList)
         {
-            result = resultList.at(1);
-
-            resultList = result.split("\r", Qt::SkipEmptyParts);
-
-
-            foreach (QString name, resultList)
-            {
-                resultData.append(QVariant(name));
-            }
+            resultData.append(QVariant(name));
         }
+
         emit sgDataUpdated(FrameType::FILE_ACTIONS, (uint8_t)Data::File::REQUESTED_FOLDER, resultData);
         break;
     }
@@ -426,12 +413,13 @@ void NetManager::processFileAnswer()
     }
     case Requests::File::FILE_APPEND_DATA:
     {
-        QString filePath = lastRecvFrame.left(lastRecvFrameHeader.data0);
+        QString filePath = lastRecvFrame.left(lastRecvFrameHeader.frameParameters);
+        qint32 partSize = static_cast<qint32>(lastRecvFrameHeader.data0);
         qint32 fileSize = static_cast<qint32>(lastRecvFrameHeader.data1);
 
-        if(fileSize != -1)
+        if(partSize != -1)
         {
-            updateFileUploadProgress(NetEvents::UploadDataCompleted, filePath, fileSize, 0);
+            updateFileUploadProgress(NetEvents::UploadDataCompleted, filePath, partSize, fileSize);
         }
         else
         {
@@ -459,26 +447,29 @@ void NetManager::processFirmwareAnswer()
 
         if(fileSize != -1)
         {
-            updateFileUploadProgress(NetEvents::UploadFirmwareCompleted, "firmware.bin", dataProcessed ,fileSize);
+            updateFileUploadProgress(NetEvents::UploadFirmware, "firmware.bin", dataProcessed, fileSize);
+            return;
         }
         else
         {
-            emit sgNetEvent(NetEvents::UploadDataError, "firmware.bin");
+            emit sgNetEvent(NetEvents::UploadFirmwareError, "firmware.bin");
         }
-        break;
-    }
-    case Requests::Firmware::FIRMWARE_UPLOAD_END:
-    {
-        sendRequest(FrameType::FIRMWARE_ACTIONS, (uint8_t)Requests::Firmware::FIRMWARE_UPDATE);
+
         break;
     }
     case Requests::Firmware::FIRMWARE_VERSION:
     {
         QVariantList data;
-        data.append(lastRecvFrame.left(lastRecvFrameHeader.data0));
+        data.append(lastRecvFrame.left(lastRecvFrameHeader.frameParameters));
         emit sgDataUpdated(FrameType::FIRMWARE_ACTIONS, (uint8_t)Data::Firmware::FIRMWARE_VERSION, data);
         break;
     }
+    // case Requests::Firmware::FIRMWARE_UPDATE:
+    // {
+    //     qDebug() << "frame, update firmware";
+    //     emit sgNetEvent(NetEvents::UpdatingFirmware, "firmware.bin");
+    //     break;
+    // }
     default: {}
     }
 }

@@ -90,12 +90,12 @@ DropArea{
                 spacing: height/20
 
                 DefaultText{
-                   text: model.fileName
+                   text: model.playlistElement.fileName
 
                    color: (model.isFileAvaliable) ? "white" : "red";
                 }
                 DefaultText{
-                   text: model.filePath
+                   text: model.playlistElement.filePath
                    font.bold: false
                 }
             }

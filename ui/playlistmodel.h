@@ -4,16 +4,16 @@
 #include <QAbstractListModel>
 #include <QObject>
 
+#include "playlistelement.h"
+
 #include "netmanager.h"
 
-#include "frames.h"
 #include "qtimer.h"
 #include "requestactions.h"
 
 class PlaylistModel : public QAbstractListModel
 {
     Q_OBJECT
-    Q_PROPERTY(qint32 curPlaylistPosition READ curPlaylistPosition WRITE setCurPlaylistPosition NOTIFY curPlaylistPositionChanged FINAL)
     Q_PROPERTY(bool deviceAvaliable READ deviceAvaliable WRITE setDeviceAvaliable NOTIFY deviceAvaliableChanged FINAL)
 public:
     explicit PlaylistModel(NetManager* netManager, QObject *parent = nullptr);
@@ -34,7 +34,6 @@ public:
     void setDeviceAvaliable(bool newDeviceAvaliable);
 
     qint32 curPlaylistPosition() const;
-    void setCurPlaylistPosition(qint32 newCurPlaylistPosition);
 
 signals:
     void sgUpdateData(FrameType frameType, uint8_t dataType, QVariantList data);
@@ -49,8 +48,6 @@ signals:
 
     void deviceAvaliableChanged();
 
-    void curPlaylistPositionChanged();
-
 public slots:
     void slDataUpdated(FrameType frameType, uint8_t dataType, QVariantList dataList);
 
@@ -60,7 +57,8 @@ public slots:
     void slDeviceUnavaliable();
 
 private:
-    QList<QString> m_playlist;
+    //QList<QString> m_playlist;
+    QList<PlaylistElement> m_playlist;
     QMap<QString, QList<QVariant>> m_previewData;
 
     void refreshModel(QList<QString> playList);
@@ -68,13 +66,14 @@ private:
         FileNameRole = Qt::UserRole + 1,
         FilePathRole,
         PreviewDataRole,
-        FileAvaliableRole
+        FileAvaliableRole,
+        PlaylistElementRole
     };
 
     void checkDataUpdate();
     void sendUpdatedPlaylist();
 
-    qint32 m_curPlaylistPosition{-1};
+    qint32 curPlaylistPosition();
 
     QTimer* updateDataTimer;
     float m_progress;

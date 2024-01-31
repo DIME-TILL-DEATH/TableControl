@@ -19,6 +19,5 @@
         <file>qml/Elements/ProgressScreen.qml</file>
         <file>qml/Settings/qmldir</file>
         <file>qml/Settings/SettingsPage.qml</file>
-        <file>qml/Elements/RegisterHeader.qml</file>
     </qresource>
 </RCC>

@@ -42,10 +42,10 @@ SwipeDelegate {
         SequentialAnimation on color{
             id: _colorAnim
 
-            running: (PlaylistModel.curPlaylistPosition === model.index)
+            running: model.playlistElement.isCurrentPrintingElement
             loops: Animation.Infinite
             alwaysRunToEnd: true
-            ColorAnimation {from: "black"; to: "slategray"; duration: 2000}
+            ColorAnimation {from: "black"; to:  "slategray" ; duration: 2000}
             ColorAnimation {from: "slategray"; to: "black"; duration: 2000}
         }
     }

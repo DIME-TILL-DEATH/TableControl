@@ -12,7 +12,7 @@ FirmwareManager::FirmwareManager(NetManager* netManager, QObject *parent)
 }
 
 void FirmwareManager::updateFirmware(QString filePath)
-{
+{   
     QVariantList data;
     data.append(filePath);
     emit sgUpdateData(FrameType::FIRMWARE_ACTIONS, (uint8_t)Requests::Firmware::FIRMWARE_UPLOAD_START, data);
