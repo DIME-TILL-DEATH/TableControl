@@ -30,8 +30,8 @@ private slots:
 private:
     QTcpSocket* socket;
 
-    QString targetAddress{"192.168.1.1"};
-    quint16 targetPort{3333};
+    QHostAddress targetAddress{"192.168.1.1"};
+    quint16 targetPort{9000};
 };
 
 #endif // NETCLIENT_H

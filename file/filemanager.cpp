@@ -95,6 +95,7 @@ void FileManager::processFileLoadRequest(QString fileName)
         else
         {
             // TODO двойные запросы на скачку от разных модулей. Загружают сеть ненужной работой
+            m_loadedData.insert(fileName, QVariantList());
             //qDebug() << "try to download file";
             QVariantList data;
             data.append(DeviceContentModel::librarySdcardPath + fileName);

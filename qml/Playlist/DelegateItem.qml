@@ -38,7 +38,7 @@ DropArea{
             verticalCenter: parent.verticalCenter
         }
 
-        Drag.active: mouseArea.drag.active
+        Drag.active: _mouseAreaDrag.drag.active
         Drag.source: _thing
         Drag.hotSpot.x: width / 2
         Drag.hotSpot.y: height / 2
@@ -81,22 +81,33 @@ DropArea{
                 }
             }
 
-            Column{
+            Item{
                 width: parent.width - _previewIcon.width - _itemHandler.width - parent.spacing*2
                 height: parent.height*0.5
 
                 anchors.verticalCenter: parent.verticalCenter
+                Column{
+                    anchors.fill: parent
+                    spacing: height/20
 
-                spacing: height/20
+                    DefaultText{
+                       text: model.playlistElement.fileName
 
-                DefaultText{
-                   text: model.playlistElement.fileName
-
-                   color: (model.isFileAvaliable) ? "white" : "red";
+                       color: (model.isFileAvaliable) ? "white" : "red";
+                    }
+                    DefaultText{
+                       text: model.playlistElement.filePath
+                       font.bold: false
+                    }
                 }
-                DefaultText{
-                   text: model.playlistElement.filePath
-                   font.bold: false
+                MouseArea{
+                    id: _mouseAreaContent
+
+                    anchors.fill: parent
+
+                    onDoubleClicked: {
+                        PlaylistModel.changePrint(model.index);
+                    }
                 }
             }
 
@@ -114,7 +125,7 @@ DropArea{
                 }
 
                 MouseArea {
-                    id: mouseArea
+                    id: _mouseAreaDrag
                     anchors.fill: parent
                     drag.target: _thing
                     drag.axis: Drag.YAxis
@@ -144,7 +155,7 @@ DropArea{
         }
 
         states: State {
-                when: mouseArea.drag.active
+                when: _mouseAreaDrag.drag.active
                 ParentChange {
                     target: _thing
                     parent: _listView

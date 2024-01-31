@@ -1,3 +1,5 @@
+#include <QNetworkInterface>
+
 #include "netclient.h"
 
 NetClient::NetClient(QObject *parent)
@@ -9,6 +11,39 @@ NetClient::NetClient(QObject *parent)
     connect(socket, &QTcpSocket::disconnected,this, &NetClient::disconnected);
     connect(socket, &QTcpSocket::bytesWritten,this, &NetClient::bytesWritten);
     connect(socket, &QTcpSocket::readyRead,this, &NetClient::readyRead);
+
+
+    QList<QNetworkAddressEntry> addresses;
+    QList<QNetworkInterface> interfaces = QNetworkInterface::allInterfaces();
+
+    QString itemName;
+    QList<QNetworkInterface>::Iterator i;
+    QList<QNetworkAddressEntry>::Iterator a;
+    for(i=interfaces.begin(); i!=interfaces.end(); i++)
+    {
+        addresses = (*i).addressEntries();
+        for(a=addresses.begin(); a!=addresses.end(); a++)
+        {
+            if((*a).ip().protocol() == QAbstractSocket::IPv4Protocol)
+            {
+                itemName = (*i).name() + "::"+(*a).ip().toString();
+                // m_itfList.insert(itemName, (*a).ip());
+                // namesList.append(itemName);
+                //qDebug() << itemName;
+
+                if((*i).name() ==  "wlan0")
+                {
+
+                    // TODO для Android'а вызывать из Java метод bindProcessToNetwork
+                   bool result = socket->bind(a->ip(), targetPort);
+
+                    qDebug() << "Binding result:" << result;
+
+                   //qintptr socketDescriptor = socket->socketDescriptor();
+                }
+            }
+        }
+    }
 }
 
 void NetClient::doConnect()

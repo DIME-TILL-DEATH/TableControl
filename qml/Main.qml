@@ -2,6 +2,8 @@ import QtQuick
 import QtQuick.Controls
 
 import UiObjects
+
+// TODO модули на add_qml_module
 import Playlist
 import Elements
 import Content

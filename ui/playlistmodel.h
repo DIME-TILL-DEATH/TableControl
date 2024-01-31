@@ -23,6 +23,8 @@ public:
 
     QHash<int, QByteArray> roleNames() const;
 
+    Q_INVOKABLE void changePrint(int plsPos);
+
     Q_INVOKABLE void insert(int pos, QString fileName);
     Q_INVOKABLE void move(int from, int to);
     Q_INVOKABLE void remove(int pos);

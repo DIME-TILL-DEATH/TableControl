@@ -34,6 +34,15 @@ QHash<int, QByteArray> PlaylistModel::roleNames() const
     return roles;
 }
 
+void PlaylistModel::changePrint(int plsPos)
+{
+    if(plsPos != curPlaylistPosition())
+    {
+        emit sgRequest(FrameType::PLAYLIST_ACTIONS, (uint8_t)Requests::Playlist::CHANGE_PRINTNG_FILE, plsPos);
+        qDebug() << "Changing printing file to position: " << plsPos;
+    }
+}
+
 QVariant PlaylistModel::data(const QModelIndex &index, int role) const
 {
     if(!index.isValid() || index.row() > rowCount(index))
@@ -41,11 +50,12 @@ QVariant PlaylistModel::data(const QModelIndex &index, int role) const
         return {-1};
     }
 
+    QString fileName = m_playlist.at(index.row()).fullFilePath();
+
     switch(role)
     {
     case ListRoles::PreviewDataRole:
     {
-        QString fileName = m_playlist.at(index.row()).fullFilePath();
         if(!m_previewData.contains(fileName))
         {
             qDebug() << "Model. Requesting file data: " << fileName;
@@ -62,7 +72,6 @@ QVariant PlaylistModel::data(const QModelIndex &index, int role) const
 
     case ListRoles::FileAvaliableRole:
     {
-        QString fileName = m_playlist.at(index.row()).fullFilePath();
         if(!m_previewData.contains(fileName))
         {
             emit sgRequestFileData(fileName);
@@ -260,9 +269,7 @@ void PlaylistModel::sendUpdatedPlaylist()
     }
 
     emit sgUpdateData(FrameType::PLAYLIST_ACTIONS, (uint8_t)Requests::Playlist::CHANGE_PLAYLIST, resultData);
-    resultData.clear();
-    resultData.append(curPlaylistPosition());
-    emit sgUpdateData(FrameType::PLAYLIST_ACTIONS, (uint8_t)Requests::Playlist::CHANGE_PLAYLIST_POSITION, resultData);
+    emit sgRequest(FrameType::PLAYLIST_ACTIONS, (uint8_t)Requests::Playlist::CHANGE_PLAYLIST_POSITION, curPlaylistPosition());
     qDebug() << "Updating playlist, current printing position:" << curPlaylistPosition();
 }
 

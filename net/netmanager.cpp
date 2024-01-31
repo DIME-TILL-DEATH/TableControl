@@ -101,12 +101,6 @@ void NetManager::sendPlaylistData(const QVariantList &data, FrameHeader_uni fram
         }
         break;
     }
-    case Requests::Playlist::CHANGE_PLAYLIST_POSITION:
-    {
-        qint16 plsPosition = data.at(0).toInt();
-        dataToSend = QByteArray((const char*)&plsPosition, 2);
-        break;
-    }
     default: {}
     }
 
