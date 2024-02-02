@@ -8,7 +8,7 @@ import UiObjects
 Item {
     id: treeDelegate
 
-    implicitWidth: (_treeView.width == 0) ? 30 : _treeView.width//padding + label.x + label.implicitWidth + padding + _button.width
+    implicitWidth: (_treeView.width === 0) ? 30 : _treeView.width
     implicitHeight: label.implicitHeight * 2
 
     readonly property real indent: 20

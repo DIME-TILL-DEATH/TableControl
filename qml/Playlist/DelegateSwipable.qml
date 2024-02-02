@@ -49,4 +49,8 @@ SwipeDelegate {
             ColorAnimation {from: "slategray"; to: "black"; duration: 2000}
         }
     }
+
+    onDoubleClicked: {
+        PlaylistModel.changePrint(model.index);
+    }
 }

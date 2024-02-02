@@ -46,7 +46,7 @@ Item{
 
         property string dstPath
 
-        nameFilters: ["GCode files (*.gcode)"]
+        //nameFilters: ["GCode files (*.gcode)"]
 
         onAccepted:
         {

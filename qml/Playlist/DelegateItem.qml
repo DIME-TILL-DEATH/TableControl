@@ -100,15 +100,6 @@ DropArea{
                        font.bold: false
                     }
                 }
-                MouseArea{
-                    id: _mouseAreaContent
-
-                    anchors.fill: parent
-
-                    onDoubleClicked: {
-                        PlaylistModel.changePrint(model.index);
-                    }
-                }
             }
 
             Item{

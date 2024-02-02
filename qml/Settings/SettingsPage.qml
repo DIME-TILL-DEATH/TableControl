@@ -66,7 +66,7 @@ Item{
 
         property string dstPath
 
-        nameFilters: ["Firmware files (*.bin)"]
+        //nameFilters: ["Firmware files (*.bin)"]
 
         onAccepted:
         {
