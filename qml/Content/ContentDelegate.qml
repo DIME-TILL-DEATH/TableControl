@@ -21,8 +21,6 @@ Item {
     required property int hasChildren
     required property int depth
 
-    signal openFileDialog(var dstPath);
-
     Row{
         id: _content
 
@@ -77,12 +75,14 @@ Item {
 
                 if(model.type === ContentNode.Folder)
                 {
-                    openFileDialog(model.path + model.name)
+                    DeviceContentModel.currentDstPath = model.path + model.name;
+                    DeviceContentModel.selectFile();
                 }
 
                 if(model.type === ContentNode.Root)
                 {
-                    openFileDialog("/")
+                    DeviceContentModel.currentDstPath = "/";
+                    DeviceContentModel.selectFile();
                 }
             }
         }

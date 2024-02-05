@@ -55,7 +55,7 @@ Item{
             text: "Update firmware"
 
             onClicked: {
-                _firmwareFileDialog.open();
+                FirmwareManager.selectFile();
 
             }
         }
@@ -66,7 +66,7 @@ Item{
 
         property string dstPath
 
-        //nameFilters: ["Firmware files (*.bin)"]
+        nameFilters: ["Firmware files (*.bin)"]
 
         onAccepted:
         {
@@ -75,6 +75,15 @@ Item{
                                                          : decodeURIComponent(cleanPathFile.replace(/^(file:\/{2})|(qrc:\/{2})|(http:\/{2})/,""));
 
             FirmwareManager.updateFirmware(cleanPathFile);
+        }
+    }
+
+    Connections{
+        target: FirmwareManager
+
+        function osSgOpenPlatformDialog()
+        {
+            _firmwareFileDialog.open();
         }
     }
 }

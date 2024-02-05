@@ -1,5 +1,10 @@
 #include "firmwaremanager.h"
 
+#ifdef __ANDROID__
+#include <jni.h>
+#include "androidutils.h"
+#endif
+
 FirmwareManager::FirmwareManager(NetManager* netManager, QObject *parent)
     : QObject{parent}
 {
@@ -9,6 +14,24 @@ FirmwareManager::FirmwareManager(NetManager* netManager, QObject *parent)
 
     QObject::connect(this, &FirmwareManager::sgRequest, netManager, &NetManager::sendRequest);
     QObject::connect(this, &FirmwareManager::sgUpdateData, netManager, &NetManager::slUpdateData);
+
+#ifdef Q_OS_ANDROID
+    QObject::connect(&activityResultHandler, &ActivityResultManager::sgFilePicked, this, &FirmwareManager::slAndroidFilePicked);
+#endif
+}
+
+void FirmwareManager::selectFile()
+{
+#ifdef Q_OS_ANDROID
+    AndroidUtils::pickFile(ActivityType::PICK_FILE, "*/*", &activityResultHandler);
+#else
+    emit sgOpenPlatformFileDialog();
+#endif
+}
+
+void FirmwareManager::slAndroidFilePicked(QString filePath, QString fileName)
+{
+    updateFirmware(filePath);
 }
 
 void FirmwareManager::updateFirmware(QString filePath)

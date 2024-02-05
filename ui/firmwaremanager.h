@@ -5,6 +5,11 @@
 
 #include "netmanager.h"
 
+#ifdef __ANDROID__
+#include <jni.h>
+#include "activityresultmanager.h"
+#endif
+
 class FirmwareManager : public QObject
 {
     Q_OBJECT
@@ -12,6 +17,7 @@ class FirmwareManager : public QObject
 public:
     explicit FirmwareManager(NetManager* netManager, QObject *parent = nullptr);
 
+    Q_INVOKABLE void selectFile();
     Q_INVOKABLE void updateFirmware(QString filePath);
 
     QString currentFwVersion() const;
@@ -26,12 +32,20 @@ signals:
 
     void currentFwVersionChanged();
 
+    void sgOpenPlatformFileDialog();
+
 public slots:
     void slDeviceAvaliable();
     void slDataUpdated(FrameType frameType, uint8_t dataType, QVariantList data);
 
+    void slAndroidFilePicked(QString filePath, QString fileName);
+
 private:
     QString m_currentFwVersion;
+
+#ifdef __ANDROID__
+    ActivityResultManager activityResultHandler;
+#endif
 };
 
 #endif // FIRMWAREMANAGER_H

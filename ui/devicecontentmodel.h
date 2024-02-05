@@ -8,12 +8,17 @@
 
 #include "contentnode.h"
 
-#include "frames.h"
 #include "requestactions.h"
+
+#ifdef __ANDROID__
+#include <jni.h>
+#include "activityresultmanager.h"
+#endif
 
 class DeviceContentModel : public QAbstractItemModel
 {
     Q_OBJECT
+    Q_PROPERTY(QString currentDstPath READ currentDstPath WRITE setCurrentDstPath NOTIFY currentDstPathChanged FINAL)
 public:
     explicit DeviceContentModel(NetManager *netManager, QObject *parent = nullptr);
     ~DeviceContentModel();
@@ -33,7 +38,11 @@ public:
 
     constexpr static const char librarySdcardPath[] = "/sdcard/library/";
 
+    Q_INVOKABLE void selectFile();
     Q_INVOKABLE void uploadFileToDevice(QString dstPath, QString srcPath);
+
+    QString currentDstPath() const;
+    void setCurrentDstPath(const QString &newCurrentDstPath);
 
 signals:
     void sgUpdateData(FrameType frameType, uint8_t dataType, QVariantList data);
@@ -44,18 +53,28 @@ signals:
 
     void sgRequestFileData(QString fileName);
 
+    void sgOpenPlatformFileDialog();
+
+    void currentDstPathChanged();
+
 public slots:
     void slDataUpdated(FrameType frameType, uint8_t dataType, QVariantList dataList);
-
     void slFileDataReady(QString fileName, QList<QVariant> fileData);
-
     void slDeviceAvaliable();
+
+    void slAndroidFilePicked(QString filePath, QString fileName);
 
 private:
     ContentNode* rootNode;
     ContentNode* sdCardNode;
 
     void appendNode(ContentNode* destNode, ContentNode* newNode);
+
+
+    #ifdef __ANDROID__
+    ActivityResultManager activityResultHandler;
+    #endif
+    QString m_currentDstPath;
 };
 
 #endif // DEVICECONTENTMODEL_H

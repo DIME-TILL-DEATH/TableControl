@@ -34,6 +34,9 @@ qt_add_executable(appTableControl WIN32 MACOSX_BUNDLE
     net/netclient.h net/netclient.cpp
     net/netmanager.h net/netmanager.cpp
     net/frames.h
+
+    android/activityresultmanager.cpp android/activityresultmanager.h
+    android/androidutils.cpp android/androidutils.h
 )
 
 # Android problem
@@ -60,6 +63,7 @@ target_include_directories(appTableControl PUBLIC
     file
     ui
     net
+    android
 )
 
 find_package(Qt6 REQUIRED COMPONENTS Gui Network Positioning Quick QuickControls2 LinguistTools Svg)
@@ -96,6 +100,9 @@ qt6_add_resources(appTableControl "AndroidResources"
     PREFIX
         "/"
     FILES
+        android/src/FileUtils.java
+        android/src/NetUtils.java
+
         android/AndroidManifest.xml
         android/build.gradle
 )

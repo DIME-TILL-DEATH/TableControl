@@ -2,9 +2,17 @@
 
 #include "netclient.h"
 
+#ifdef __ANDROID__
+#include "androidutils.h"
+#endif
+
 NetClient::NetClient(QObject *parent)
     : QObject{parent}
 {
+#ifdef __ANDROID__
+    AndroidUtils::bindProcessToNetwork(); //to WIFI
+#endif
+
     socket = new QTcpSocket(this);
 
     connect(socket, &QTcpSocket::connected,this, &NetClient::connected);

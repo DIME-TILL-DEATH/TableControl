@@ -1,5 +1,10 @@
 #include "devicecontentmodel.h"
 
+#ifdef __ANDROID__
+#include <jni.h>
+#include "androidutils.h"
+#endif
+
 DeviceContentModel::DeviceContentModel(NetManager *netManager, QObject *parent)
     : QAbstractItemModel{parent}
 {
@@ -8,6 +13,10 @@ DeviceContentModel::DeviceContentModel(NetManager *netManager, QObject *parent)
 
     QObject::connect(netManager, &NetManager::sgDeviceConnected, this, &DeviceContentModel::slDeviceAvaliable);
     QObject::connect(netManager, &NetManager::sgDataUpdated, this, &DeviceContentModel::slDataUpdated);
+
+#ifdef Q_OS_ANDROID
+    QObject::connect(&activityResultHandler, &ActivityResultManager::sgFilePicked, this, &DeviceContentModel::slAndroidFilePicked);
+#endif
 
     rootNode = new ContentNode("", ContentNode::NodeType::Root);
     sdCardNode = new ContentNode("SD card", ContentNode::NodeType::Root);
@@ -118,6 +127,20 @@ void DeviceContentModel::slDeviceAvaliable()
     emit sgUpdateData(FrameType::FILE_ACTIONS, (uint8_t)(Requests::File::GET_FOLDER_CONTENT), data);
 }
 
+void DeviceContentModel::selectFile()
+{
+#ifdef Q_OS_ANDROID
+    AndroidUtils::pickFile(ActivityType::PICK_FILE, "*/*", &activityResultHandler);
+#else
+    emit sgOpenPlatformFileDialog();
+#endif
+}
+
+void DeviceContentModel::slAndroidFilePicked(QString filePath, QString fileName)
+{
+    uploadFileToDevice(m_currentDstPath + "/" + fileName, filePath);
+}
+
 void DeviceContentModel::slDataUpdated(FrameType frameType, uint8_t dataType, QVariantList dataList)
 {
     if(frameType != FrameType::FILE_ACTIONS) return;
@@ -200,4 +223,17 @@ void DeviceContentModel::appendNode(ContentNode *destNode, ContentNode *newNode)
 void DeviceContentModel::slFileDataReady(QString fileName, QList<QVariant> fileData)
 {
 
+}
+
+QString DeviceContentModel::currentDstPath() const
+{
+    return m_currentDstPath;
+}
+
+void DeviceContentModel::setCurrentDstPath(const QString &newCurrentDstPath)
+{
+    if (m_currentDstPath == newCurrentDstPath)
+        return;
+    m_currentDstPath = newCurrentDstPath;
+    emit currentDstPathChanged();
 }

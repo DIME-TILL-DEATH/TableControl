@@ -10,12 +10,6 @@ import UiObjects
 Item{
     id: _contentPage
 
-    function openFileDialog(dstPath)
-    {
-        _fileDialog.dstPath = dstPath;
-        _fileDialog.open();
-    }
-
     ProgressScreen{
         id: _progressScreen
 
@@ -35,18 +29,15 @@ Item{
         clip: true
 
         delegate: ContentDelegate{
-            Component.onCompleted: {
-                openFileDialog.connect(_contentPage.openFileDialog);
-            }
         }
     }
 
     FileDialog{
         id: _fileDialog
 
-        property string dstPath
+        property string dstPath: DeviceContentModel.currentDstPath
 
-        //nameFilters: ["GCode files (*.gcode)"]
+        nameFilters: ["GCode files (*.gcode)"]
 
         onAccepted:
         {
@@ -57,6 +48,15 @@ Item{
             var cleanPathFolder = currentFolder.toString();
             var fileName = selectedFile.toString().replace(cleanPathFolder + "/", "");
             DeviceContentModel.uploadFileToDevice(dstPath + "/" + fileName, cleanPathFile);
+        }
+    }
+
+    Connections{
+        target: DeviceContentModel
+
+        function onSgOpenPlatformFileDialog(dstPath)
+        {
+            _fileDialog.open();
         }
     }
 }

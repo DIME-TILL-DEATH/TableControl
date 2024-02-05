@@ -13,7 +13,7 @@ PlaylistModel::PlaylistModel(NetManager *netManager, QObject *parent)
     QObject::connect(this, &PlaylistModel::sgUpdateData, netManager, &NetManager::slUpdateData);
 
     updateDataTimer = new QTimer(this);
-    updateDataTimer->setInterval(5000);
+    updateDataTimer->setInterval(500);
     m_deviceAvaliable = false;
 
     connect(updateDataTimer, &QTimer::timeout, this, &PlaylistModel::checkDataUpdate);
