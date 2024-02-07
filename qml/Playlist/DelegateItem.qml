@@ -70,7 +70,6 @@ DropArea{
 
                     onPressed:
                     {
-                        console.log("index:", model.index)
                         _delegateRoot.showLargePreview(previewData)
                     }
 

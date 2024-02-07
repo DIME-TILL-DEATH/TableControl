@@ -14,15 +14,6 @@ public class NetUtils {
 
     public static void bindToWiFi(Context context){
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        // Network[] network = connectivityManager.getAllNetworks();
-        // if(network != null && network.length >0 ){
-        //      for(int i = 0 ; i < network.length ; i++){
-        //           NetworkInfo networkInfo = connectivityManager.getNetworkInfo(network[i]);
-        //           int networkType = networkInfo.getType();
-        //           if(ConnectivityManager.TYPE_MOBILE == networkType ){
-        //                connectivityManager.bindProcessToNetwork(network[i]);
-        //           }
-        //      }
 
         NetworkRequest.Builder req = new NetworkRequest.Builder();
 
