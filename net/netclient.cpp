@@ -9,9 +9,9 @@
 NetClient::NetClient(QObject *parent)
     : QObject{parent}
 {
-// #ifdef __ANDROID__
-//     AndroidUtils::bindProcessToNetwork(); //to WIFI
-// #endif
+#ifdef __ANDROID__
+    AndroidUtils::bindProcessToNetwork(); //to WIFI
+#endif
 
     socket = new QTcpSocket(this);
 
@@ -26,10 +26,7 @@ NetClient::NetClient(QObject *parent)
 
 void NetClient::doConnect()
 {
-    //qDebug() << socket->state();
-#ifdef __ANDROID__
-    AndroidUtils::bindProcessToNetwork(); //to WIFI
-#endif
+
     socket->connectToHost(targetAddress, targetPort);
 }
 

@@ -54,6 +54,10 @@ ApplicationWindow {
         height: _main.height/20
         currentIndex: _swipeView.currentIndex
 
+        background: Rectangle {
+                 color: "#eeeeee"
+             }
+
         TabButton {
             height: parent.height
             anchors.top: parent.top

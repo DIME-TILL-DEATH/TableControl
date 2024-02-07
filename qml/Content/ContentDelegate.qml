@@ -29,7 +29,7 @@ Item {
         Item{
             id: _thing
 
-            width: parent.width - _button.width
+            width: parent.width - _button.width - parent.width * 0.025
             height: parent.height
 
             TapHandler {
@@ -41,7 +41,8 @@ Item {
                 visible: treeDelegate.isTreeNode && treeDelegate.hasChildren
                 x: padding + (treeDelegate.depth * treeDelegate.indent)
                 anchors.verticalCenter: label.verticalCenter
-                text: "▸"
+                color: "lightgreen"
+                text: "=>"
                 rotation: treeDelegate.expanded ? 90 : 0
             }
 
@@ -58,13 +59,15 @@ Item {
             }
         }
 
-        Button{
+        ContentButton{
             id: _button
 
             width: parent.height
-            height: parent.height
+            height: parent.height*0.6
 
-            text: (model.type === ContentNode.File) ? ">>" : "+"
+            anchors.verticalCenter: parent.verticalCenter
+
+            contentText: (model.type === ContentNode.File) ? ">>" : "+"
 
             onClicked: function(){
                 if(model.type === ContentNode.File)

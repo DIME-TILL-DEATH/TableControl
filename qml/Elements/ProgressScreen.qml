@@ -31,13 +31,33 @@ Item {
             width: parent.width*0.6
             height: parent.height*0.4
 
+            background: Rectangle {
+                     implicitWidth: 200
+                     implicitHeight: 6
+                     radius: 3
+
+                     border.width: 1
+                 }
+
+             contentItem: Item {
+                 implicitWidth: 200
+                 implicitHeight: 4
+
+                 Rectangle {
+                     width: progressBar.visualPosition * parent.width
+                     height: parent.height
+                     radius: 2
+                     color: "blue"
+                     border.width: 1
+                }
+            }
         }
 
         DefaultText{
             text: _progressRoot.text
             anchors.horizontalCenter: parent.horizontalCenter
 
-            color: "blue"
+            color: "black"
         }
 
 
@@ -45,8 +65,10 @@ Item {
 
     Rectangle{
         anchors.fill: parent
-        opacity: 0.4
+        opacity: 0.6
         z:-2
+
+        color: "wheat"
     }
 
     MouseArea

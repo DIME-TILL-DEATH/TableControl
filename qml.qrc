@@ -19,5 +19,6 @@
         <file>qml/Elements/ProgressScreen.qml</file>
         <file>qml/Settings/qmldir</file>
         <file>qml/Settings/SettingsPage.qml</file>
+        <file>qml/Content/ContentButton.qml</file>
     </qresource>
 </RCC>
