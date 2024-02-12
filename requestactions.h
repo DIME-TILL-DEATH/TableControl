@@ -17,7 +17,9 @@ namespace Requests
 enum class Transport
 {
     PAUSE_PRINTING,
-    REQUEST_PROGRESS
+    REQUEST_PROGRESS,
+    GET_PRINT_SPEED,
+    SET_PRINT_SPEED
 };
 
 enum class Playlist
@@ -52,7 +54,8 @@ namespace Data
 enum class Transport
 {
     PROGRESS,
-    PAUSE_STATE
+    PAUSE_STATE,
+    PRINT_SPEED
 };
 
 enum class Playlist

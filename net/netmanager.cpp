@@ -307,6 +307,13 @@ void NetManager::processTransportAnswer()
     {
         break;
     }
+    case Requests::Transport::GET_PRINT_SPEED:
+    {
+        QVariantList dataList;
+        dataList.append(lastRecvFrameHeader.data0);
+        emit sgDataUpdated(FrameType::TRANSPORT_ACTIONS, (uint8_t)Data::Transport::PRINT_SPEED, dataList);
+        break;
+    }
     default: break;
     }
 }

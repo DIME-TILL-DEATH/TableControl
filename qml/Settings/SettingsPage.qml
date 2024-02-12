@@ -19,7 +19,7 @@ Item{
 
     Column{
         height: parent.height*0.8
-        width: parent.width
+        width: parent.width*0.75
 
         anchors.centerIn: parent
 
@@ -28,7 +28,42 @@ Item{
         Rectangle{
             anchors.horizontalCenter: parent.horizontalCenter
 
-            width: parent.width*0.75
+            width: parent.width
+            height: parent.height/12
+
+            color: "transparent"
+
+            border.width: 2
+            border.color: "white"
+
+            DefaultText{
+                anchors.centerIn: parent
+
+                text: "Print speed"
+            }
+        }
+
+        Slider{
+            width: parent.width
+
+            from: 10
+            to: 60
+            stepSize: 5
+
+            snapMode: Slider.SnapAlways
+
+            value: Transport.printSpeed
+
+            onMoved: {
+                Transport.printSpeed = value
+            }
+        }
+
+
+        Rectangle{
+            anchors.horizontalCenter: parent.horizontalCenter
+
+            width: parent.width
             height: parent.height/12
 
             color: "transparent"
@@ -49,7 +84,7 @@ Item{
 
             anchors.horizontalCenter: parent.horizontalCenter
 
-            width: parent.width*0.75
+            width: parent.width
             height: parent.height/12
 
             text: "Update firmware"
@@ -81,8 +116,9 @@ Item{
     Connections{
         target: FirmwareManager
 
-        function osSgOpenPlatformDialog()
+        function onSgOpenPlatformFileDialog()
         {
+            console.log("recieved signal");
             _firmwareFileDialog.open();
         }
     }

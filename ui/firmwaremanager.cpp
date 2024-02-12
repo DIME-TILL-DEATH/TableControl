@@ -26,6 +26,7 @@ void FirmwareManager::selectFile()
     AndroidUtils::pickFile(ActivityType::PICK_FILE, "*/*", &activityResultHandler);
 #else
     emit sgOpenPlatformFileDialog();
+    qDebug() << "emiting";
 #endif
 }
 
