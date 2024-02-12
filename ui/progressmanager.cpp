@@ -24,14 +24,15 @@ void ProgressManager::slUpdate(NetEvents eventType, QString target, QVariantList
     }
     case NetEvents::UploadDataCompleted:
     {
-        qint64 uploadedPartSize = data.at(0).toInt();
+        // qint64 uploadedPartSize = data.at(0).toInt();
 
         if(!m_activeProcesses.contains(target))
         {
             qDebug() << __FUNCTION__ << "Some error, complete action without request! Target" << target;
         }
+        qint64 targetProgress = data.at(0).toInt();
+        // qint64 targetProgress = m_activeProcesses.value(target).first + uploadedPartSize;
         qint64 fileSize = m_activeProcesses.value(target).second;
-        qint64 targetProgress = m_activeProcesses.value(target).first + uploadedPartSize;
         m_activeProcesses.insert(target, {targetProgress, fileSize});
 
         break;
@@ -45,12 +46,14 @@ void ProgressManager::slUpdate(NetEvents eventType, QString target, QVariantList
     }
     case NetEvents::UploadFirmware:
     {
-        firmwareUploadedBytes += data.at(0).toInt();
+        // firmwareUploadedBytes += data.at(0).toInt();
+        qint32 firmwareUploadedBytes = data.at(0).toInt();
         qint32 fileSize = data.at(1).toInt();
+
+
         if(fileSize>0) setFirmwareUploadProgress((qreal)firmwareUploadedBytes/(qreal)fileSize);
 
-        // TODO не отображает этот этап. Не срабатывает
-        if(firmwareUploadedBytes >= fileSize) setUpdatingAndReboot(true);
+        qDebug() << "Upload, processed: " << firmwareUploadedBytes << " file size: " << fileSize;
         break;
     }
     case NetEvents::UploadFirmwareError:
@@ -60,10 +63,27 @@ void ProgressManager::slUpdate(NetEvents eventType, QString target, QVariantList
         emit errorOccured(Error::FirmwareUploadFailed, target);
         break;
     }
-    // case NetEvents::UpdatingFirmware:
-    // {
-    //     setUpdatingAndReboot(true);
-    // }
+    case NetEvents::UpdatingFirmware:
+    {
+        qDebug() << "Progress manager, updating firmware";
+        setUpdatingState(true);
+        break;
+    }
+
+    case NetEvents::UpdatingFirmwareFinished:
+    {
+        setUpdatingState(false);
+        emit firmwareUpdateComplete();
+        break;
+    }
+
+    case NetEvents::UpdatingFirmwareError:
+    {
+        qDebug() << "Update firmware failed " << target;
+        setFirmwareUploadProgress(1.0);
+        emit errorOccured(Error::FirmwareUpdateFailed, target);
+        break;
+    }
     default:
         break;
     }
@@ -105,7 +125,7 @@ void ProgressManager::slUpdate(NetEvents eventType, QString target, QVariantList
 void ProgressManager::slDeviceAvalible()
 {
     setFirmwareUploadProgress(1.0);
-    setUpdatingAndReboot(false);
+    setUpdatingState(false);
 }
 
 qreal ProgressManager::currentProgress() const
@@ -134,13 +154,13 @@ void ProgressManager::setFirmwareUploadProgress(qreal newFirmwareUploadProgress)
     emit firmwareUploadProgressChanged();
 }
 
-bool ProgressManager::updatingAndReboot() const
+bool ProgressManager::updatingState() const
 {
-    return m_updatingAndReboot;
+    return m_updatingState;
 }
 
-void ProgressManager::setUpdatingAndReboot(bool newUpdatingAndReboot)
+void ProgressManager::setUpdatingState(bool newUpdatingState)
 {
-    m_updatingAndReboot = newUpdatingAndReboot;
-    emit updatingAndRebootChanged();
+    m_updatingState = newUpdatingState;
+    emit updatingStateChanged();
 }

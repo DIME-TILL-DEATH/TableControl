@@ -231,8 +231,6 @@ void NetManager::sendFirmwareData(const QVariantList &data, FrameHeader_uni fram
             updateFileUploadProgress(NetEvents::UploadFirmware, "firmware.bin", 0, file.size());
         }
         file.close();
-
-        sendRequest(FrameType::FIRMWARE_ACTIONS, (uint8_t)Requests::Firmware::FIRMWARE_UPDATE);
         break;
     }
     default: {}
@@ -449,13 +447,32 @@ void NetManager::processFirmwareAnswer()
         if(fileSize != -1)
         {
             updateFileUploadProgress(NetEvents::UploadFirmware, "firmware.bin", dataProcessed, fileSize);
-            return;
+
+            if(dataProcessed == fileSize)
+            {
+                qDebug() << "Firmware uploaded, update";
+                updateFileUploadProgress(NetEvents::UpdatingFirmware, "firmware.bin", dataProcessed, fileSize);
+                sendRequest(FrameType::FIRMWARE_ACTIONS, (uint8_t)Requests::Firmware::FIRMWARE_UPDATE);
+            }
         }
         else
         {
             emit sgNetEvent(NetEvents::UploadFirmwareError, "firmware.bin");
         }
 
+        break;
+    }
+    case Requests::Firmware::FIRMWARE_UPDATE:
+    {
+        if(lastRecvFrameHeader.data0 == 1)
+        {
+            emit sgNetEvent(NetEvents::UpdatingFirmwareFinished, "firmware.bin");
+            sendRequest(FrameType::FIRMWARE_ACTIONS, (uint8_t)Requests::Firmware::ESP_RESTART);
+        }
+        else if((qint32)lastRecvFrameHeader.data0 == -1)
+        {
+            emit sgNetEvent(NetEvents::UpdatingFirmwareError, "firmware.bin");
+        }
         break;
     }
     case Requests::Firmware::FIRMWARE_VERSION:
@@ -465,12 +482,6 @@ void NetManager::processFirmwareAnswer()
         emit sgDataUpdated(FrameType::FIRMWARE_ACTIONS, (uint8_t)Data::Firmware::FIRMWARE_VERSION, data);
         break;
     }
-    // case Requests::Firmware::FIRMWARE_UPDATE:
-    // {
-    //     qDebug() << "frame, update firmware";
-    //     emit sgNetEvent(NetEvents::UpdatingFirmware, "firmware.bin");
-    //     break;
-    // }
     default: {}
     }
 }

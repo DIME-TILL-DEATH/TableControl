@@ -16,6 +16,8 @@ enum class NetEvents
     UploadFirmware,
     UploadFirmwareError,
     UpdatingFirmware,
+    UpdatingFirmwareFinished,
+    UpdatingFirmwareError,
     PlaylistRequested,
     PlaylistRecieved,
     FileRequested,

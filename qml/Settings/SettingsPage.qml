@@ -9,9 +9,9 @@ Item{
     ProgressScreen{
         id: _progressScreen
 
-        text: ProgressManager.updatingAndReboot ? "Updating and rebooting" : "Uploading firmware file..."
+        text: ProgressManager.updatingState ? "Updating firmware... Please wait." : "Uploading firmware file..."
 
-        visible: (ProgressManager.firmwareUploadProgress < 1.0) || (ProgressManager.updatingAndReboot)
+        visible: (ProgressManager.firmwareUploadProgress < 1.0) || (ProgressManager.updatingState)
         progress: ProgressManager.firmwareUploadProgress
 
         anchors.fill: parent
@@ -113,13 +113,32 @@ Item{
         }
     }
 
+    MessageDialog{
+        id: _updateStatusDialog
+    }
+
     Connections{
         target: FirmwareManager
 
         function onSgOpenPlatformFileDialog()
         {
-            console.log("recieved signal");
             _firmwareFileDialog.open();
+        }
+    }
+
+    Connections{
+        target: ProgressManager
+
+        function oneErorOccured(errorType, data)
+        {
+            _updateStatusDialog.text = "Firmware updating failed..."
+            _updateStatusDialog.open();
+        }
+
+        function onFirmwareUpdateComplete()
+        {
+            _updateStatusDialog.text = "Firmware updating completed. Please reconnect to Wi-Fi and restart application"
+            _updateStatusDialog.open();
         }
     }
 }

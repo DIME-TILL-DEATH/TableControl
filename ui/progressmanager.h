@@ -10,7 +10,7 @@ class ProgressManager : public QObject
     Q_OBJECT
     Q_PROPERTY(qreal currentProgress READ currentProgress WRITE setCurrentProgress NOTIFY currentProgressChanged FINAL)
     Q_PROPERTY(qreal firmwareUploadProgress READ firmwareUploadProgress WRITE setFirmwareUploadProgress NOTIFY firmwareUploadProgressChanged FINAL)
-    Q_PROPERTY(bool updatingAndReboot READ updatingAndReboot WRITE setUpdatingAndReboot NOTIFY updatingAndRebootChanged FINAL)
+    Q_PROPERTY(bool updatingState READ updatingState WRITE setUpdatingState NOTIFY updatingStateChanged FINAL)
 public:
     explicit ProgressManager(NetManager* netManager, QObject *parent = nullptr);
 
@@ -20,24 +20,25 @@ public:
     enum class Error
     {
         UploadFailed,
-        FirmwareUploadFailed
+        FirmwareUploadFailed,
+        FirmwareUpdateFailed
     };
 
     qreal firmwareUploadProgress() const;
     void setFirmwareUploadProgress(qreal newFirmwareUploadProgress);
 
-    bool updatingAndReboot() const;
-    void setUpdatingAndReboot(bool newUpdatingAndReboot);
+    bool updatingState() const;
+    void setUpdatingState(bool newUpdatingState);
 
 signals:
 
     void currentProgressChanged();
 
     void errorOccured(Error errorType, QVariant data);
+    void firmwareUpdateComplete();
 
     void firmwareUploadProgressChanged();
-
-    void updatingAndRebootChanged();
+    void updatingStateChanged();
 
 public slots:
     void slUpdate(NetEvents eventType, QString target, QVariantList data);
@@ -46,11 +47,9 @@ public slots:
 private:
     qreal m_currentProgress{1.0};
     qreal m_firmwareUploadProgress{1.0};
-    bool m_updatingAndReboot{false};
+    bool m_updatingState{false};
 
     QMap<QString, QPair<qint64, qint64> > m_activeProcesses;
-
-    qint32 firmwareUploadedBytes{0};
 };
 
 #endif // PROGRESSMANAGER_H
