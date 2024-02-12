@@ -15,12 +15,12 @@ Rectangle {
             anchors.horizontalCenter: parent.horizontalCenter
             width: parent.width * 0.95
 
-            value: TransportCore.progress;
+            value: Transport.progress;
 
             Text{
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.verticalCenter: parent.verticalCenter
-                text: TransportCore.progress
+                text: Transport.progress
             }
         }
 
@@ -46,7 +46,7 @@ Rectangle {
                 text: "P/P"
 
                 onClicked: {
-                    TransportCore.pause();
+                    Transport.pause();
                 }
             }
 

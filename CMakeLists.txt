@@ -27,7 +27,7 @@ qt_add_executable(appTableControl WIN32 MACOSX_BUNDLE
     ui/devicecontentmodel.h ui/devicecontentmodel.cpp
     ui/playlistelement.h ui/playlistelement.cpp
     ui/playlistmodel.h ui/playlistmodel.cpp
-    ui/uitransport.h ui/uitransport.cpp
+    ui/transport.h ui/transport.cpp
     ui/progressmanager.h ui/progressmanager.cpp
     ui/firmwaremanager.h ui/firmwaremanager.cpp
 

@@ -2,7 +2,7 @@
 #include <QQmlApplicationEngine>
 #include <QtQml>
 
-#include "uitransport.h"
+#include "transport.h"
 
 #include "filemanager.h"
 #include "netmanager.h"
@@ -14,7 +14,7 @@
 #include "threadcontroller.h"
 
 FileManager* fileManager;
-UiTransport* uiTransport;
+Transport* uiTransport;
 NetManager* netManager;
 PlaylistModel* playlistModel;
 DeviceContentModel* deviceContentModel;
@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
     netManager = new NetManager();
     fileManager = new FileManager(netManager);
 
-    uiTransport = new UiTransport(netManager);
+    uiTransport = new Transport(netManager);
     playlistModel = new PlaylistModel(netManager);
     deviceContentModel = new DeviceContentModel(netManager);
     progressManager = new ProgressManager(netManager);
@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
 
     //qRegisterMetaType<PlaylistElement>("PlaylistElement");
 
-    qmlRegisterSingletonInstance("UiObjects", 1, 0, "TransportCore", uiTransport);
+    qmlRegisterSingletonInstance("UiObjects", 1, 0, "Transport", uiTransport);
     qmlRegisterSingletonInstance("UiObjects", 1, 0, "PlaylistModel", playlistModel);
     qmlRegisterSingletonInstance("UiObjects", 1, 0, "DeviceContentModel", deviceContentModel);
     qmlRegisterSingletonInstance("UiObjects", 1, 0, "ProgressManager", progressManager);

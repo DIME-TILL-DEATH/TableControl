@@ -37,7 +37,13 @@ SwipeDelegate {
     }
 
     background: Rectangle{
-        color: "black"
+        //color: "black"
+        id: _mainRec
+
+        property color startColor: "black"
+        property color stopColor: model.playlistElement.isCurrentPrintingElement ? "slategray" : "black"
+
+        color: startColor
 
         SequentialAnimation on color{
             id: _colorAnim
@@ -45,8 +51,8 @@ SwipeDelegate {
             running: model.playlistElement.isCurrentPrintingElement
             loops: Animation.Infinite
             alwaysRunToEnd: true
-            ColorAnimation {from: "black"; to:  "slategray" ; duration: 2000}
-            ColorAnimation {from: "slategray"; to: "black"; duration: 2000}
+            ColorAnimation {from: _mainRec.startColor; to:  _mainRec.stopColor ; duration: 2000}
+            ColorAnimation {from: _mainRec.stopColor; to: _mainRec.startColor; duration: 2000}
         }
     }
 

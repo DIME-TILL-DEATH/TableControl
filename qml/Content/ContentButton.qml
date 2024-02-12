@@ -18,14 +18,14 @@ Rectangle
     color: _ma.containsPress ? "darkgray" : "lightgrey"
 
     opacity: enabled ? 1 : 0.3
-    border.color: _ma.containsPress ? "green" : "lightgreen"
+    border.color: _ma.containsPress ? "darkgreen" : "green"
     border.width: 2
     radius: 5
 
     DefaultText {
          text: contentText
          opacity: enabled ? 1.0 : 0.3
-         color: _ma.containsPress ? "green" : "lightgreen"
+         color: _ma.containsPress ? "darkgreen" : "green"
 
          anchors.centerIn: parent
 

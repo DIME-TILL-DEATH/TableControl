@@ -32,12 +32,14 @@ Item{
             width: parent.width
             height: parent.height * 0.025
 
-            value: TransportCore.progress;
+            value: Transport.progress;
 
             Text{
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.verticalCenter: parent.verticalCenter
-                text: (TransportCore.progress * 100).toFixed(2) + "%"
+                text: (Transport.progress * 100).toFixed(2) + "%"
+
+                z: 2
             }
 
             background: Rectangle {
