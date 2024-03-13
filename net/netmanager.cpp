@@ -56,9 +56,9 @@ void NetManager::slUpdateData(FrameType frameType, uint8_t dataType, QVariantLis
 
     switch(frameType)
     {
-    case FrameType::TRANSPORT_ACTIONS:
+    case FrameType::HARDWARE_ACTIONS:
     {
-        sendTransportData(data, frameHeader);
+        sendHardwareData(data, frameHeader);
         break;
     }
     case FrameType::PLAYLIST_ACTIONS:
@@ -80,7 +80,7 @@ void NetManager::slUpdateData(FrameType frameType, uint8_t dataType, QVariantLis
     }
 }
 
-void NetManager::sendTransportData(const QVariantList &data, FrameHeader_uni frameHeader)
+void NetManager::sendHardwareData(const QVariantList &data, FrameHeader_uni frameHeader)
 {
     frameHeader.structData.frameSize = sizeof(FrameHeader);
     netClient->sendData(QByteArray(frameHeader.rawData, sizeof(FrameHeader)));
@@ -256,10 +256,10 @@ void NetManager::processRecievedData(QByteArray data)
             switch(lastRecvFrameHeader.frameType)
             {
             case FrameType::UNDEFINED: break;
-
-            case FrameType::TRANSPORT_ACTIONS:
+                
+            case FrameType::HARDWARE_ACTIONS:
             {
-                processTransportAnswer();
+                processHardwareAnswer();
                 break;
             }
             case FrameType::PLAYLIST_ACTIONS:
@@ -289,27 +289,69 @@ void NetManager::processRecievedData(QByteArray data)
     }
 }
 
-void NetManager::processTransportAnswer()
+void NetManager::processHardwareAnswer()
 {
-    switch((Requests::Transport)lastRecvFrameHeader.action)
+    QVariantList dataList;
+    union { float f; uint32_t i; } u;
+
+    switch((Requests::Hardware)lastRecvFrameHeader.action)
     {
-    case Requests::Transport::REQUEST_PROGRESS:
+    case Requests::Hardware::REQUEST_PROGRESS:
     {
-        QVariantList dataList;
         dataList.append(lastRecvFrameHeader.data0);
         dataList.append(lastRecvFrameHeader.data1);
-        emit sgDataUpdated(FrameType::TRANSPORT_ACTIONS, (uint8_t)Data::Transport::PROGRESS, dataList);
+        qDebug() << "Progress" << lastRecvFrameHeader.data0 << lastRecvFrameHeader.data1;
+        emit sgDataUpdated(FrameType::HARDWARE_ACTIONS, (uint8_t)Data::Hardware::PROGRESS, dataList);
         break;
     }
-    case Requests::Transport::PAUSE_PRINTING:
+    case Requests::Hardware::PAUSE_PRINTING:
     {
         break;
     }
-    case Requests::Transport::GET_PRINT_SPEED:
+    case Requests::Hardware::GET_PRINT_SPEED:
     {
-        QVariantList dataList;
+        u.i = lastRecvFrameHeader.data0;
+        dataList.append(u.f);
+        emit sgDataUpdated(FrameType::HARDWARE_ACTIONS, (uint8_t)Data::Hardware::PRINT_SPEED, dataList);
+        break;
+    }
+    case Requests::Hardware::GET_LED_BRIGHTNESS:
+    {
+        u.i = lastRecvFrameHeader.data0;
+        dataList.append(u.f);
+        qDebug() << "LED brightness: " << u.f;
+        emit sgDataUpdated(FrameType::HARDWARE_ACTIONS, (uint8_t)Data::Hardware::LED_BRIGHTNESS, dataList);
+        break;
+    }
+    case Requests::Hardware::GET_SCALE_COEFFICIENT:
+    {
+        u.i = lastRecvFrameHeader.data0;
+        dataList.append(u.f);
+        qDebug() << "Scale coef: " << u.f;
+        emit sgDataUpdated(FrameType::HARDWARE_ACTIONS, (uint8_t)Data::Hardware::SCALE_COEFFICIENT, dataList);
+        break;
+    }
+    case Requests::Hardware::GET_ROTATION:
+    {
+        u.i = lastRecvFrameHeader.data0;
+        dataList.append(u.f);
+        qDebug() << "Rotation: " << u.f;
+        emit sgDataUpdated(FrameType::HARDWARE_ACTIONS, (uint8_t)Data::Hardware::ROTATION, dataList);
+        break;
+    }
+    case Requests::Hardware::GET_CORRECTION:
+    {
+        u.i = lastRecvFrameHeader.data0;
+        dataList.append(u.f);
+        qDebug() << "Correction: " << u.f;
+        emit sgDataUpdated(FrameType::HARDWARE_ACTIONS, (uint8_t)Data::Hardware::CORRECTION, dataList);
+        break;
+    }
+    case Requests::Hardware::GET_PAUSE_INTERVAL:
+    {
         dataList.append(lastRecvFrameHeader.data0);
-        emit sgDataUpdated(FrameType::TRANSPORT_ACTIONS, (uint8_t)Data::Transport::PRINT_SPEED, dataList);
+        qDebug() << "Pause interval: " << lastRecvFrameHeader.data0;
+        emit sgDataUpdated(FrameType::HARDWARE_ACTIONS, (uint8_t)Data::Hardware::PAUSE_INTERVAL, dataList);
         break;
     }
     default: break;

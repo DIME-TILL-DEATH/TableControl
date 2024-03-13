@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.21.1)
 
-project(TableControl VERSION 0.4.0 LANGUAGES CXX)
+project(TableControl VERSION 0.4.2 LANGUAGES CXX)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_STANDARD 17)
@@ -27,7 +27,7 @@ qt_add_executable(appTableControl WIN32 MACOSX_BUNDLE
     ui/devicecontentmodel.h ui/devicecontentmodel.cpp
     ui/playlistelement.h ui/playlistelement.cpp
     ui/playlistmodel.h ui/playlistmodel.cpp
-    ui/transport.h ui/transport.cpp
+    ui/hardware.h ui/hardware.cpp
     ui/progressmanager.h ui/progressmanager.cpp
     ui/firmwaremanager.h ui/firmwaremanager.cpp
 

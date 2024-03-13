@@ -7,19 +7,29 @@ typedef enum : uint8_t
 {
     UNDEFINED = 0,
     PLAYLIST_ACTIONS,
-    TRANSPORT_ACTIONS,
+    HARDWARE_ACTIONS,
     FILE_ACTIONS,
     FIRMWARE_ACTIONS
 }FrameType;
 
 namespace Requests
 {
-enum class Transport
+enum class Hardware
 {
     PAUSE_PRINTING,
     REQUEST_PROGRESS,
     GET_PRINT_SPEED,
-    SET_PRINT_SPEED
+    SET_PRINT_SPEED,
+    GET_LED_BRIGHTNESS,
+    SET_LED_BRIGHTNESS,
+    GET_SCALE_COEFFICIENT,
+    SET_SCALE_COEFFICIENT,
+    GET_ROTATION,
+    SET_ROTATION,
+    GET_CORRECTION,
+    SET_CORRECTION,
+    GET_PAUSE_INTERVAL,
+    SET_PAUSE_INTERVAL
 };
 
 enum class Playlist
@@ -52,11 +62,16 @@ enum class Firmware
 
 namespace Data
 {
-enum class Transport
+enum class Hardware
 {
     PROGRESS,
     PAUSE_STATE,
-    PRINT_SPEED
+    PRINT_SPEED,
+    LED_BRIGHTNESS,
+    SCALE_COEFFICIENT,
+    ROTATION,
+    CORRECTION,
+    PAUSE_INTERVAL
 };
 
 enum class Playlist

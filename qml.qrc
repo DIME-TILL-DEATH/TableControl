@@ -20,5 +20,7 @@
         <file>qml/Settings/qmldir</file>
         <file>qml/Settings/SettingsPage.qml</file>
         <file>qml/Content/ContentButton.qml</file>
+        <file>qml/Settings/SettingsHeader.qml</file>
+        <file>qml/Settings/SettingTextEdit.qml</file>
     </qresource>
 </RCC>

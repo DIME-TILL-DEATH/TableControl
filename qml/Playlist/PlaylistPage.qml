@@ -32,12 +32,12 @@ Item{
             width: parent.width
             height: parent.height * 0.025
 
-            value: Transport.progress;
+            value: Hardware.progress;
 
             Text{
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.verticalCenter: parent.verticalCenter
-                text: (Transport.progress * 100).toFixed(2) + "%"
+                text: (Hardware.progress * 100).toFixed(2) + "%"
 
                 z: 2
             }

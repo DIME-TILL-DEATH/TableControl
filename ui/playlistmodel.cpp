@@ -97,7 +97,7 @@ QVariant PlaylistModel::data(const QModelIndex &index, int role) const
 void PlaylistModel::slDeviceAvaliable()
 {
     emit sgRequest(FrameType::PLAYLIST_ACTIONS, (uint8_t)Requests::Playlist::REQUEST_PLAYLIST);
-    emit sgRequest(FrameType::TRANSPORT_ACTIONS, (uint8_t)Requests::Transport::REQUEST_PROGRESS);
+    emit sgRequest(FrameType::HARDWARE_ACTIONS, (uint8_t)Requests::Hardware::REQUEST_PROGRESS);
     emit sgRequest(FrameType::PLAYLIST_ACTIONS, (uint8_t)Requests::Playlist::REQUEST_PLAYLIST_POSITION);
 
     setDeviceAvaliable(true);
@@ -256,7 +256,7 @@ void PlaylistModel::remove(int pos)
 
 void PlaylistModel::checkDataUpdate()
 {
-    emit sgRequest(FrameType::TRANSPORT_ACTIONS, (uint8_t)Requests::Transport::REQUEST_PROGRESS);
+    emit sgRequest(FrameType::HARDWARE_ACTIONS, (uint8_t)Requests::Hardware::REQUEST_PROGRESS);
     emit sgRequest(FrameType::PLAYLIST_ACTIONS, (uint8_t)Requests::Playlist::REQUEST_PLAYLIST_POSITION);
 }
 

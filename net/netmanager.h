@@ -48,7 +48,7 @@ public slots:
 
 private slots:
     void processRecievedData(QByteArray data);
-    void sendTransportData(const QVariantList& data, FrameHeader_uni frameHeader);
+    void sendHardwareData(const QVariantList& data, FrameHeader_uni frameHeader);
     void sendPlaylistData(const QVariantList& data, FrameHeader_uni frameHeader);
     void sendFileData(const QVariantList &data, FrameHeader_uni frameHeader);
     void sendFirmwareData(const QVariantList &data, FrameHeader_uni frameHeader);
@@ -65,7 +65,7 @@ private:
     void requestProgress();
     void requestPlaylist();
     
-    void processTransportAnswer();
+    void processHardwareAnswer();
     void processPlaylistAnswer();
     void processFileAnswer();
     void processFirmwareAnswer();

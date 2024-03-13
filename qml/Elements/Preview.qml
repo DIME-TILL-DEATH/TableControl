@@ -23,6 +23,11 @@ Item{
         width: parent.width
         height: width
 
+        transform: Scale {
+            origin.x: width/2
+            origin.y: height/2
+            xScale: -1}
+
         renderStrategy: Canvas.Threaded
 
         property real coefX : width/ (400*2)
@@ -43,13 +48,10 @@ Item{
 
                 ctx.beginPath()
 
-
                 for(var i=0; i<dataPoints.length; i++)
                 {
                     ctx.lineTo(dataPoints[i].x*coefX, dataPoints[i].y*coefY);
                 }
-
-                ctx.closePath()
                 ctx.stroke()
             }
         }
