@@ -18,12 +18,12 @@ Item{
     }
 
     Column{
-        height: parent.height*0.9
+        height: parent.height*0.95
         width: parent.width*0.75
 
         anchors.centerIn: parent
 
-        spacing: height/25
+        spacing: height/35
 
         SettingsHeader{
             text: "Application ver.: " + Qt.application.version + "\n"
@@ -36,7 +36,7 @@ Item{
             anchors.horizontalCenter: parent.horizontalCenter
 
             width: parent.width*0.75
-            height: parent.height/15
+            height: parent.height/20
 
             text: "Update firmware"
 
@@ -91,6 +91,36 @@ Item{
         }
 
         SettingsHeader{
+            text: "Pause between prints"
+        }
+
+        ComboBox{
+            id: _comboPause
+
+            width: parent.width*0.5
+            height: parent.height/20
+
+            anchors.horizontalCenter: parent.horizontalCenter
+
+            textRole: "key"
+            valueRole: "value"
+
+            model: ListModel{
+                id: comboModel
+
+                ListElement { key: "10 s"; value: 10000 }
+                ListElement { key: "30 s"; value: 30000 }
+                ListElement { key: "1 min"; value: 60000 }
+                ListElement { key: "5 min"; value: 300000 }
+                ListElement { key: "10 min"; value: 600000 }
+            }
+
+            onActivated: {
+                Hardware.pauseInterval = currentValue
+            }
+        }
+
+        SettingsHeader{
             text: "Printing properties:"
         }
 
@@ -130,7 +160,7 @@ Item{
             anchors.horizontalCenter: parent.horizontalCenter
 
             width: parent.width*0.5
-            height: parent.height/15
+            height: parent.height/20
 
             text: "Set"
 
@@ -160,6 +190,15 @@ Item{
 
     MessageDialog{
         id: _updateStatusDialog
+    }
+
+    Connections{
+        target: Hardware
+
+        function onPauseIntervalChanged()
+        {
+            _comboPause.currentIndex = _comboPause.indexOfValue(Hardware.pauseInterval)
+        }
     }
 
     Connections{

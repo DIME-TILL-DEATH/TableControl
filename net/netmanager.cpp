@@ -300,7 +300,7 @@ void NetManager::processHardwareAnswer()
     {
         dataList.append(lastRecvFrameHeader.data0);
         dataList.append(lastRecvFrameHeader.data1);
-        qDebug() << "Progress" << lastRecvFrameHeader.data0 << lastRecvFrameHeader.data1;
+        //qDebug() << "Progress" << lastRecvFrameHeader.data0 << lastRecvFrameHeader.data1;
         emit sgDataUpdated(FrameType::HARDWARE_ACTIONS, (uint8_t)Data::Hardware::PROGRESS, dataList);
         break;
     }

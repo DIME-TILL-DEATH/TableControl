@@ -16,6 +16,7 @@ class Hardware : public QObject
     Q_PROPERTY(float progress READ progress WRITE setProgress NOTIFY sgProgressChanged FINAL)
     Q_PROPERTY(float printSpeed READ printSpeed WRITE setPrintSpeed NOTIFY sgPrintSpeedChanged FINAL)
     Q_PROPERTY(float ledBrightness READ ledBrightness WRITE setLedBrightness NOTIFY sgLedBrightnessChanged FINAL)
+    Q_PROPERTY(quint32 pauseInterval READ pauseInterval WRITE setPauseInterval NOTIFY pauseIntervalChanged FINAL)
 
     Q_PROPERTY(float scaleCoefficient READ scaleCoefficient WRITE setScaleCoefficient NOTIFY scaleCoefficientChanged FINAL)
     Q_PROPERTY(float rotation READ rotation WRITE setRotation NOTIFY rotationChanged FINAL)
@@ -44,6 +45,9 @@ public:
     float correction() const;
     void setCorrection(float newCorrection);
 
+    quint32 pauseInterval() const;
+    void setPauseInterval(quint32 newPauseInterval);
+
 signals:
     void sgRequest(FrameType frameType, uint8_t requestType, uint32_t data0 = 0, uint32_t data1 = 0, uint32_t parameters = 0);
 
@@ -53,6 +57,9 @@ signals:
     void scaleCoefficientChanged();
     void rotationChanged();
     void correctionChanged();
+
+
+    void pauseIntervalChanged();
 
 public slots:
     void slDataUpdated(FrameType frameType, uint8_t dataType, QVariantList data);
@@ -66,6 +73,7 @@ private:
     float m_scaleCoefficient{1.0};
     float m_rotation{0};
     float m_correction{0};
+    quint32 m_pauseInterval{0};
 
     void sendFloatRequest(Requests::Hardware requestType, float data);
 };

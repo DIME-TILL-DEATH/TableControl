@@ -70,6 +70,8 @@ void Hardware::slDataUpdated(FrameType frameType, uint8_t dataType, QVariantList
     }
     case Data::Hardware::PAUSE_INTERVAL:
     {
+        m_pauseInterval = data.at(0).toInt();
+        emit pauseIntervalChanged();
         break;
     }
     default:
@@ -152,4 +154,20 @@ void Hardware::setCorrection(float newCorrection)
 {
     m_correction = newCorrection;
     emit correctionChanged();
+}
+
+
+quint32 Hardware::pauseInterval() const
+{
+    return m_pauseInterval;
+}
+
+void Hardware::setPauseInterval(quint32 newPauseInterval)
+{
+    if (m_pauseInterval == newPauseInterval)
+        return;
+
+    m_pauseInterval = newPauseInterval;
+    emit pauseIntervalChanged();
+    emit sgRequest(FrameType::HARDWARE_ACTIONS, (uint8_t)Requests::Hardware::SET_PAUSE_INTERVAL, m_pauseInterval);
 }

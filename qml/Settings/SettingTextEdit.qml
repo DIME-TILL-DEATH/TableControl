@@ -53,7 +53,7 @@ Row{
              }
 
 
-        onAccepted: {
+        onEditingFinished: {
             valueEntered(_textField.text)
             _textField.focus = false
         }

@@ -12,7 +12,7 @@ Rectangle{
     anchors.horizontalCenter: parent.horizontalCenter
 
     width: parent.width
-    height: parent.height/12
+    height: parent.height/16
 
     color: "transparent"
 
