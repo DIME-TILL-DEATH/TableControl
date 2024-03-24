@@ -146,7 +146,7 @@ Item{
 
         SettingTextEdit{
             label: "R correction, mm: "
-            valueChecker: DoubleValidator{locale: "en"; bottom: 0; top: 100.0}
+            valueChecker: DoubleValidator{locale: "en"; bottom: -50.0; top: 50.0}
             visibleText: Hardware.correction.toFixed(1)
 
             onValueEntered: function(text){

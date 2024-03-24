@@ -39,7 +39,7 @@ Row{
 
 
         selectByMouse: true
-        inputMethodHints: Qt.ImhDigitsOnly
+        inputMethodHints: Qt.ImhPreferNumbers
 
         background: Rectangle {
                  id: _backgroundRectangle
