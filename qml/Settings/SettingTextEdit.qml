@@ -9,7 +9,7 @@ Row{
     property string label: "Setting"
 
     width: parent.width
-    height: parent.height/25
+    height: parent.height/22
     spacing: width/20
 
     anchors.horizontalCenter: parent.horizontalCenter

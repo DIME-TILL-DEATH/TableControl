@@ -23,7 +23,7 @@ Item{
 
         anchors.centerIn: parent
 
-        spacing: height/35
+        spacing: height/45
 
         SettingsHeader{
             text: "Application ver.: " + Qt.application.version + "\n"
@@ -54,6 +54,7 @@ Item{
             id: _speedSlider
 
             width: parent.width
+            height: parent.height/17
 
             from: 10
             to: 60
@@ -76,6 +77,7 @@ Item{
             id: _ledSlider
 
             width: parent.width
+            height: parent.height/17
 
             from: 0
             to: 1
@@ -97,13 +99,23 @@ Item{
         ComboBox{
             id: _comboPause
 
-            width: parent.width*0.5
-            height: parent.height/20
+            width: parent.width*0.75
+            height: parent.height/18
 
             anchors.horizontalCenter: parent.horizontalCenter
 
             textRole: "key"
             valueRole: "value"
+
+            background: Rectangle {
+                 color: "white"
+
+                 implicitWidth: _comboPause.width
+                 implicitHeight: _comboPause.height
+                 border.color: _comboPause.pressed ? "blue" : "white"
+                 border.width: _comboPause.visualFocus ? 2 : 1
+                 radius: 2
+             }
 
             model: ListModel{
                 id: comboModel
