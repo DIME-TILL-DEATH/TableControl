@@ -1,6 +1,7 @@
 #include <QFile>
 #include <QDir>
 #include <QDebug>
+#include <QStandardPaths>
 
 #include "filemanager.h"
 #include "devicecontentmodel.h"
@@ -14,7 +15,11 @@ FileManager::FileManager(NetManager *netManager, QObject *parent)
 
 bool FileManager::getPointsFromFile(QString fileName, QList<QVariant>& result)
 {
-    QString folder("preview/");
+    QString dataPath;
+#ifdef Q_OS_IOS
+    dataPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + '/';
+#endif
+    QString folder(dataPath + "preview/");
     QFile gcodeFile(folder+fileName);
     if(gcodeFile.open(QIODevice::ReadOnly | QIODevice::Text))
     {
@@ -45,15 +50,13 @@ bool FileManager::getPointsFromFile(QString fileName, QList<QVariant>& result)
 
 void FileManager::savePreviewFile(QString filePath, const QByteArray &fileData)
 {
-    QFileInfo fileInfo("preview/" + filePath);
+    QString dataPath;
+#ifdef Q_OS_IOS
+    dataPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + '/';
+#endif
+    QFileInfo fileInfo(dataPath + "preview/" + filePath);
 
     QDir folder = fileInfo.dir();
-
-//    QString folder("preview/");
-//    if(!QDir(folder).exists())
-//    {
-//        QDir().mkpath(folder);
-//    }
     if(!folder.exists())
     {
         folder.mkpath(fileInfo.absolutePath());
