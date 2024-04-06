@@ -46,6 +46,10 @@ ApplicationWindow {
         SettingsPage{
             id: _settingsPage
         }
+
+        AdminSettingsPage{
+            id: _adminSettingsPage
+        }
     }
 
     footer: TabBar{
@@ -80,6 +84,14 @@ ApplicationWindow {
              text: qsTr("Settings")
              onClicked: {
                  _swipeView.currentIndex=2
+             }
+         }
+         TabButton {
+             height: parent.height
+             anchors.top: parent.top
+             text: qsTr("Admin")
+             onClicked: {
+                 _swipeView.currentIndex=3
              }
          }
     }

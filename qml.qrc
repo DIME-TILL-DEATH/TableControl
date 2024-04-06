@@ -22,5 +22,6 @@
         <file>qml/Content/ContentButton.qml</file>
         <file>qml/Settings/SettingsHeader.qml</file>
         <file>qml/Settings/SettingTextEdit.qml</file>
+        <file>qml/Settings/AdminSettingsPage.qml</file>
     </qresource>
 </RCC>

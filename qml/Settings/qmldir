@@ -1,5 +1,6 @@
 module Settings
 
+AdminSettingsPage 1.0 AdminSettingsPage.qml
 SettingsHeader 1.0 SettingsHeader.qml
 SettingsTextEdit 1.0 SettingsTextEdit.qml
 SettingsPage 1.0 SettingsPage.qml
