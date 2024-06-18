@@ -296,6 +296,15 @@ void NetManager::processHardwareAnswer()
 
     switch((Requests::Hardware)lastRecvFrameHeader.action)
     {
+    case Requests::Hardware::GET_SERIAL_ID:
+    {
+        lastRecvFrame.remove(0, sizeof(FrameHeader));
+        QString result(lastRecvFrame);
+        dataList.append(result);
+        qDebug() << "Serial ID:" << result;
+        emit sgDataUpdated(FrameType::HARDWARE_ACTIONS, (uint8_t)Data::Hardware::SERIAL_ID, dataList);
+        break;
+    }
     case Requests::Hardware::REQUEST_PROGRESS:
     {
         dataList.append(lastRecvFrameHeader.data0);
@@ -352,6 +361,19 @@ void NetManager::processHardwareAnswer()
         dataList.append(lastRecvFrameHeader.data0);
         qDebug() << "Pause interval: " << lastRecvFrameHeader.data0;
         emit sgDataUpdated(FrameType::HARDWARE_ACTIONS, (uint8_t)Data::Hardware::PAUSE_INTERVAL, dataList);
+        break;
+    }
+    case Requests::Hardware::GET_FI_GEAR2_TEETH_COUNT:
+    {
+        dataList.append(lastRecvFrameHeader.data0);
+        qDebug() << "Fi gear2 teeth count: " << lastRecvFrameHeader.data0;
+        emit sgDataUpdated(FrameType::HARDWARE_ACTIONS, (uint8_t)Data::Hardware::FI_GEAR2_TEETHS, dataList);
+        break;
+    }
+    case Requests::Hardware::GET_MACHINE_MINUTES:
+    {
+        dataList.append(lastRecvFrameHeader.data0);
+        emit sgDataUpdated(FrameType::HARDWARE_ACTIONS, (uint8_t)Data::Hardware::MACHINE_MINUTES, dataList);
         break;
     }
     default: break;

@@ -17,6 +17,9 @@ class Hardware : public QObject
     Q_PROPERTY(float printSpeed READ printSpeed WRITE setPrintSpeed NOTIFY sgPrintSpeedChanged FINAL)
     Q_PROPERTY(float ledBrightness READ ledBrightness WRITE setLedBrightness NOTIFY sgLedBrightnessChanged FINAL)
     Q_PROPERTY(quint32 pauseInterval READ pauseInterval WRITE setPauseInterval NOTIFY pauseIntervalChanged FINAL)
+    Q_PROPERTY(quint16 fiGear2Teeths READ fiGear2Teeths NOTIFY fiGear2TeethsChanged)
+    Q_PROPERTY(quint32 machineMinutes READ machineMinutes NOTIFY machineMinutesChanged FINAL)
+    Q_PROPERTY(QString serialId READ serialId NOTIFY serialIdChanged FINAL)
 
     Q_PROPERTY(float scaleCoefficient READ scaleCoefficient WRITE setScaleCoefficient NOTIFY scaleCoefficientChanged FINAL)
     Q_PROPERTY(float rotation READ rotation WRITE setRotation NOTIFY rotationChanged FINAL)
@@ -30,23 +33,27 @@ public:
     Q_INVOKABLE void pause() {emit sgRequest(FrameType::HARDWARE_ACTIONS, (uint8_t)Requests::Hardware::PAUSE_PRINTING);};
     Q_INVOKABLE void setPrintProperties();
 
-    float printSpeed() const;
+    float printSpeed() const {return m_printSpeed;};
     void setPrintSpeed(float newPrintSpeed);
 
-    float ledBrightness() const;
+    float ledBrightness() const {return m_ledBrightness;};
     void setLedBrightness(float newLedBrightness);
 
-    float scaleCoefficient() const;
+    float scaleCoefficient() const {return m_scaleCoefficient;};
     void setScaleCoefficient(float newScaleCoefficient);
 
-    float rotation() const;
+    float rotation() const {return m_rotation;};
     void setRotation(float newRotation);
 
-    float correction() const;
+    float correction() const {return m_correction;};
     void setCorrection(float newCorrection);
 
-    quint32 pauseInterval() const;
+    quint32 pauseInterval() const {return m_pauseInterval;};
     void setPauseInterval(quint32 newPauseInterval);
+
+    quint16 fiGear2Teeths() const {return m_fiGear2Teeths;};   
+    quint32 machineMinutes() const {return m_machineMinutes;};    
+    QString serialId() const {return m_serialId;};
 
 signals:
     void sgRequest(FrameType frameType, uint8_t requestType, uint32_t data0 = 0, uint32_t data1 = 0, uint32_t parameters = 0);
@@ -57,9 +64,10 @@ signals:
     void scaleCoefficientChanged();
     void rotationChanged();
     void correctionChanged();
-
-
     void pauseIntervalChanged();
+    void fiGear2TeethsChanged();
+    void machineMinutesChanged();
+    void serialIdChanged();
 
 public slots:
     void slDataUpdated(FrameType frameType, uint8_t dataType, QVariantList data);
@@ -76,6 +84,9 @@ private:
     quint32 m_pauseInterval{0};
 
     void sendFloatRequest(Requests::Hardware requestType, float data);
+    quint16 m_fiGear2Teeths;
+    quint32 m_machineMinutes;
+    QString m_serialId;
 };
 
 #endif // HARDWARE_H

@@ -33,6 +33,12 @@ void Hardware::slDataUpdated(FrameType frameType, uint8_t dataType, QVariantList
 
     switch ((Data::Hardware)dataType)
     {
+    case Data::Hardware::SERIAL_ID:
+    {
+        m_serialId = data.at(0).toString();
+        emit serialIdChanged();
+        break;
+    }
     case Data::Hardware::PROGRESS:
     {
         quint16 currentPoint = data.at(0).toInt();
@@ -74,6 +80,16 @@ void Hardware::slDataUpdated(FrameType frameType, uint8_t dataType, QVariantList
         emit pauseIntervalChanged();
         break;
     }
+    case Data::Hardware::FI_GEAR2_TEETHS:
+    {
+        m_fiGear2Teeths = data.at(0).toInt();
+        emit fiGear2TeethsChanged();
+    }
+    case Data::Hardware::MACHINE_MINUTES:
+    {
+        m_machineMinutes = data.at(0).toInt();
+        emit machineMinutesChanged();
+    }
     default:
         break;
     }
@@ -81,6 +97,7 @@ void Hardware::slDataUpdated(FrameType frameType, uint8_t dataType, QVariantList
 
 void Hardware::slDeviceAvaliable()
 {
+    emit sgRequest(FrameType::HARDWARE_ACTIONS, (uint8_t)Requests::Hardware::GET_SERIAL_ID);
     emit sgRequest(FrameType::HARDWARE_ACTIONS, (uint8_t)Requests::Hardware::REQUEST_PROGRESS);
     emit sgRequest(FrameType::HARDWARE_ACTIONS, (uint8_t)Requests::Hardware::GET_PRINT_SPEED);
     emit sgRequest(FrameType::HARDWARE_ACTIONS, (uint8_t)Requests::Hardware::GET_LED_BRIGHTNESS);
@@ -88,6 +105,8 @@ void Hardware::slDeviceAvaliable()
     emit sgRequest(FrameType::HARDWARE_ACTIONS, (uint8_t)Requests::Hardware::GET_ROTATION);
     emit sgRequest(FrameType::HARDWARE_ACTIONS, (uint8_t)Requests::Hardware::GET_CORRECTION);
     emit sgRequest(FrameType::HARDWARE_ACTIONS, (uint8_t)Requests::Hardware::GET_PAUSE_INTERVAL);
+    emit sgRequest(FrameType::HARDWARE_ACTIONS, (uint8_t)Requests::Hardware::GET_FI_GEAR2_TEETH_COUNT);
+    emit sgRequest(FrameType::HARDWARE_ACTIONS, (uint8_t)Requests::Hardware::GET_MACHINE_MINUTES);
 }
 
 void Hardware::sendFloatRequest(Requests::Hardware requestType, float data)
@@ -95,11 +114,6 @@ void Hardware::sendFloatRequest(Requests::Hardware requestType, float data)
     union { float f; uint32_t i; } u;
     u.f = data;
     emit sgRequest(FrameType::HARDWARE_ACTIONS, (uint8_t)requestType, u.i);
-}
-
-float Hardware::printSpeed() const
-{
-    return m_printSpeed;
 }
 
 void Hardware::setPrintSpeed(float newPrintSpeed)
@@ -110,11 +124,6 @@ void Hardware::setPrintSpeed(float newPrintSpeed)
     sendFloatRequest(Requests::Hardware::SET_PRINT_SPEED, m_printSpeed);
 }
 
-float Hardware::ledBrightness() const
-{
-    return m_ledBrightness;
-}
-
 void Hardware::setLedBrightness(float newLedBrightness)
 {
     m_ledBrightness = newLedBrightness;
@@ -123,20 +132,10 @@ void Hardware::setLedBrightness(float newLedBrightness)
     sendFloatRequest(Requests::Hardware::SET_LED_BRIGHTNESS, m_ledBrightness);
 }
 
-float Hardware::scaleCoefficient() const
-{
-    return m_scaleCoefficient;
-}
-
 void Hardware::setScaleCoefficient(float newScaleCoefficient)
 {
     m_scaleCoefficient = newScaleCoefficient;
     emit scaleCoefficientChanged();
-}
-
-float Hardware::rotation() const
-{
-    return m_rotation;
 }
 
 void Hardware::setRotation(float newRotation)
@@ -145,21 +144,10 @@ void Hardware::setRotation(float newRotation)
     emit rotationChanged();
 }
 
-float Hardware::correction() const
-{
-    return m_correction;
-}
-
 void Hardware::setCorrection(float newCorrection)
 {
     m_correction = newCorrection;
     emit correctionChanged();
-}
-
-
-quint32 Hardware::pauseInterval() const
-{
-    return m_pauseInterval;
 }
 
 void Hardware::setPauseInterval(quint32 newPauseInterval)

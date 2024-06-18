@@ -142,6 +142,18 @@ void PlaylistModel::slDataUpdated(FrameType frameType, uint8_t dataType, QVarian
 
         if(plsPos == curPlaylistPosition()) return;
 
+        if(plsPos > m_playlist.size())
+        {
+            qWarning() << "Recieved playlist position more than elements in playlist";
+            return;
+        }
+
+        if(plsPos == -1)
+        {
+            qWarning() << "Playlist is empty";
+            return;
+        }
+
         for(auto it = m_playlist.begin(); it != m_playlist.end(); ++it)
         {
             (*it).setIsCurrentPrintingElement(false);
@@ -257,6 +269,7 @@ void PlaylistModel::remove(int pos)
 void PlaylistModel::checkDataUpdate()
 {
     emit sgRequest(FrameType::HARDWARE_ACTIONS, (uint8_t)Requests::Hardware::REQUEST_PROGRESS);
+    emit sgRequest(FrameType::HARDWARE_ACTIONS, (uint8_t)Requests::Hardware::GET_MACHINE_MINUTES);
     emit sgRequest(FrameType::PLAYLIST_ACTIONS, (uint8_t)Requests::Playlist::REQUEST_PLAYLIST_POSITION);
 }
 

@@ -15,6 +15,10 @@ Item{
         spacing: height/45
 
         SettingsHeader{
+            text: "Serial ID: " + Hardware.serialId
+        }
+
+        SettingsHeader{
             text: "Printing properties:"
         }
 
@@ -62,6 +66,14 @@ Item{
                 Hardware.setPrintProperties();
 
             }
+        }
+
+        SettingsHeader{
+            text: "Fi gear 2 teeths: " + Hardware.fiGear2Teeths
+        }
+
+        SettingsHeader{
+            text: "Running time: " + (Math.floor(Hardware.machineMinutes/60)) + ":" +  Hardware.machineMinutes%60
         }
     }
 }
