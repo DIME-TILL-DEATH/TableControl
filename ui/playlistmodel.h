@@ -7,8 +7,8 @@
 #include "playlistelement.h"
 
 #include "netmanager.h"
+#include "requestmanager.h"
 
-#include "qtimer.h"
 #include "requestactions.h"
 
 class PlaylistModel : public QAbstractListModel
@@ -16,7 +16,7 @@ class PlaylistModel : public QAbstractListModel
     Q_OBJECT
     Q_PROPERTY(bool deviceAvaliable READ deviceAvaliable WRITE setDeviceAvaliable NOTIFY deviceAvaliableChanged FINAL)
 public:
-    explicit PlaylistModel(NetManager* netManager, QObject *parent = nullptr);
+    explicit PlaylistModel(NetManager* netManager, RequestManager* requestManager, QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role) const;
@@ -77,7 +77,6 @@ private:
 
     qint32 curPlaylistPosition();
 
-    QTimer* updateDataTimer;
     float m_progress;
     bool m_deviceAvaliable;
 };

@@ -10,6 +10,12 @@
 #include "activityresultmanager.h"
 #endif
 
+struct FirmwareVersion
+{
+    quint8 major;
+    quint8 minor;
+};
+
 class FirmwareManager : public QObject
 {
     Q_OBJECT
@@ -23,25 +29,24 @@ public:
     QString currentFwVersion() const;
     void setCurrentFwVersion(const QString &newCurrentFwVersion);
 
+    static bool isVerisonSufficient(QString versionString);
+
 signals:
     void sgUpdateData(FrameType frameType, uint8_t dataType, QVariantList data);
-    void sgRequest(FrameType frameType, uint8_t requestType,
-                   uint32_t data0 = 0,
-                   uint32_t data1 = 0,
-                   uint32_t parameters = 0);
+
+    void sgOpenPlatformFileDialog();
+    void sgFirmwareVersionInsufficient();
 
     void currentFwVersionChanged();
 
-    void sgOpenPlatformFileDialog();
-
 public slots:
-    void slDeviceAvaliable();
     void slDataUpdated(FrameType frameType, uint8_t dataType, QVariantList data);
 
     void slAndroidFilePicked(QString filePath, QString fileName);
 
 private:
     QString m_currentFwVersion;
+    static FirmwareVersion extractFirmwareVersion(QString versionString);
 
 #ifdef __ANDROID__
     ActivityResultManager activityResultHandler;

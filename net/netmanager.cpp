@@ -22,7 +22,7 @@ NetManager::NetManager(QObject *parent)
     lastRecvFrameHeader.frameSize = 0;
 }
 
-void NetManager::sendRequest(FrameType frameType, uint8_t request,
+void NetManager::sendNetRequest(FrameType frameType, uint8_t request,
                                                      uint32_t data0,
                                                      uint32_t data1,
                                                      uint32_t parameters)
@@ -516,7 +516,7 @@ void NetManager::processFirmwareAnswer()
             {
                 qDebug() << "Firmware uploaded, update";
                 updateFileUploadProgress(NetEvents::UpdatingFirmware, "firmware.bin", dataProcessed, fileSize);
-                sendRequest(FrameType::FIRMWARE_ACTIONS, (uint8_t)Requests::Firmware::FIRMWARE_UPDATE);
+                sendNetRequest(FrameType::FIRMWARE_ACTIONS, (uint8_t)Requests::Firmware::FIRMWARE_UPDATE);
             }
         }
         else
@@ -531,7 +531,7 @@ void NetManager::processFirmwareAnswer()
         if(lastRecvFrameHeader.data0 == 1)
         {
             emit sgNetEvent(NetEvents::UpdatingFirmwareFinished, "firmware.bin");
-            sendRequest(FrameType::FIRMWARE_ACTIONS, (uint8_t)Requests::Firmware::ESP_RESTART);
+            sendNetRequest(FrameType::FIRMWARE_ACTIONS, (uint8_t)Requests::Firmware::ESP_RESTART);
         }
         else if((qint32)lastRecvFrameHeader.data0 == -1)
         {

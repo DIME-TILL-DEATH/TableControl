@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.21.1)
 
-project(KineticControl VERSION 0.4.4 LANGUAGES CXX)
+project(KineticControl VERSION 0.5.0 LANGUAGES CXX)
+add_definitions(-DMINIMAL_FIRMWARE_VERSION="0.75")
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_STANDARD 17)
@@ -16,13 +17,14 @@ qt6_add_resources(SOURCES
 
 qt_add_executable(KineticControl WIN32 MACOSX_BUNDLE
     main.cpp
-
-    ${SOURCES}
-    threadcontroller.h threadcontroller.cpp
     requestactions.h
 
-    file/filemanager.h file/filemanager.cpp
+    requestmanager.h requestmanager.cpp
+    threadcontroller.h threadcontroller.cpp
 
+    ${SOURCES}
+
+    file/filemanager.h file/filemanager.cpp
 
     ui/contentnode.h ui/contentnode.cpp
     ui/devicecontentmodel.h ui/devicecontentmodel.cpp
@@ -38,7 +40,9 @@ qt_add_executable(KineticControl WIN32 MACOSX_BUNDLE
 
     android/activityresultmanager.cpp android/activityresultmanager.h
     android/androidutils.cpp android/androidutils.h
+
 )
+
 
 # Android problem
 #qt_add_qml_module(KineticControl

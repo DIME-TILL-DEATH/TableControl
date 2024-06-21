@@ -39,7 +39,7 @@ signals:
     void sgNetEvent(NetEvents eventType, QString target, QVariantList data = {});
 
 public slots:
-    void sendRequest(FrameType frameType, uint8_t request,
+    void sendNetRequest(FrameType frameType, uint8_t request,
                                             uint32_t data0 = 0,
                                             uint32_t data1 = 0,
                                             uint32_t parameters = 0);

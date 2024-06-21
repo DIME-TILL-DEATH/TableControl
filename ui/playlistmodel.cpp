@@ -2,21 +2,17 @@
 
 #include "playlistmodel.h"
 
-PlaylistModel::PlaylistModel(NetManager *netManager, QObject *parent)
+PlaylistModel::PlaylistModel(NetManager *netManager, RequestManager *requestManager, QObject *parent)
     : QAbstractListModel{parent}
 {
     QObject::connect(netManager, &NetManager::sgDataUpdated, this, &PlaylistModel::slDataUpdated);
     QObject::connect(netManager, &NetManager::sgDeviceConnected, this, &PlaylistModel::slDeviceAvaliable);
     QObject::connect(netManager, &NetManager::sgDeviceDisconnected, this, &PlaylistModel::slDeviceUnavaliable);
 
-    QObject::connect(this, &PlaylistModel::sgRequest, netManager, &NetManager::sendRequest);
-    QObject::connect(this, &PlaylistModel::sgUpdateData, netManager, &NetManager::slUpdateData);
+    QObject::connect(this, &PlaylistModel::sgRequest, requestManager, &RequestManager::sgNetRequest);
+    QObject::connect(this, &PlaylistModel::sgUpdateData, requestManager, &RequestManager::sgUpdateData);
 
-    updateDataTimer = new QTimer(this);
-    updateDataTimer->setInterval(500);
     m_deviceAvaliable = false;
-
-    connect(updateDataTimer, &QTimer::timeout, this, &PlaylistModel::checkDataUpdate);
 }
 
 int PlaylistModel::rowCount(const QModelIndex &parent) const
@@ -96,18 +92,12 @@ QVariant PlaylistModel::data(const QModelIndex &index, int role) const
 
 void PlaylistModel::slDeviceAvaliable()
 {
-    emit sgRequest(FrameType::PLAYLIST_ACTIONS, (uint8_t)Requests::Playlist::REQUEST_PLAYLIST);
-    emit sgRequest(FrameType::HARDWARE_ACTIONS, (uint8_t)Requests::Hardware::REQUEST_PROGRESS);
-    emit sgRequest(FrameType::PLAYLIST_ACTIONS, (uint8_t)Requests::Playlist::REQUEST_PLAYLIST_POSITION);
-
     setDeviceAvaliable(true);
-    updateDataTimer->start();
+
 }
 
 void PlaylistModel::slDeviceUnavaliable()
 {
-    updateDataTimer->stop();
-
     if(m_playlist.size()>0)
     {
         beginRemoveRows(QModelIndex(), 0, m_playlist.size()-1);
@@ -116,7 +106,6 @@ void PlaylistModel::slDeviceUnavaliable()
     }
 
     setDeviceAvaliable(false);
-    qDebug() << "Device unavaliable";
 }
 
 
@@ -264,13 +253,6 @@ void PlaylistModel::remove(int pos)
     endRemoveRows();
 
     sendUpdatedPlaylist();
-}
-
-void PlaylistModel::checkDataUpdate()
-{
-    emit sgRequest(FrameType::HARDWARE_ACTIONS, (uint8_t)Requests::Hardware::REQUEST_PROGRESS);
-    emit sgRequest(FrameType::HARDWARE_ACTIONS, (uint8_t)Requests::Hardware::GET_MACHINE_MINUTES);
-    emit sgRequest(FrameType::PLAYLIST_ACTIONS, (uint8_t)Requests::Playlist::REQUEST_PLAYLIST_POSITION);
 }
 
 void PlaylistModel::sendUpdatedPlaylist()

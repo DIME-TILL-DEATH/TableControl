@@ -1,12 +1,11 @@
 #include "hardware.h"
 
 
-Hardware::Hardware(NetManager *netManager, QObject *parent)
+Hardware::Hardware(NetManager *netManager, RequestManager *requestManager, QObject *parent)
     : QObject{parent}
 {
-    QObject::connect(this, &Hardware::sgRequest, netManager, &NetManager::sendRequest);
+    QObject::connect(this, &Hardware::sgRequest, requestManager, &RequestManager::sgNetRequest);
     QObject::connect(netManager, &NetManager::sgDataUpdated, this, &Hardware::slDataUpdated);
-    QObject::connect(netManager, &NetManager::sgDeviceConnected, this, &Hardware::slDeviceAvaliable);
 }
 
 float Hardware::progress() const
@@ -93,20 +92,6 @@ void Hardware::slDataUpdated(FrameType frameType, uint8_t dataType, QVariantList
     default:
         break;
     }
-}
-
-void Hardware::slDeviceAvaliable()
-{
-    emit sgRequest(FrameType::HARDWARE_ACTIONS, (uint8_t)Requests::Hardware::GET_SERIAL_ID);
-    emit sgRequest(FrameType::HARDWARE_ACTIONS, (uint8_t)Requests::Hardware::REQUEST_PROGRESS);
-    emit sgRequest(FrameType::HARDWARE_ACTIONS, (uint8_t)Requests::Hardware::GET_PRINT_SPEED);
-    emit sgRequest(FrameType::HARDWARE_ACTIONS, (uint8_t)Requests::Hardware::GET_LED_BRIGHTNESS);
-    emit sgRequest(FrameType::HARDWARE_ACTIONS, (uint8_t)Requests::Hardware::GET_SCALE_COEFFICIENT);
-    emit sgRequest(FrameType::HARDWARE_ACTIONS, (uint8_t)Requests::Hardware::GET_ROTATION);
-    emit sgRequest(FrameType::HARDWARE_ACTIONS, (uint8_t)Requests::Hardware::GET_CORRECTION);
-    emit sgRequest(FrameType::HARDWARE_ACTIONS, (uint8_t)Requests::Hardware::GET_PAUSE_INTERVAL);
-    emit sgRequest(FrameType::HARDWARE_ACTIONS, (uint8_t)Requests::Hardware::GET_FI_GEAR2_TEETH_COUNT);
-    emit sgRequest(FrameType::HARDWARE_ACTIONS, (uint8_t)Requests::Hardware::GET_MACHINE_MINUTES);
 }
 
 void Hardware::sendFloatRequest(Requests::Hardware requestType, float data)

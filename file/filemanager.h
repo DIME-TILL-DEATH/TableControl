@@ -33,6 +33,8 @@ public slots:
 
 private:
     QMap<QString, QList<QVariant> > m_loadedData;
+
+    QString deviceSerialId;
 };
 
 #endif // FILEMANAGER_H

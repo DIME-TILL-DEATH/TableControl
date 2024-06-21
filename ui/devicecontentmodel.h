@@ -5,6 +5,7 @@
 #include <QObject>
 
 #include "netmanager.h"
+#include "requestmanager.h"
 
 #include "contentnode.h"
 
@@ -20,7 +21,7 @@ class DeviceContentModel : public QAbstractItemModel
     Q_OBJECT
     Q_PROPERTY(QString currentDstPath READ currentDstPath WRITE setCurrentDstPath NOTIFY currentDstPathChanged FINAL)
 public:
-    explicit DeviceContentModel(NetManager *netManager, QObject *parent = nullptr);
+    explicit DeviceContentModel(NetManager *netManager, RequestManager* requestManager, QObject *parent = nullptr);
     ~DeviceContentModel();
 
     QModelIndex index(int row, int column,
@@ -60,7 +61,6 @@ signals:
 public slots:
     void slDataUpdated(FrameType frameType, uint8_t dataType, QVariantList dataList);
     void slFileDataReady(QString fileName, QList<QVariant> fileData);
-    void slDeviceAvaliable();
 
     void slAndroidFilePicked(QString filePath, QString fileName);
 

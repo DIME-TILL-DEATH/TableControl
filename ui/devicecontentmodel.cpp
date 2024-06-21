@@ -5,13 +5,12 @@
 #include "androidutils.h"
 #endif
 
-DeviceContentModel::DeviceContentModel(NetManager *netManager, QObject *parent)
+DeviceContentModel::DeviceContentModel(NetManager *netManager, RequestManager *requestManager, QObject *parent)
     : QAbstractItemModel{parent}
 {
-    QObject::connect(this, &DeviceContentModel::sgRequest, netManager, &NetManager::sendRequest);
-    QObject::connect(this, &DeviceContentModel::sgUpdateData, netManager, &NetManager::slUpdateData);
+    QObject::connect(this, &DeviceContentModel::sgRequest, requestManager, &RequestManager::sgNetRequest);
+    QObject::connect(this, &DeviceContentModel::sgUpdateData, requestManager, &RequestManager::sgUpdateData);
 
-    QObject::connect(netManager, &NetManager::sgDeviceConnected, this, &DeviceContentModel::slDeviceAvaliable);
     QObject::connect(netManager, &NetManager::sgDataUpdated, this, &DeviceContentModel::slDataUpdated);
 
 #ifdef Q_OS_ANDROID
@@ -118,13 +117,6 @@ void DeviceContentModel::uploadFileToDevice(QString dstPath, QString srcPath)
     data.append(librarySdcardPath + dstPath);
     data.append(srcPath);
     emit sgUpdateData(FrameType::FILE_ACTIONS, (uint8_t)(Requests::File::FILE_CREATE), data);
-}
-
-void DeviceContentModel::slDeviceAvaliable()
-{
-    QVariantList data;
-    data.append(librarySdcardPath);
-    emit sgUpdateData(FrameType::FILE_ACTIONS, (uint8_t)(Requests::File::GET_FOLDER_CONTENT), data);
 }
 
 void DeviceContentModel::selectFile()

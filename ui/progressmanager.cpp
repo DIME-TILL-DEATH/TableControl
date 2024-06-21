@@ -1,11 +1,11 @@
 #include "progressmanager.h"
 #include "qforeach.h"
 
-ProgressManager::ProgressManager(NetManager *netManager, QObject *parent)
+ProgressManager::ProgressManager(NetManager* netManager, RequestManager* requestManager, QObject *parent)
     : QObject{parent}
 {
     QObject::connect(netManager, &NetManager::sgNetEvent, this, &ProgressManager::slUpdate);
-    QObject::connect(netManager, &NetManager::sgDeviceConnected, this, &ProgressManager::slDeviceAvalible);
+    QObject::connect(requestManager, &RequestManager::sgTableAvaliable, this, &ProgressManager::slDeviceAvalible);
 }
 
 void ProgressManager::slUpdate(NetEvents eventType, QString target, QVariantList data)

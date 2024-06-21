@@ -5,6 +5,7 @@
 #include <QVariant>
 
 #include "netmanager.h"
+#include "requestmanager.h"
 
 #include "requestactions.h"
 
@@ -25,7 +26,7 @@ class Hardware : public QObject
     Q_PROPERTY(float rotation READ rotation WRITE setRotation NOTIFY rotationChanged FINAL)
     Q_PROPERTY(float correction READ correction WRITE setCorrection NOTIFY correctionChanged FINAL)
 public:
-    explicit Hardware(NetManager* netManager, QObject *parent = nullptr);
+    explicit Hardware(NetManager* netManager, RequestManager* requestManager, QObject *parent = nullptr);
 
     float progress() const;
     void setProgress(float newProgress);
@@ -71,8 +72,6 @@ signals:
 
 public slots:
     void slDataUpdated(FrameType frameType, uint8_t dataType, QVariantList data);
-
-    void slDeviceAvaliable();
 
 private:
     float m_progress{0};

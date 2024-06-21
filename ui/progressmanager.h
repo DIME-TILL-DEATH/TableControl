@@ -3,6 +3,7 @@
 
 #include <QObject>
 
+#include "requestmanager.h"
 #include "netmanager.h"
 
 class ProgressManager : public QObject
@@ -12,7 +13,7 @@ class ProgressManager : public QObject
     Q_PROPERTY(qreal firmwareUploadProgress READ firmwareUploadProgress WRITE setFirmwareUploadProgress NOTIFY firmwareUploadProgressChanged FINAL)
     Q_PROPERTY(bool updatingState READ updatingState WRITE setUpdatingState NOTIFY updatingStateChanged FINAL)
 public:
-    explicit ProgressManager(NetManager* netManager, QObject *parent = nullptr);
+    explicit ProgressManager(NetManager* netManager, RequestManager* requestManager, QObject *parent = nullptr);
 
     qreal currentProgress() const;
     void setCurrentProgress(qreal newCurrentProgress);

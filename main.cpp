@@ -2,6 +2,7 @@
 #include <QQmlApplicationEngine>
 #include <QtQml>
 
+#include "requestmanager.h"
 #include "hardware.h"
 
 #include "filemanager.h"
@@ -13,6 +14,7 @@
 
 #include "threadcontroller.h"
 
+RequestManager* requestManager;
 FileManager* fileManager;
 Hardware* hardware;
 NetManager* netManager;
@@ -30,17 +32,27 @@ int main(int argc, char *argv[])
     app.setApplicationName("Kinetic table");
 
     netManager = new NetManager();
+    requestManager = new RequestManager(); // TODO: backend thread?
+
     fileManager = new FileManager(netManager);
     
-    hardware = new Hardware(netManager);
-    playlistModel = new PlaylistModel(netManager);
-    deviceContentModel = new DeviceContentModel(netManager);
-    progressManager = new ProgressManager(netManager);
+    // TODO: Answer manager?
+    hardware = new Hardware(netManager, requestManager);
+    playlistModel = new PlaylistModel(netManager, requestManager);
+    deviceContentModel = new DeviceContentModel(netManager, requestManager);
+    progressManager = new ProgressManager(netManager, requestManager);
     firmwareManager = new FirmwareManager(netManager);
 
     ThreadController threadController(QThread::currentThread());
     netManager->moveToThread(threadController.backendThread());
     fileManager->moveToThread(threadController.backendThread());
+
+    QObject::connect(requestManager, &RequestManager::sgNetRequest, netManager, &NetManager::sendNetRequest);
+    QObject::connect(requestManager, &RequestManager::sgUpdateData, netManager, &NetManager::slUpdateData);
+
+    QObject::connect(netManager, &NetManager::sgDataUpdated, requestManager, &RequestManager::slDataUpdated);
+    QObject::connect(netManager, &NetManager::sgDeviceConnected, requestManager, &RequestManager::slDeviceConnected);
+    QObject::connect(netManager, &NetManager::sgDeviceDisconnected, requestManager, &RequestManager::slDeviceDisconnected);
 
     QObject::connect(fileManager, &FileManager::sgFileDataReady, playlistModel, &PlaylistModel::slFileDataReady);
     QObject::connect(playlistModel, &PlaylistModel::sgRequestFileData, fileManager, &FileManager::processFileLoadRequest);

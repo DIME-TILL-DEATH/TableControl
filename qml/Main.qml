@@ -3,7 +3,6 @@ import QtQuick.Controls
 
 import UiObjects
 
-// TODO модули на add_qml_module
 import Playlist
 import Elements
 import Content
@@ -94,5 +93,29 @@ ApplicationWindow {
                  _swipeView.currentIndex=3
              }
          }
+    }
+
+    Dialog{
+        id: _dialog
+
+        title: "Error"
+
+        anchors.centerIn: parent
+
+        standardButtons: Dialog.Ok
+
+        Label {
+            text: "Firmware version insufficient!\nPlease, update firmware"
+        }
+    }
+
+    Connections{
+        target: FirmwareManager
+
+        function onSgFirmwareVersionInsufficient()
+        {
+            _dialog.open();
+            _swipeView.currentIndex=2
+        }
     }
 }

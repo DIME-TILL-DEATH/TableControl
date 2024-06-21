@@ -8,12 +8,8 @@
 FirmwareManager::FirmwareManager(NetManager* netManager, QObject *parent)
     : QObject{parent}
 {
-
-    QObject::connect(netManager, &NetManager::sgDeviceConnected, this, &FirmwareManager::slDeviceAvaliable);
-    QObject::connect(netManager, &NetManager::sgDataUpdated, this, &FirmwareManager::slDataUpdated);
-
-    QObject::connect(this, &FirmwareManager::sgRequest, netManager, &NetManager::sendRequest);
     QObject::connect(this, &FirmwareManager::sgUpdateData, netManager, &NetManager::slUpdateData);
+    QObject::connect(netManager, &NetManager::sgDataUpdated, this, &FirmwareManager::slDataUpdated);
 
 #ifdef Q_OS_ANDROID
     QObject::connect(&activityResultHandler, &ActivityResultManager::sgFilePicked, this, &FirmwareManager::slAndroidFilePicked);
@@ -55,9 +51,32 @@ void FirmwareManager::setCurrentFwVersion(const QString &newCurrentFwVersion)
     emit currentFwVersionChanged();
 }
 
-void FirmwareManager::slDeviceAvaliable()
+bool FirmwareManager::isVerisonSufficient(QString versionString)
 {
-    emit sgRequest(FrameType::FIRMWARE_ACTIONS, (uint8_t)Requests::Firmware::FIRMWARE_VERSION);
+    FirmwareVersion minimalFw = extractFirmwareVersion(MINIMAL_FIRMWARE_VERSION);
+    FirmwareVersion tableFw = extractFirmwareVersion(versionString);
+
+    if(minimalFw.major > tableFw.major) return false;
+    if(minimalFw.major < tableFw.major) return true;
+
+    if(minimalFw.minor > tableFw.minor) return false;
+    if(minimalFw.minor < tableFw.minor) return true;
+
+    return true;
+}
+
+FirmwareVersion FirmwareManager::extractFirmwareVersion(QString versionString)
+{
+    QStringList resultList = versionString.split('.');
+
+    FirmwareVersion result;
+
+    if(resultList.count()==2)
+    {
+        result.major = resultList.at(0).toInt();
+        result.minor = resultList.at(1).toInt();
+    }
+    return result;
 }
 
 void FirmwareManager::slDataUpdated(FrameType frameType, uint8_t dataType, QVariantList data)
@@ -69,6 +88,12 @@ void FirmwareManager::slDataUpdated(FrameType frameType, uint8_t dataType, QVari
     case Data::Firmware::FIRMWARE_VERSION:
     {
         setCurrentFwVersion(data.at(0).toString());
+        if(!FirmwareManager::isVerisonSufficient(m_currentFwVersion))
+        {
+            qDebug() << "Firmware version insufficient(" << m_currentFwVersion << ")";
+            emit sgFirmwareVersionInsufficient();
+        }
+
         break;
     }
     }
