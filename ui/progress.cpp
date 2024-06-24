@@ -1,14 +1,14 @@
-#include "progressmanager.h"
+#include "progress.h"
 #include "qforeach.h"
 
-ProgressManager::ProgressManager(NetManager* netManager, RequestManager* requestManager, QObject *parent)
+Progress::Progress(AnswerManager *answerManager, RequestManager* requestManager, QObject *parent)
     : QObject{parent}
 {
-    QObject::connect(netManager, &NetManager::sgNetEvent, this, &ProgressManager::slUpdate);
-    QObject::connect(requestManager, &RequestManager::sgTableAvaliable, this, &ProgressManager::slDeviceAvalible);
+    QObject::connect(answerManager, &AnswerManager::sgNetEvent, this, &Progress::slUpdate);
+    QObject::connect(requestManager, &RequestManager::sgTableAvaliable, this, &Progress::slDeviceAvalible);
 }
 
-void ProgressManager::slUpdate(NetEvents eventType, QString target, QVariantList data)
+void Progress::slUpdate(NetEvents eventType, QString target, QVariantList data)
 {
     switch (eventType)
     {
@@ -122,18 +122,18 @@ void ProgressManager::slUpdate(NetEvents eventType, QString target, QVariantList
     }
 }
 
-void ProgressManager::slDeviceAvalible()
+void Progress::slDeviceAvalible()
 {
     setFirmwareUploadProgress(1.0);
     setUpdatingState(false);
 }
 
-qreal ProgressManager::currentProgress() const
+qreal Progress::currentProgress() const
 {
     return m_currentProgress;
 }
 
-void ProgressManager::setCurrentProgress(qreal newCurrentProgress)
+void Progress::setCurrentProgress(qreal newCurrentProgress)
 {
     if (m_currentProgress == newCurrentProgress)
         return;
@@ -141,12 +141,12 @@ void ProgressManager::setCurrentProgress(qreal newCurrentProgress)
     emit currentProgressChanged();
 }
 
-qreal ProgressManager::firmwareUploadProgress() const
+qreal Progress::firmwareUploadProgress() const
 {
     return m_firmwareUploadProgress;
 }
 
-void ProgressManager::setFirmwareUploadProgress(qreal newFirmwareUploadProgress)
+void Progress::setFirmwareUploadProgress(qreal newFirmwareUploadProgress)
 {
     if (qFuzzyCompare(m_firmwareUploadProgress, newFirmwareUploadProgress))
         return;
@@ -154,12 +154,12 @@ void ProgressManager::setFirmwareUploadProgress(qreal newFirmwareUploadProgress)
     emit firmwareUploadProgressChanged();
 }
 
-bool ProgressManager::updatingState() const
+bool Progress::updatingState() const
 {
     return m_updatingState;
 }
 
-void ProgressManager::setUpdatingState(bool newUpdatingState)
+void Progress::setUpdatingState(bool newUpdatingState)
 {
     m_updatingState = newUpdatingState;
     emit updatingStateChanged();

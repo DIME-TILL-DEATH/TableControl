@@ -1,9 +1,10 @@
-#ifndef FIRMWAREMANAGER_H
-#define FIRMWAREMANAGER_H
+#ifndef FIRMWARE_H
+#define FIRMWARE_H
 
 #include <QObject>
 
-#include "netmanager.h"
+#include "requestmanager.h"
+#include "answermanager.h"
 
 #ifdef __ANDROID__
 #include <jni.h>
@@ -16,12 +17,12 @@ struct FirmwareVersion
     quint8 minor;
 };
 
-class FirmwareManager : public QObject
+class Firmware : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString currentFwVersion READ currentFwVersion WRITE setCurrentFwVersion NOTIFY currentFwVersionChanged FINAL)
 public:
-    explicit FirmwareManager(NetManager* netManager, QObject *parent = nullptr);
+    explicit Firmware(AnswerManager* answerManager, RequestManager *requestManager, QObject *parent = nullptr);
 
     Q_INVOKABLE void selectFile();
     Q_INVOKABLE void updateFirmware(QString filePath);
@@ -53,4 +54,4 @@ private:
 #endif
 };
 
-#endif // FIRMWAREMANAGER_H
+#endif // FIRMWARE_H

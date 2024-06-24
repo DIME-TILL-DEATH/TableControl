@@ -1,22 +1,22 @@
-#include "firmwaremanager.h"
+#include "firmware.h"
 
 #ifdef __ANDROID__
 #include <jni.h>
 #include "androidutils.h"
 #endif
 
-FirmwareManager::FirmwareManager(NetManager* netManager, QObject *parent)
+Firmware::Firmware(AnswerManager* answerManager, RequestManager *requestManager, QObject *parent)
     : QObject{parent}
 {
-    QObject::connect(this, &FirmwareManager::sgUpdateData, netManager, &NetManager::slUpdateData);
-    QObject::connect(netManager, &NetManager::sgDataUpdated, this, &FirmwareManager::slDataUpdated);
+    QObject::connect(this, &Firmware::sgUpdateData, requestManager, &RequestManager::sgUpdateData);
+    QObject::connect(answerManager, &AnswerManager::sgDataUpdated, this, &Firmware::slDataUpdated);
 
 #ifdef Q_OS_ANDROID
-    QObject::connect(&activityResultHandler, &ActivityResultManager::sgFilePicked, this, &FirmwareManager::slAndroidFilePicked);
+    QObject::connect(&activityResultHandler, &ActivityResultManager::sgFilePicked, this, &Firmware::slAndroidFilePicked);
 #endif
 }
 
-void FirmwareManager::selectFile()
+void Firmware::selectFile()
 {
 #ifdef Q_OS_ANDROID
     AndroidUtils::pickFile(ActivityType::PICK_FILE, "*/*", &activityResultHandler);
@@ -26,24 +26,24 @@ void FirmwareManager::selectFile()
 #endif
 }
 
-void FirmwareManager::slAndroidFilePicked(QString filePath, QString fileName)
+void Firmware::slAndroidFilePicked(QString filePath, QString fileName)
 {
     updateFirmware(filePath);
 }
 
-void FirmwareManager::updateFirmware(QString filePath)
+void Firmware::updateFirmware(QString filePath)
 {   
     QVariantList data;
     data.append(filePath);
     emit sgUpdateData(FrameType::FIRMWARE_ACTIONS, (uint8_t)Requests::Firmware::FIRMWARE_UPLOAD_START, data);
 }
 
-QString FirmwareManager::currentFwVersion() const
+QString Firmware::currentFwVersion() const
 {
     return m_currentFwVersion;
 }
 
-void FirmwareManager::setCurrentFwVersion(const QString &newCurrentFwVersion)
+void Firmware::setCurrentFwVersion(const QString &newCurrentFwVersion)
 {
     if (m_currentFwVersion == newCurrentFwVersion)
         return;
@@ -51,7 +51,7 @@ void FirmwareManager::setCurrentFwVersion(const QString &newCurrentFwVersion)
     emit currentFwVersionChanged();
 }
 
-bool FirmwareManager::isVerisonSufficient(QString versionString)
+bool Firmware::isVerisonSufficient(QString versionString)
 {
     FirmwareVersion minimalFw = extractFirmwareVersion(MINIMAL_FIRMWARE_VERSION);
     FirmwareVersion tableFw = extractFirmwareVersion(versionString);
@@ -65,7 +65,7 @@ bool FirmwareManager::isVerisonSufficient(QString versionString)
     return true;
 }
 
-FirmwareVersion FirmwareManager::extractFirmwareVersion(QString versionString)
+FirmwareVersion Firmware::extractFirmwareVersion(QString versionString)
 {
     QStringList resultList = versionString.split('.');
 
@@ -79,7 +79,7 @@ FirmwareVersion FirmwareManager::extractFirmwareVersion(QString versionString)
     return result;
 }
 
-void FirmwareManager::slDataUpdated(FrameType frameType, uint8_t dataType, QVariantList data)
+void Firmware::slDataUpdated(FrameType frameType, uint8_t dataType, QVariantList data)
 {
     if(frameType != FrameType::FIRMWARE_ACTIONS) return;
 
@@ -88,7 +88,7 @@ void FirmwareManager::slDataUpdated(FrameType frameType, uint8_t dataType, QVari
     case Data::Firmware::FIRMWARE_VERSION:
     {
         setCurrentFwVersion(data.at(0).toString());
-        if(!FirmwareManager::isVerisonSufficient(m_currentFwVersion))
+        if(!Firmware::isVerisonSufficient(m_currentFwVersion))
         {
             qDebug() << "Firmware version insufficient(" << m_currentFwVersion << ")";
             emit sgFirmwareVersionInsufficient();

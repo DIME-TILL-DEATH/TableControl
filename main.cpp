@@ -2,26 +2,31 @@
 #include <QQmlApplicationEngine>
 #include <QtQml>
 
+#include "netmanager.h"
 #include "requestmanager.h"
-#include "hardware.h"
+#include "answermanager.h"
 
 #include "filemanager.h"
-#include "netmanager.h"
+
+#include "hardware.h"
 #include "playlistmodel.h"
 #include "devicecontentmodel.h"
-#include "progressmanager.h"
-#include "firmwaremanager.h"
+#include "progress.h"
+#include "firmware.h"
 
 #include "threadcontroller.h"
 
-RequestManager* requestManager;
-FileManager* fileManager;
-Hardware* hardware;
 NetManager* netManager;
+AnswerManager* answerManager;
+RequestManager* requestManager;
+
+FileManager* fileManager;
+
+Hardware* hardware;
 PlaylistModel* playlistModel;
 DeviceContentModel* deviceContentModel;
-ProgressManager* progressManager;
-FirmwareManager* firmwareManager;
+Progress* progress;
+Firmware* firmware;
 
 int main(int argc, char *argv[])
 {
@@ -32,20 +37,21 @@ int main(int argc, char *argv[])
     app.setApplicationName("Kinetic table");
 
     netManager = new NetManager();
-    requestManager = new RequestManager(); // TODO: backend thread?
-
-    fileManager = new FileManager(netManager);
+    requestManager = new RequestManager();
+    answerManager = new AnswerManager();
+    fileManager = new FileManager(answerManager, requestManager);
     
-    // TODO: Answer manager?
-    hardware = new Hardware(netManager, requestManager);
-    playlistModel = new PlaylistModel(netManager, requestManager);
-    deviceContentModel = new DeviceContentModel(netManager, requestManager);
-    progressManager = new ProgressManager(netManager, requestManager);
-    firmwareManager = new FirmwareManager(netManager);
+    hardware = new Hardware(answerManager, requestManager);
+    playlistModel = new PlaylistModel(answerManager, requestManager);
+    deviceContentModel = new DeviceContentModel(answerManager, requestManager);
+    progress = new Progress(answerManager, requestManager);
+    firmware = new Firmware(answerManager, requestManager);
 
     ThreadController threadController(QThread::currentThread());
     netManager->moveToThread(threadController.backendThread());
     fileManager->moveToThread(threadController.backendThread());
+    requestManager->moveToThread(threadController.backendThread());
+    answerManager->moveToThread(threadController.backendThread());
 
     QObject::connect(requestManager, &RequestManager::sgNetRequest, netManager, &NetManager::sendNetRequest);
     QObject::connect(requestManager, &RequestManager::sgUpdateData, netManager, &NetManager::slUpdateData);
@@ -54,6 +60,9 @@ int main(int argc, char *argv[])
     QObject::connect(netManager, &NetManager::sgDeviceConnected, requestManager, &RequestManager::slDeviceConnected);
     QObject::connect(netManager, &NetManager::sgDeviceDisconnected, requestManager, &RequestManager::slDeviceDisconnected);
 
+    QObject::connect(netManager, &NetManager::sgDataUpdated, answerManager, &AnswerManager::slDataUpdated);
+    QObject::connect(netManager, &NetManager::sgNetEvent, answerManager, &AnswerManager::slNetEvent);
+
     QObject::connect(fileManager, &FileManager::sgFileDataReady, playlistModel, &PlaylistModel::slFileDataReady);
     QObject::connect(playlistModel, &PlaylistModel::sgRequestFileData, fileManager, &FileManager::processFileLoadRequest);
 
@@ -61,13 +70,11 @@ int main(int argc, char *argv[])
 
     qmlRegisterUncreatableType<ContentNode>("UiObjects", 1, 0, "ContentNode", "Cannot create ContentNode in QML");
 
-    //qRegisterMetaType<PlaylistElement>("PlaylistElement");
-
     qmlRegisterSingletonInstance("UiObjects", 1, 0, "Hardware", hardware);
     qmlRegisterSingletonInstance("UiObjects", 1, 0, "PlaylistModel", playlistModel);
     qmlRegisterSingletonInstance("UiObjects", 1, 0, "DeviceContentModel", deviceContentModel);
-    qmlRegisterSingletonInstance("UiObjects", 1, 0, "ProgressManager", progressManager);
-    qmlRegisterSingletonInstance("UiObjects", 1, 0, "FirmwareManager", firmwareManager);
+    qmlRegisterSingletonInstance("UiObjects", 1, 0, "Progress", progress);
+    qmlRegisterSingletonInstance("UiObjects", 1, 0, "Firmware", firmware);
 
     QQmlApplicationEngine engine;
     engine.addImportPath(":/qml/");

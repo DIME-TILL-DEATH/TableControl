@@ -1,5 +1,5 @@
 #include "requestmanager.h"
-#include "firmwaremanager.h"
+#include "firmware.h"
 
 #include "devicecontentmodel.h"
 
@@ -25,7 +25,7 @@ void RequestManager::slDataUpdated(FrameType frameType, uint8_t dataType, QVaria
         {
         case Data::Firmware::FIRMWARE_VERSION:
         {
-            if(FirmwareManager::isVerisonSufficient(data.at(0).toString()))
+            if(Firmware::isVerisonSufficient(data.at(0).toString()))
             {
                 emit sgNetRequest(FrameType::HARDWARE_ACTIONS, (uint8_t)Requests::Hardware::GET_SERIAL_ID);
             }
@@ -52,6 +52,7 @@ void RequestManager::slDataUpdated(FrameType frameType, uint8_t dataType, QVaria
 
 void RequestManager::slDeviceConnected()
 {
+    updateDataTimer->start();
     emit sgNetRequest(FrameType::FIRMWARE_ACTIONS, (uint8_t)Requests::Firmware::FIRMWARE_VERSION);
 }
 

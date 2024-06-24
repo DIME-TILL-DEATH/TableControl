@@ -6,17 +6,16 @@
 
 #include "playlistelement.h"
 
-#include "netmanager.h"
 #include "requestmanager.h"
+#include "answermanager.h"
 
 #include "requestactions.h"
 
 class PlaylistModel : public QAbstractListModel
 {
     Q_OBJECT
-    Q_PROPERTY(bool deviceAvaliable READ deviceAvaliable WRITE setDeviceAvaliable NOTIFY deviceAvaliableChanged FINAL)
 public:
-    explicit PlaylistModel(NetManager* netManager, RequestManager* requestManager, QObject *parent = nullptr);
+    explicit PlaylistModel(AnswerManager* answerManager, RequestManager* requestManager, QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role) const;
@@ -32,9 +31,6 @@ public:
     float progress() const;
     void setProgress(float newProgress);
 
-    bool deviceAvaliable() const;
-    void setDeviceAvaliable(bool newDeviceAvaliable);
-
     qint32 curPlaylistPosition() const;
 
 signals:
@@ -48,14 +44,10 @@ signals:
 
     void sgProgressChanged();
 
-    void deviceAvaliableChanged();
-
 public slots:
     void slDataUpdated(FrameType frameType, uint8_t dataType, QVariantList dataList);
 
     void slFileDataReady(QString fileName, QList<QVariant> fileData);
-
-    void slDeviceAvaliable();
     void slDeviceUnavaliable();
 
 private:
@@ -78,7 +70,6 @@ private:
     qint32 curPlaylistPosition();
 
     float m_progress;
-    bool m_deviceAvaliable;
 };
 
 #endif // PLAYLISTMODEL_H

@@ -10,7 +10,7 @@ Item{
         height: parent.height
         width: parent.width
 
-        busy: !PlaylistModel.deviceAvaliable
+        busy: !Hardware.deviceAvaliable
     }
 
     Column{
@@ -26,7 +26,7 @@ Item{
         ProgressBar{
             id: _progressBar
 
-            visible: PlaylistModel.deviceAvaliable
+            visible: Hardware.deviceAvaliable
 
             anchors.horizontalCenter: parent.horizontalCenter
             width: parent.width

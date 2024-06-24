@@ -2,17 +2,14 @@
 
 #include "playlistmodel.h"
 
-PlaylistModel::PlaylistModel(NetManager *netManager, RequestManager *requestManager, QObject *parent)
+PlaylistModel::PlaylistModel(AnswerManager* answerManager, RequestManager *requestManager, QObject *parent)
     : QAbstractListModel{parent}
 {
-    QObject::connect(netManager, &NetManager::sgDataUpdated, this, &PlaylistModel::slDataUpdated);
-    QObject::connect(netManager, &NetManager::sgDeviceConnected, this, &PlaylistModel::slDeviceAvaliable);
-    QObject::connect(netManager, &NetManager::sgDeviceDisconnected, this, &PlaylistModel::slDeviceUnavaliable);
+    QObject::connect(answerManager, &AnswerManager::sgDataUpdated, this, &PlaylistModel::slDataUpdated);
+    QObject::connect(requestManager, &RequestManager::sgTableUnavaliable, this, &PlaylistModel::slDeviceUnavaliable);
 
     QObject::connect(this, &PlaylistModel::sgRequest, requestManager, &RequestManager::sgNetRequest);
     QObject::connect(this, &PlaylistModel::sgUpdateData, requestManager, &RequestManager::sgUpdateData);
-
-    m_deviceAvaliable = false;
 }
 
 int PlaylistModel::rowCount(const QModelIndex &parent) const
@@ -90,12 +87,6 @@ QVariant PlaylistModel::data(const QModelIndex &index, int role) const
     }
 }
 
-void PlaylistModel::slDeviceAvaliable()
-{
-    setDeviceAvaliable(true);
-
-}
-
 void PlaylistModel::slDeviceUnavaliable()
 {
     if(m_playlist.size()>0)
@@ -104,8 +95,6 @@ void PlaylistModel::slDeviceUnavaliable()
         m_playlist.clear();
         endRemoveRows();
     }
-
-    setDeviceAvaliable(false);
 }
 
 
@@ -272,15 +261,4 @@ qint32 PlaylistModel::curPlaylistPosition()
 {
     auto playlistElement = std::find_if(m_playlist.begin(), m_playlist.end(), [](PlaylistElement element) {return element.isCurrentPrintingElement();});
     return std::distance(m_playlist.begin(), playlistElement);
-}
-
-bool PlaylistModel::deviceAvaliable() const
-{
-    return m_deviceAvaliable;
-}
-
-void PlaylistModel::setDeviceAvaliable(bool newDeviceAvaliable)
-{
-    m_deviceAvaliable = newDeviceAvaliable;
-    emit deviceAvaliableChanged();
 }

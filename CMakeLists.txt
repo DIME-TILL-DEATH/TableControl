@@ -20,6 +20,7 @@ qt_add_executable(KineticControl WIN32 MACOSX_BUNDLE
     requestactions.h
 
     requestmanager.h requestmanager.cpp
+    answermanager.h answermanager.cpp
     threadcontroller.h threadcontroller.cpp
 
     ${SOURCES}
@@ -31,8 +32,8 @@ qt_add_executable(KineticControl WIN32 MACOSX_BUNDLE
     ui/playlistelement.h ui/playlistelement.cpp
     ui/playlistmodel.h ui/playlistmodel.cpp
     ui/hardware.h ui/hardware.cpp
-    ui/progressmanager.h ui/progressmanager.cpp
-    ui/firmwaremanager.h ui/firmwaremanager.cpp
+    ui/progress.h ui/progress.cpp
+    ui/firmware.h ui/firmware.cpp
 
     net/netclient.h net/netclient.cpp
     net/netmanager.h net/netmanager.cpp

@@ -6,12 +6,13 @@
 #include "filemanager.h"
 #include "devicecontentmodel.h"
 
-FileManager::FileManager(NetManager *netManager, QObject *parent)
+FileManager::FileManager(AnswerManager *answerManager, RequestManager* requestManager, QObject *parent)
     : QObject{parent}
 {
-    QObject::connect(netManager, &NetManager::sgDataUpdated, this, &FileManager::slDataUpdated);
-    QObject::connect(this, &FileManager::sgUpdateData, netManager, &NetManager::slUpdateData);
+    QObject::connect(this, &FileManager::sgUpdateData, requestManager, &RequestManager::sgUpdateData);
+    QObject::connect(answerManager, &AnswerManager::sgDataUpdated, this, &FileManager::slDataUpdated);
 }
+
 
 bool FileManager::getPointsFromFile(QString fileName, QList<QVariant>& result)
 {

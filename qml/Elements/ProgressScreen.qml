@@ -9,9 +9,9 @@ Item {
     z: 10
 
     property string text: "Uploading file..."
-    property real progress: ProgressManager.currentProgress
+    property real progress: Progress.currentProgress
 
-    visible: (ProgressManager.currentProgress < 1.0)
+    visible: (Progress.currentProgress < 1.0)
 
     Column{
         width: parent.width

@@ -9,10 +9,10 @@ Item{
     ProgressScreen{
         id: _progressScreen
 
-        text: ProgressManager.updatingState ? "Updating firmware... Please wait." : "Uploading firmware file..."
+        text: Progress.updatingState ? "Updating firmware... Please wait." : "Uploading firmware file..."
 
-        visible: (ProgressManager.firmwareUploadProgress < 1.0) || (ProgressManager.updatingState)
-        progress: ProgressManager.firmwareUploadProgress
+        visible: (Progress.firmwareUploadProgress < 1.0) || (Progress.updatingState)
+        progress: Progress.firmwareUploadProgress
 
         anchors.fill: parent
     }
@@ -27,7 +27,7 @@ Item{
 
         SettingsHeader{
             text: "Application ver.: " + Qt.application.version + "\n"
-                  + "Firmware ver.: " + FirmwareManager.currentFwVersion
+                  + "Firmware ver.: " + Firmware.currentFwVersion
         }
 
         Button{
@@ -41,7 +41,7 @@ Item{
             text: "Update firmware"
 
             onClicked: {
-                FirmwareManager.selectFile();
+                Firmware.selectFile();
 
             }
         }
@@ -196,7 +196,7 @@ Item{
             cleanPathFile = (Qt.platform.os==="windows") ? decodeURIComponent(cleanPathFile.replace(/^(file:\/{3})|(qrc:\/{2})|(http:\/{2})/,""))
                                                          : decodeURIComponent(cleanPathFile.replace(/^(file:\/{2})|(qrc:\/{2})|(http:\/{2})/,""));
 
-            FirmwareManager.updateFirmware(cleanPathFile);
+            Firmware.updateFirmware(cleanPathFile);
         }
     }
 
@@ -214,7 +214,7 @@ Item{
     }
 
     Connections{
-        target: FirmwareManager
+        target: Firmware
 
         function onSgOpenPlatformFileDialog()
         {
@@ -223,7 +223,7 @@ Item{
     }
 
     Connections{
-        target: ProgressManager
+        target: Progress
 
         function oneErorOccured(errorType, data)
         {

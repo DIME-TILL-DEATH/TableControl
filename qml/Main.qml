@@ -110,7 +110,7 @@ ApplicationWindow {
     }
 
     Connections{
-        target: FirmwareManager
+        target: Firmware
 
         function onSgFirmwareVersionInsufficient()
         {

@@ -1,11 +1,14 @@
 #include "hardware.h"
 
 
-Hardware::Hardware(NetManager *netManager, RequestManager *requestManager, QObject *parent)
+Hardware::Hardware(AnswerManager *answerManager, RequestManager *requestManager, QObject *parent)
     : QObject{parent}
 {
     QObject::connect(this, &Hardware::sgRequest, requestManager, &RequestManager::sgNetRequest);
-    QObject::connect(netManager, &NetManager::sgDataUpdated, this, &Hardware::slDataUpdated);
+    QObject::connect(answerManager, &AnswerManager::sgDataUpdated, this, &Hardware::slDataUpdated);
+
+    QObject::connect(requestManager, &RequestManager::sgTableAvaliable, this, &Hardware::slTableAvalible);
+    QObject::connect(requestManager, &RequestManager::sgTableUnavaliable, this, &Hardware::slTableUnavalible);
 }
 
 float Hardware::progress() const
@@ -92,6 +95,18 @@ void Hardware::slDataUpdated(FrameType frameType, uint8_t dataType, QVariantList
     default:
         break;
     }
+}
+
+void Hardware::slTableAvalible()
+{
+    m_deviceAvaliable = true;
+    emit deviceAvaliableChanged();
+}
+
+void Hardware::slTableUnavalible()
+{
+    m_deviceAvaliable = false;
+    emit deviceAvaliableChanged();
 }
 
 void Hardware::sendFloatRequest(Requests::Hardware requestType, float data)

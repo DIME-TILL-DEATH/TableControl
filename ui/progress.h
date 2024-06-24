@@ -1,19 +1,19 @@
-#ifndef PROGRESSMANAGER_H
-#define PROGRESSMANAGER_H
+#ifndef PROGRESS_H
+#define PROGRESS_H
 
 #include <QObject>
 
+#include "answermanager.h"
 #include "requestmanager.h"
-#include "netmanager.h"
 
-class ProgressManager : public QObject
+class Progress : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(qreal currentProgress READ currentProgress WRITE setCurrentProgress NOTIFY currentProgressChanged FINAL)
     Q_PROPERTY(qreal firmwareUploadProgress READ firmwareUploadProgress WRITE setFirmwareUploadProgress NOTIFY firmwareUploadProgressChanged FINAL)
     Q_PROPERTY(bool updatingState READ updatingState WRITE setUpdatingState NOTIFY updatingStateChanged FINAL)
 public:
-    explicit ProgressManager(NetManager* netManager, RequestManager* requestManager, QObject *parent = nullptr);
+    explicit Progress(AnswerManager* answerManager, RequestManager* requestManager, QObject *parent = nullptr);
 
     qreal currentProgress() const;
     void setCurrentProgress(qreal newCurrentProgress);
@@ -53,4 +53,4 @@ private:
     QMap<QString, QPair<qint64, qint64> > m_activeProcesses;
 };
 
-#endif // PROGRESSMANAGER_H
+#endif // PROGRESS_H
