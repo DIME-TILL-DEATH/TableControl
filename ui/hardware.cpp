@@ -1,32 +1,33 @@
 #include "hardware.h"
 
-
 Hardware::Hardware(AnswerManager *answerManager, RequestManager *requestManager, QObject *parent)
-    : QObject{parent}
+    :   m_requestManager{requestManager},
+        QObject{parent}
 {
     QObject::connect(this, &Hardware::sgRequest, requestManager, &RequestManager::sgNetRequest);
     QObject::connect(answerManager, &AnswerManager::sgDataUpdated, this, &Hardware::slDataUpdated);
+
+    connect(answerManager, &AnswerManager::sgFiGear2Teeths, this, &Hardware::setFiGear2Teehts);
+    connect(answerManager, &AnswerManager::sgMachineMinutes, this, &Hardware::setMachineMinutes);
+    connect(answerManager, &AnswerManager::sgPauseInterval, this, &Hardware::setPauseInterval);
+
+    connect(answerManager, &AnswerManager::sgPrintSpeed, this, &Hardware::setPrintSpeed);
+    connect(answerManager, &AnswerManager::sgLedBrightness, this, &Hardware::setLedBrightness);
+    connect(answerManager, &AnswerManager::sgScaleCoefficient, this, &Hardware::setScaleCoefficient);
+    connect(answerManager, &AnswerManager::sgRotation, this, &Hardware::setRotation);
+    connect(answerManager, &AnswerManager::sgCorrection, this, &Hardware::setCorrection);
+
+    connect(answerManager, &AnswerManager::sgProgressUpdated, this, &Hardware::setProgress);
 
     QObject::connect(requestManager, &RequestManager::sgTableAvaliable, this, &Hardware::slTableAvalible);
     QObject::connect(requestManager, &RequestManager::sgTableUnavaliable, this, &Hardware::slTableUnavalible);
 }
 
-float Hardware::progress() const
-{
-    return m_progress;
-}
-
-void Hardware::setProgress(float newProgress)
-{
-    m_progress = newProgress;
-    emit sgProgressChanged();
-}
-
 void Hardware::setPrintProperties()
 {
-    sendFloatRequest(Requests::Hardware::SET_SCALE_COEFFICIENT, m_scaleCoefficient);
-    sendFloatRequest(Requests::Hardware::SET_ROTATION, m_rotation);
-    sendFloatRequest(Requests::Hardware::SET_CORRECTION, m_correction);
+    setScaleCoefficient(m_scaleCoefficient, true);
+    setRotation(m_rotation, true);
+    setCorrection(m_correction, true);
 }
 
 void Hardware::slDataUpdated(FrameType frameType, uint8_t dataType, QVariantList data)
@@ -41,57 +42,13 @@ void Hardware::slDataUpdated(FrameType frameType, uint8_t dataType, QVariantList
         emit serialIdChanged();
         break;
     }
-    case Data::Hardware::PROGRESS:
-    {
-        quint16 currentPoint = data.at(0).toInt();
-        quint16 pointsCount = data.at(1).toInt();
-        setProgress((float)currentPoint/(float)pointsCount);
-        break;
-    }
-    case Data::Hardware::PRINT_SPEED:
-    {
-        m_printSpeed = data.at(0).toFloat();
-        qDebug() << "Print speed: " << m_printSpeed;
-        emit sgPrintSpeedChanged();
-        break;
-    }
-    case Data::Hardware::LED_BRIGHTNESS:
-    {
-        m_ledBrightness = data.at(0).toFloat();
-        emit sgLedBrightnessChanged();
-        break;
-    }
-    case Data::Hardware::SCALE_COEFFICIENT:
-    {
-        setScaleCoefficient(data.at(0).toFloat());
-        break;
-    }
-    case Data::Hardware::ROTATION:
-    {
-        setRotation(data.at(0).toFloat());
-        break;
-    }
-    case Data::Hardware::CORRECTION:
-    {
-        setCorrection(data.at(0).toFloat());
-        break;
-    }
-    case Data::Hardware::PAUSE_INTERVAL:
-    {
-        m_pauseInterval = data.at(0).toInt();
-        emit pauseIntervalChanged();
-        break;
-    }
-    case Data::Hardware::FI_GEAR2_TEETHS:
-    {
-        m_fiGear2Teeths = data.at(0).toInt();
-        emit fiGear2TeethsChanged();
-    }
-    case Data::Hardware::MACHINE_MINUTES:
-    {
-        m_machineMinutes = data.at(0).toInt();
-        emit machineMinutesChanged();
-    }
+    // case Data::Hardware::PROGRESS:
+    // {
+    //     quint16 currentPoint = data.at(0).toInt();
+    //     quint16 pointsCount = data.at(1).toInt();
+    //     setProgress((float)currentPoint/(float)pointsCount);
+    //     break;
+    // }
     default:
         break;
     }
@@ -109,53 +66,89 @@ void Hardware::slTableUnavalible()
     emit deviceAvaliableChanged();
 }
 
-void Hardware::sendFloatRequest(Requests::Hardware requestType, float data)
+float Hardware::progress() const
 {
-    union { float f; uint32_t i; } u;
-    u.f = data;
-    emit sgRequest(FrameType::HARDWARE_ACTIONS, (uint8_t)requestType, u.i);
+    return m_progress;
 }
 
-void Hardware::setPrintSpeed(float newPrintSpeed)
+void Hardware::setProgress(float newProgress)
+{
+    m_progress = newProgress;
+    emit sgProgressChanged();
+}
+
+void Hardware::pause()
+{
+    emit sgRequest(FrameType::HARDWARE_ACTIONS, (uint8_t)Requests::Hardware::PAUSE_PRINTING);
+}
+
+void Hardware::setPrintSpeed(float newPrintSpeed, bool sendRequest)
 {
     m_printSpeed = newPrintSpeed;
     emit sgPrintSpeedChanged();
 
-    sendFloatRequest(Requests::Hardware::SET_PRINT_SPEED, m_printSpeed);
+    if(sendRequest)
+        m_requestManager->setHardwareParameter(Requests::Hardware::SET_PRINT_SPEED, m_printSpeed);
 }
 
-void Hardware::setLedBrightness(float newLedBrightness)
+void Hardware::setLedBrightness(float newLedBrightness, bool sendRequest)
 {
     m_ledBrightness = newLedBrightness;
     emit sgLedBrightnessChanged();
 
-    sendFloatRequest(Requests::Hardware::SET_LED_BRIGHTNESS, m_ledBrightness);
+    if(sendRequest)
+        m_requestManager->setHardwareParameter(Requests::Hardware::SET_LED_BRIGHTNESS, m_ledBrightness);
 }
 
-void Hardware::setScaleCoefficient(float newScaleCoefficient)
-{
-    m_scaleCoefficient = newScaleCoefficient;
-    emit scaleCoefficientChanged();
-}
-
-void Hardware::setRotation(float newRotation)
-{
-    m_rotation = newRotation;
-    emit rotationChanged();
-}
-
-void Hardware::setCorrection(float newCorrection)
-{
-    m_correction = newCorrection;
-    emit correctionChanged();
-}
-
-void Hardware::setPauseInterval(quint32 newPauseInterval)
+void Hardware::setPauseInterval(quint32 newPauseInterval, bool sendRequest)
 {
     if (m_pauseInterval == newPauseInterval)
         return;
 
     m_pauseInterval = newPauseInterval;
     emit pauseIntervalChanged();
-    emit sgRequest(FrameType::HARDWARE_ACTIONS, (uint8_t)Requests::Hardware::SET_PAUSE_INTERVAL, m_pauseInterval);
+
+    if(sendRequest)
+        m_requestManager->setHardwareParameter(Requests::Hardware::SET_PAUSE_INTERVAL, m_pauseInterval);
+}
+
+void Hardware::setScaleCoefficient(float newScaleCoefficient, bool sendRequest)
+{
+    m_scaleCoefficient = newScaleCoefficient;
+    emit scaleCoefficientChanged();
+
+    if(sendRequest)
+        m_requestManager->setHardwareParameter(Requests::Hardware::SET_SCALE_COEFFICIENT, m_scaleCoefficient);
+}
+
+void Hardware::setRotation(float newRotation, bool sendRequest)
+{
+    m_rotation = newRotation;
+    emit rotationChanged();
+
+    if(sendRequest)
+        m_requestManager->setHardwareParameter(Requests::Hardware::SET_ROTATION, m_rotation);
+
+}
+
+void Hardware::setCorrection(float newCorrection, bool sendRequest)
+{
+    m_correction = newCorrection;
+    emit correctionChanged();
+
+    if(sendRequest)
+        m_requestManager->setHardwareParameter(Requests::Hardware::SET_CORRECTION, m_correction);
+}
+
+
+void Hardware::setFiGear2Teehts(quint16 fiGear2Teeths)
+{
+    m_fiGear2Teeths = fiGear2Teeths;
+    emit fiGear2TeethsChanged();
+}
+
+void Hardware::setMachineMinutes(quint32 machineMinutes)
+{
+    m_machineMinutes = machineMinutes;
+    emit machineMinutesChanged();
 }

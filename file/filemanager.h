@@ -19,8 +19,8 @@ class FileManager : public QObject
 public:
     explicit FileManager(AnswerManager *answerManager, RequestManager* requestManager, QObject *parent = nullptr);
 
-    static bool getPointsFromFile(QString fileName, QList<QVariant>& result);
-    static void savePreviewFile(QString filePath, const QByteArray& fileData);
+    bool getPointsFromFile(QString fileName, QList<QVariant>& result);
+    void savePreviewFile(QString filePath, const QByteArray& fileData);
 
 signals:
     void sgUpdateData(FrameType frameType, uint8_t dataType, QVariantList data);

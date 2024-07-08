@@ -27,6 +27,13 @@ qt_add_executable(KineticControl WIN32 MACOSX_BUNDLE
 
     file/filemanager.h file/filemanager.cpp
 
+    net/frames.h
+    net/netclient.h net/netclient.cpp
+    net/netmanager.h net/netmanager.cpp
+    net/abstractmessage.h net/abstractmessage.cpp
+    net/intvaluemessage.h net/intvaluemessage.cpp
+    net/floatvaluemessage.h net/floatvaluemessage.cpp
+
     ui/contentnode.h ui/contentnode.cpp
     ui/devicecontentmodel.h ui/devicecontentmodel.cpp
     ui/playlistelement.h ui/playlistelement.cpp
@@ -35,13 +42,9 @@ qt_add_executable(KineticControl WIN32 MACOSX_BUNDLE
     ui/progress.h ui/progress.cpp
     ui/firmware.h ui/firmware.cpp
 
-    net/netclient.h net/netclient.cpp
-    net/netmanager.h net/netmanager.cpp
-    net/frames.h
 
     android/activityresultmanager.cpp android/activityresultmanager.h
     android/androidutils.cpp android/androidutils.h
-
 )
 
 

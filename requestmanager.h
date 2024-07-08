@@ -4,6 +4,8 @@
 #include <QObject>
 #include <QTimer>
 
+#include "abstractmessage.h"
+
 #include "requestactions.h"
 #include "netmanager.h"
 
@@ -24,18 +26,22 @@ signals:
     void sgTableAvaliable();
     void sgTableUnavaliable();
 
-public slots:
-    void slSendRequest(FrameType frameType, uint8_t request,
-                        uint32_t data0 = 0,
-                        uint32_t data1 = 0,
-                        uint32_t parameters = 0);
+    void sgSendMessage(std::shared_ptr<AbstractMessage> msg_ptr);
 
+public slots:
     void slDataUpdated(FrameType frameType, uint8_t dataType, QVariantList data);
 
     void slDeviceConnected();
     void slDeviceDisconnected();
 
     void slNetEvent(NetEvents eventType, QString target, QVariantList data = {});
+
+    void requestParameter(Requests::Hardware request);
+    void requestParameter(Requests::Playlist request);
+    void requestParameter(Requests::Firmware request);
+
+    void setHardwareParameter(Requests::Hardware request, uint32_t value);
+    void setHardwareParameter(Requests::Hardware request, float_t value);
 
 private:
     QTimer* updateDataTimer;

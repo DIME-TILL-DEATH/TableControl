@@ -33,31 +33,35 @@ public:
     float progress() const;
     void setProgress(float newProgress);
 
-    Q_INVOKABLE void pause() {emit sgRequest(FrameType::HARDWARE_ACTIONS, (uint8_t)Requests::Hardware::PAUSE_PRINTING);};
+    Q_INVOKABLE void pause();
     Q_INVOKABLE void setPrintProperties();
 
     bool deviceAvaliable() const {return m_deviceAvaliable;};
 
     float printSpeed() const {return m_printSpeed;};
-    void setPrintSpeed(float newPrintSpeed);
+    void setPrintSpeed(float newPrintSpeed, bool sendRequest = true);
 
     float ledBrightness() const {return m_ledBrightness;};
-    void setLedBrightness(float newLedBrightness);
+    void setLedBrightness(float newLedBrightness, bool sendRequest = true);
 
     float scaleCoefficient() const {return m_scaleCoefficient;};
-    void setScaleCoefficient(float newScaleCoefficient);
+    void setScaleCoefficient(float newScaleCoefficient, bool sendRequest = false);
 
     float rotation() const {return m_rotation;};
-    void setRotation(float newRotation);
+    void setRotation(float newRotation, bool sendRequest = false);
 
     float correction() const {return m_correction;};
-    void setCorrection(float newCorrection);
+    void setCorrection(float newCorrection, bool sendRequest = false);
 
     quint32 pauseInterval() const {return m_pauseInterval;};
-    void setPauseInterval(quint32 newPauseInterval);
+    void setPauseInterval(quint32 newPauseInterval, bool sendRequest = true);
 
     quint16 fiGear2Teeths() const {return m_fiGear2Teeths;};
+    void setFiGear2Teehts(quint16 fiGear2Teeths);
+
     quint32 machineMinutes() const {return m_machineMinutes;};
+    void setMachineMinutes(quint32 machineMinutes);
+
     QString serialId() const {return m_serialId;};
 
 signals:
@@ -90,11 +94,12 @@ private:
     float m_correction{0};
     quint32 m_pauseInterval{0};
 
-    void sendFloatRequest(Requests::Hardware requestType, float data);
-    quint16 m_fiGear2Teeths;
-    quint32 m_machineMinutes;
+    quint16 m_fiGear2Teeths{0};
+    quint32 m_machineMinutes{0};
     QString m_serialId;
     bool m_deviceAvaliable;
+
+    RequestManager* m_requestManager;
 };
 
 #endif // HARDWARE_H

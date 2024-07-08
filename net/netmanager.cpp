@@ -1,11 +1,14 @@
 #include <QFile>
 #include <QFileInfo>
 
+#include "intvaluemessage.h"
+
 #include "netmanager.h"
-#include "filemanager.h"
 #include "devicecontentmodel.h"
 
-NetManager::NetManager(QObject *parent)
+#include "filemanager.h"
+
+NetManager::NetManager(FileManager *fileManager, QObject *parent)
     : QObject{parent}
 {
     netClient = new NetClient(this);
@@ -44,6 +47,18 @@ void NetManager::sendNetRequest(FrameType frameType, uint8_t request,
         QByteArray dataToSend;
         dataToSend.append(unionData.rawData, sizeof(FrameHeader));
         netClient->sendData(dataToSend);
+    }
+}
+
+void NetManager::slSendMessage(std::shared_ptr<AbstractMessage> msg_ptr)
+{
+    if(netClient->isSocketReady())
+    {
+        netClient->sendData(msg_ptr->rawData());
+    }
+    else
+    {
+        qDebug() << "Trying to send frame, but socket not ready";
     }
 }
 
@@ -240,8 +255,6 @@ void NetManager::sendFirmwareData(const QVariantList &data, FrameHeader_uni fram
 void NetManager::processRecievedData(QByteArray data)
 {
     txBuffer.append(data);
-    //qDebug() << "Recieved data, len:" << data.size();
-
     while(txBuffer.size()>=sizeof(FrameHeader))
     {
         FrameHeader_uni header;
@@ -251,32 +264,41 @@ void NetManager::processRecievedData(QByteArray data)
 
         if(txBuffer.size() >= lastRecvFrameHeader.frameSize)
         {
-            //qDebug() << "Parsing frame. Size:" << lastRecvFrameHeader.frameSize << " recieved buffer:" << txBuffer.size();
             lastRecvFrame = txBuffer.left(lastRecvFrameHeader.frameSize);
+
+            AbstractMessage* message = nullptr;
+            std::shared_ptr<AbstractMessage> msg_ptr;
+
             switch(lastRecvFrameHeader.frameType)
             {
             case FrameType::UNDEFINED: break;
                 
             case FrameType::HARDWARE_ACTIONS:
             {
-                processHardwareAnswer();
+                message = processHardwareAnswer();
                 break;
             }
             case FrameType::PLAYLIST_ACTIONS:
             {
-                processPlaylistAnswer();
+                message = processPlaylistAnswer();
                 break;
             }
             case FrameType::FILE_ACTIONS:
             {
-                processFileAnswer();
+                message = processFileAnswer();
                 break;
             }
             case FrameType::FIRMWARE_ACTIONS:
             {
-                processFirmwareAnswer();
+                message = processFirmwareAnswer();
                 break;
             }
+            }
+
+            if(message != nullptr)
+            {
+                std::shared_ptr<AbstractMessage> msg_ptr(message);
+                emit sgRecievingMessage(msg_ptr);
             }
 
             txBuffer.remove(0, lastRecvFrameHeader.frameSize);
@@ -289,7 +311,7 @@ void NetManager::processRecievedData(QByteArray data)
     }
 }
 
-void NetManager::processHardwareAnswer()
+AbstractMessage* NetManager::processHardwareAnswer()
 {
     QVariantList dataList;
     union { float f; uint32_t i; } u;
@@ -305,82 +327,29 @@ void NetManager::processHardwareAnswer()
         emit sgDataUpdated(FrameType::HARDWARE_ACTIONS, (uint8_t)Data::Hardware::SERIAL_ID, dataList);
         break;
     }
-    case Requests::Hardware::REQUEST_PROGRESS:
-    {
-        dataList.append(lastRecvFrameHeader.data0);
-        dataList.append(lastRecvFrameHeader.data1);
-        //qDebug() << "Progress" << lastRecvFrameHeader.data0 << lastRecvFrameHeader.data1;
-        emit sgDataUpdated(FrameType::HARDWARE_ACTIONS, (uint8_t)Data::Hardware::PROGRESS, dataList);
-        break;
-    }
-    case Requests::Hardware::PAUSE_PRINTING:
-    {
-        break;
-    }
-    case Requests::Hardware::GET_PRINT_SPEED:
-    {
-        u.i = lastRecvFrameHeader.data0;
-        dataList.append(u.f);
-        emit sgDataUpdated(FrameType::HARDWARE_ACTIONS, (uint8_t)Data::Hardware::PRINT_SPEED, dataList);
-        break;
-    }
-    case Requests::Hardware::GET_LED_BRIGHTNESS:
-    {
-        u.i = lastRecvFrameHeader.data0;
-        dataList.append(u.f);
-        qDebug() << "LED brightness: " << u.f;
-        emit sgDataUpdated(FrameType::HARDWARE_ACTIONS, (uint8_t)Data::Hardware::LED_BRIGHTNESS, dataList);
-        break;
-    }
-    case Requests::Hardware::GET_SCALE_COEFFICIENT:
-    {
-        u.i = lastRecvFrameHeader.data0;
-        dataList.append(u.f);
-        qDebug() << "Scale coef: " << u.f;
-        emit sgDataUpdated(FrameType::HARDWARE_ACTIONS, (uint8_t)Data::Hardware::SCALE_COEFFICIENT, dataList);
-        break;
-    }
-    case Requests::Hardware::GET_ROTATION:
-    {
-        u.i = lastRecvFrameHeader.data0;
-        dataList.append(u.f);
-        qDebug() << "Rotation: " << u.f;
-        emit sgDataUpdated(FrameType::HARDWARE_ACTIONS, (uint8_t)Data::Hardware::ROTATION, dataList);
-        break;
-    }
-    case Requests::Hardware::GET_CORRECTION:
-    {
-        u.i = lastRecvFrameHeader.data0;
-        dataList.append(u.f);
-        qDebug() << "Correction: " << u.f;
-        emit sgDataUpdated(FrameType::HARDWARE_ACTIONS, (uint8_t)Data::Hardware::CORRECTION, dataList);
-        break;
-    }
-    case Requests::Hardware::GET_PAUSE_INTERVAL:
-    {
-        dataList.append(lastRecvFrameHeader.data0);
-        qDebug() << "Pause interval: " << lastRecvFrameHeader.data0;
-        emit sgDataUpdated(FrameType::HARDWARE_ACTIONS, (uint8_t)Data::Hardware::PAUSE_INTERVAL, dataList);
-        break;
-    }
-    case Requests::Hardware::GET_FI_GEAR2_TEETH_COUNT:
-    {
-        dataList.append(lastRecvFrameHeader.data0);
-        qDebug() << "Fi gear2 teeth count: " << lastRecvFrameHeader.data0;
-        emit sgDataUpdated(FrameType::HARDWARE_ACTIONS, (uint8_t)Data::Hardware::FI_GEAR2_TEETHS, dataList);
-        break;
-    }
-    case Requests::Hardware::GET_MACHINE_MINUTES:
-    {
-        dataList.append(lastRecvFrameHeader.data0);
-        emit sgDataUpdated(FrameType::HARDWARE_ACTIONS, (uint8_t)Data::Hardware::MACHINE_MINUTES, dataList);
-        break;
-    }
+    case Requests::Hardware::REQUEST_PROGRESS: return new IntValueMessage(lastRecvFrame);
+    // {
+    //     dataList.append(lastRecvFrameHeader.data0);
+    //     dataList.append(lastRecvFrameHeader.data1);
+    //     //qDebug() << "Progress" << lastRecvFrameHeader.data0 << lastRecvFrameHeader.data1;
+    //     emit sgDataUpdated(FrameType::HARDWARE_ACTIONS, (uint8_t)Data::Hardware::PROGRESS, dataList);
+    //     break;
+    // }
+
+    case Requests::Hardware::GET_PRINT_SPEED: return new FloatValueMessage(lastRecvFrame);
+    case Requests::Hardware::GET_LED_BRIGHTNESS: return new FloatValueMessage(lastRecvFrame);
+    case Requests::Hardware::GET_SCALE_COEFFICIENT: return new FloatValueMessage(lastRecvFrame);
+    case Requests::Hardware::GET_ROTATION: return new FloatValueMessage(lastRecvFrame);
+    case Requests::Hardware::GET_CORRECTION: return new FloatValueMessage(lastRecvFrame);
+    case Requests::Hardware::GET_PAUSE_INTERVAL: return new IntValueMessage(lastRecvFrame);
+    case Requests::Hardware::GET_FI_GEAR2_TEETH_COUNT: return new IntValueMessage(lastRecvFrame);
+    case Requests::Hardware::GET_MACHINE_MINUTES: return new IntValueMessage(lastRecvFrame);
     default: break;
     }
+    return nullptr;
 }
 
-void NetManager::processPlaylistAnswer()
+AbstractMessage* NetManager::processPlaylistAnswer()
 {
     switch((Requests::Playlist)lastRecvFrameHeader.action)
     {
@@ -406,20 +375,12 @@ void NetManager::processPlaylistAnswer()
         emit sgDataUpdated(FrameType::PLAYLIST_ACTIONS, (uint8_t)Data::Playlist::PLAYLIST_POSITION, resultData);
         break;
     }
-
-    case Requests::Playlist::CHANGE_PLAYLIST:
-    {
-        break;
+        default: break;
     }
-
-    case Requests::Playlist::CHANGE_PLAYLIST_POSITION:
-    {
-        break;
-    }
-    }
+    return nullptr;
 }
 
-void NetManager::processFileAnswer()
+AbstractMessage* NetManager::processFileAnswer()
 {
     lastRecvFrame.remove(0, sizeof(FrameHeader));
 
@@ -444,7 +405,7 @@ void NetManager::processFileAnswer()
         {
             lastRecvFrame.remove(0, fileName.size());
 
-            FileManager::savePreviewFile(fileName, lastRecvFrame);
+            fileManager->savePreviewFile(fileName, lastRecvFrame);
 
             emit sgDataUpdated(FrameType::FILE_ACTIONS, (uint8_t)Data::File::REQUESTED_FILE, dataList);
             qDebug() << "File downloaded" << fileName;
@@ -491,9 +452,10 @@ void NetManager::processFileAnswer()
         break;
     }
     }
+    return nullptr;
 }
 
-void NetManager::processFirmwareAnswer()
+AbstractMessage* NetManager::processFirmwareAnswer()
 {
     lastRecvFrame.remove(0, sizeof(FrameHeader));
 
@@ -548,6 +510,7 @@ void NetManager::processFirmwareAnswer()
     }
     default: {}
     }
+    return nullptr;
 }
 
 void NetManager::updateFileUploadProgress(NetEvents type, QString filePath, quint64 currentPartSize, quint64 totalSize)

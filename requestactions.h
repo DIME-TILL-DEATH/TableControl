@@ -14,6 +14,15 @@ typedef enum : uint8_t
 
 namespace Requests
 {
+enum class Playlist
+{
+    REQUEST_PLAYLIST,
+    REQUEST_PLAYLIST_POSITION,
+    CHANGE_PLAYLIST,
+    CHANGE_PLAYLIST_POSITION,
+    CHANGE_PRINTNG_FILE
+};
+
 enum class Hardware
 {
     PAUSE_PRINTING,
@@ -34,15 +43,6 @@ enum class Hardware
     //======FIXED========
     GET_SERIAL_ID = 128,
     GET_MACHINE_MINUTES
-};
-
-enum class Playlist
-{
-    REQUEST_PLAYLIST,
-    REQUEST_PLAYLIST_POSITION,
-    CHANGE_PLAYLIST,
-    CHANGE_PLAYLIST_POSITION,
-    CHANGE_PRINTNG_FILE
 };
 
 enum class File

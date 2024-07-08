@@ -10,6 +10,7 @@
 #include "answermanager.h"
 
 #include "requestactions.h"
+#include "abstractmessage.h"
 
 class PlaylistModel : public QAbstractListModel
 {
@@ -43,6 +44,8 @@ signals:
     void sgRequestFileData(QString fileName) const;
 
     void sgProgressChanged();
+
+    void sgSendMessage(AbstractMessage* message);
 
 public slots:
     void slDataUpdated(FrameType frameType, uint8_t dataType, QVariantList dataList);

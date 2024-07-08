@@ -4,9 +4,14 @@
 #include <QObject>
 #include <QTimer>
 
+
 #include "requestactions.h"
 #include "frames.h"
 #include "netclient.h"
+
+#include "abstractmessage.h"
+
+class FileManager;
 
 enum class NetEvents
 {
@@ -28,7 +33,7 @@ class NetManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit NetManager(QObject *parent = nullptr);
+    explicit NetManager(FileManager* fileManager, QObject *parent = nullptr);
 
 signals:
     void sgDataUpdated(FrameType frameType, uint8_t dataType, QVariantList data);
@@ -38,6 +43,8 @@ signals:
 
     void sgNetEvent(NetEvents eventType, QString target, QVariantList data = {});
 
+    void sgRecievingMessage(std::shared_ptr<AbstractMessage> msg_ptr);
+
 public slots:
     void sendNetRequest(FrameType frameType, uint8_t request,
                                             uint32_t data0 = 0,
@@ -45,6 +52,8 @@ public slots:
                                             uint32_t parameters = 0);
 
     void slUpdateData(FrameType frameType, uint8_t dataType, QVariantList data);
+
+    void slSendMessage(std::shared_ptr<AbstractMessage> msg_ptr);
 
 private slots:
     void processRecievedData(QByteArray data);
@@ -59,16 +68,17 @@ private:
     QByteArray txBuffer;
 
     NetClient* netClient;
+    FileManager* fileManager;
 
     QTimer* timer;
     void timerEvent();
     void requestProgress();
     void requestPlaylist();
     
-    void processHardwareAnswer();
-    void processPlaylistAnswer();
-    void processFileAnswer();
-    void processFirmwareAnswer();
+    AbstractMessage* processHardwareAnswer();
+    AbstractMessage* processPlaylistAnswer();
+    AbstractMessage* processFileAnswer();
+    AbstractMessage* processFirmwareAnswer();
 
     void updateFileUploadProgress(NetEvents type, QString filePath, quint64 currentPartSize, quint64 totalSize);
     void updateFirmwareUploadProgress(QString filePath, quint64 current, quint64 total);
