@@ -23,5 +23,20 @@
         <file>qml/Settings/SettingsHeader.qml</file>
         <file>qml/Settings/SettingTextEdit.qml</file>
         <file>qml/Settings/AdminSettingsPage.qml</file>
+        <file>images/home1.svg</file>
+        <file>images/home2.svg</file>
+        <file>images/library.svg</file>
+        <file>images/pause.svg</file>
+        <file>images/pause-circle.svg</file>
+        <file>images/play.svg</file>
+        <file>images/play-circle.svg</file>
+        <file>images/play-pause.svg</file>
+        <file>images/settings1.svg</file>
+        <file>images/settings2.svg</file>
+        <file>images/settings3.svg</file>
+        <file>qml/Elements/FooterMenuBtn.qml</file>
+        <file>images/key.svg</file>
+        <file>images/shuffle.svg</file>
+        <file>qml/Elements/RoundIconBtn.qml</file>
     </qresource>
 </RCC>

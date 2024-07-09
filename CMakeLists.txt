@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.21.1)
 
-project(KineticControl VERSION 0.5.0 LANGUAGES CXX)
+project(KineticControl VERSION 0.5.2 LANGUAGES CXX)
 add_definitions(-DMINIMAL_FIRMWARE_VERSION="0.75")
 
 set(CMAKE_AUTOMOC ON)

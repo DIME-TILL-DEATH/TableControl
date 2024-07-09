@@ -4,10 +4,10 @@ import QtQuick
 Rectangle {
     id: _root
 
-    border.color: "red"
+    border.color: "black"
     border.width: 3
 
-    color: "blue"
+    color: "peachpuff"
 
 //    property var dataPoints
 

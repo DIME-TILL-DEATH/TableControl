@@ -92,7 +92,7 @@ DropArea{
                     DefaultText{
                        text: model.playlistElement.fileName
 
-                       color: (model.isFileAvaliable) ? "white" : "red";
+                       color: (model.isFileAvaliable) ? "black" : "red";
                     }
                     DefaultText{
                        text: model.playlistElement.filePath

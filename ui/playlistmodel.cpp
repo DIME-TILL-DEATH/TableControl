@@ -139,6 +139,7 @@ void PlaylistModel::slDataUpdated(FrameType frameType, uint8_t dataType, QVarian
         (m_playlist.begin() + plsPos)->setIsCurrentPrintingElement(true);
 
         emit dataChanged(createIndex(0, 0), createIndex(m_playlist.size()-1, 0));
+        emit printNameChanged();
         break;
     }
     }
@@ -261,4 +262,16 @@ qint32 PlaylistModel::curPlaylistPosition()
 {
     auto playlistElement = std::find_if(m_playlist.begin(), m_playlist.end(), [](PlaylistElement element) {return element.isCurrentPrintingElement();});
     return std::distance(m_playlist.begin(), playlistElement);
+}
+
+QString PlaylistModel::printName() const
+{
+    auto playlistElement = std::find_if(m_playlist.begin(), m_playlist.end(), [](PlaylistElement element) {return element.isCurrentPrintingElement();});
+    if(playlistElement != nullptr) return playlistElement->fileName();
+    else return "--";
+}
+
+QString PlaylistModel::playlistName() const
+{
+    return "default";
 }

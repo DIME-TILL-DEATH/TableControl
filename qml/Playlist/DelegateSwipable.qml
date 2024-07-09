@@ -23,7 +23,7 @@ SwipeDelegate {
     swipe.right: Label {
         id: deleteLabel
         text: qsTr("Delete")
-        color: "white"
+        color: "black"
         verticalAlignment: Label.AlignVCenter
         padding: 12
         height: parent.height
@@ -40,8 +40,8 @@ SwipeDelegate {
         //color: "black"
         id: _mainRec
 
-        property color startColor: "black"
-        property color stopColor: model.playlistElement.isCurrentPrintingElement ? "slategray" : "black"
+        property color startColor: "white"
+        property color stopColor: model.playlistElement.isCurrentPrintingElement ? "slategray" : "white"
 
         color: startColor
 

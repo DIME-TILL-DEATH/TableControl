@@ -79,7 +79,7 @@ void Hardware::setProgress(float newProgress)
 
 void Hardware::pause()
 {
-    emit sgRequest(FrameType::HARDWARE_ACTIONS, (uint8_t)Requests::Hardware::PAUSE_PRINTING);
+    m_requestManager->requestParameter(Requests::Hardware::PAUSE_PRINTING);
 }
 
 void Hardware::setPrintSpeed(float newPrintSpeed, bool sendRequest)

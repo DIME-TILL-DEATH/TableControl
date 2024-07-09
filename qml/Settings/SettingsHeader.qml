@@ -12,12 +12,13 @@ Rectangle{
     anchors.horizontalCenter: parent.horizontalCenter
 
     width: parent.width
-    height: parent.height/17
+    height: parent.height/15
+    radius: parent.width/50
 
     color: "transparent"
 
     border.width: 2
-    border.color: "white"
+    border.color: "black"
 
     DefaultText{
         anchors.centerIn: parent

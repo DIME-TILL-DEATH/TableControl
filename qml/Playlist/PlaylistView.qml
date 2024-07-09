@@ -7,7 +7,7 @@ ListView
 {
     id: _listView
 
-    spacing: height/100
+    //spacing: height/100
 
     boundsBehavior: Flickable.StopAtBounds
 

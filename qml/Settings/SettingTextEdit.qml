@@ -32,8 +32,8 @@ Row{
 
         text: "1.0"
         font.bold: true
-        font.pointSize: 14
-        color: "white"
+        font.pointSize: 12
+        color: "black"
 
         validator: valueChecker
 
@@ -49,7 +49,7 @@ Row{
 
                  color: "transparent"
 
-                 border.color: _textField.activeFocus ? "blue" : "white"
+                 border.color: _textField.activeFocus ? "blue" : "black"
              }
 
 

@@ -41,7 +41,7 @@ Item{
                 ctx.reset()
 
                 ctx.lineWidth = lineWidth
-                ctx.strokeStyle = "white"
+                ctx.strokeStyle = "darkslategrey"
 
                 ctx.translate(_canvas.width/2, _canvas.height/2)
                 ctx.rotate(Math.PI)

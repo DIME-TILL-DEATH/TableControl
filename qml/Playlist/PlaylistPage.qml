@@ -5,7 +5,7 @@ import Elements
 
 import UiObjects
 
-Item{
+Rectangle{
     Busy{
         height: parent.height
         width: parent.width
@@ -18,52 +18,42 @@ Item{
         width: parent.width
         height: parent.height
 
-        PlaylistView{
-            height: parent.height * 0.975// - _transport.height //- _preview.height
+        Rectangle{
+            id: _plsHeader
+
+            height: parent.height * 0.065
             width: parent.width
-        }
 
-        ProgressBar{
-            id: _progressBar
+            color: "black"
 
-            visible: Hardware.deviceAvaliable
-
-            anchors.horizontalCenter: parent.horizontalCenter
-            width: parent.width
-            height: parent.height * 0.025
-
-            value: Hardware.progress;
-
-            Text{
+            Row{
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.verticalCenter: parent.verticalCenter
-                text: (Hardware.progress * 100).toFixed(2) + "%"
 
-                z: 2
-            }
+                width: parent.width * 0.75
+                height: parent.height * 0.95
+                spacing: parent.width * 0.1
 
-            background: Rectangle {
-                     implicitWidth: 200
-                     implicitHeight: 6
-                     radius: 3
+                RoundIconBtn{
+                    id: _btnPlay
 
-                     border.width: 1
-                 }
+                    text: "Play"
+                    iconSource: "qrc:/images/play.svg"
+                }
 
-             contentItem: Item {
-                 implicitWidth: 200
-                 implicitHeight: 4
+                RoundIconBtn{
+                    id: _control
 
-                 Rectangle {
-                     width: _progressBar.visualPosition * parent.width
-                     height: parent.height
-                     radius: 2
-                     z:-2
+                    text: "Shuffle"
 
-                     color: "blue"
-                     border.width: 1
+                    iconSource: "qrc:/images/shuffle.svg"
                 }
             }
+        }
+
+        PlaylistView{
+            height: parent.height * 0.975 - _plsHeader.height
+            width: parent.width
         }
     }
 }

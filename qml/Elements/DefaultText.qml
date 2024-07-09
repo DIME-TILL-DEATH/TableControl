@@ -1,8 +1,10 @@
 import QtQuick
 
 Text{
-    color: "white"
+    color: "black"
+
+    verticalAlignment: Text.AlignVCenter
 
     font.bold: true
-    font.pointSize: 14
+    font.pointSize: 12
 }

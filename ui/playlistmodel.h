@@ -15,6 +15,9 @@
 class PlaylistModel : public QAbstractListModel
 {
     Q_OBJECT
+
+    Q_PROPERTY(QString printName READ printName NOTIFY printNameChanged FINAL)
+    Q_PROPERTY(QString playlistName READ playlistName NOTIFY playlistNameChanged FINAL)
 public:
     explicit PlaylistModel(AnswerManager* answerManager, RequestManager* requestManager, QObject *parent = nullptr);
 
@@ -34,6 +37,10 @@ public:
 
     qint32 curPlaylistPosition() const;
 
+    QString printName() const;
+
+    QString playlistName() const;
+
 signals:
     void sgUpdateData(FrameType frameType, uint8_t dataType, QVariantList data);
     void sgRequest(FrameType frameType, uint8_t requestType,
@@ -47,6 +54,10 @@ signals:
 
     void sgSendMessage(AbstractMessage* message);
 
+    void printNameChanged();
+
+    void playlistNameChanged();
+
 public slots:
     void slDataUpdated(FrameType frameType, uint8_t dataType, QVariantList dataList);
 
@@ -54,7 +65,6 @@ public slots:
     void slDeviceUnavaliable();
 
 private:
-    //QList<QString> m_playlist;
     QList<PlaylistElement> m_playlist;
     QMap<QString, QList<QVariant>> m_previewData;
 

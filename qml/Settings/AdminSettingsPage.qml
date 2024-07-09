@@ -5,7 +5,7 @@ import QtQuick.Dialogs
 import Elements
 import UiObjects
 
-Item{
+Rectangle{
     Column{
         height: parent.height*0.95
         width: parent.width*0.75

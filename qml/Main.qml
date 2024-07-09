@@ -26,8 +26,10 @@ ApplicationWindow {
     {
         id: _swipeView
 
-        width: parent.width
+        width: parent.width * 0.95
         height: parent.height
+
+        spacing: parent.width * 0.025
 
         anchors.horizontalCenter: parent.horizontalCenter
 
@@ -51,48 +53,165 @@ ApplicationWindow {
         }
     }
 
-    footer: TabBar{
-        id: _bar
+    footer: Rectangle
+    {
+        width: _main.width
+        height: _main.height*0.125
+        color: "black"
 
-        height: _main.height/20
-        currentIndex: _swipeView.currentIndex
+        Column{
+            anchors.fill: parent
 
-        background: Rectangle {
-                 color: "#eeeeee"
-             }
+            Row{
+                width: parent.width*0.8
+                height: parent.height*0.4
 
-        TabButton {
-            height: parent.height
-            anchors.top: parent.top
-            text: qsTr("Playlist")
-            onClicked: {
-                _swipeView.currentIndex=0
+                anchors.horizontalCenter: parent.horizontalCenter
+
+                Column{
+                    width: parent.width - _pauseResumeBtn.width
+                    height: parent.height
+
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    DefaultText{
+                        height: parent.height * 0.5
+
+                        text: "Playing from " + PlaylistModel.playlistName + " playlist"
+
+                        color: "white"
+                        font.pointSize: 8
+                    }
+                    DefaultText{
+                        height: parent.height * 0.5
+
+                        text: PlaylistModel.printName
+
+                        color: "white"
+                        font.pointSize: 12
+                    }
+                }
+
+                IconImage{
+                    id: _pauseResumeBtn
+                    source: "qrc:/images/play-pause.svg"
+
+                    width: parent.height * 0.95
+                    height: width
+
+                    fillMode: Image.PreserveAspectFit
+
+                    color: _maPauseResume.containsPress ? "red" : "white"
+                    MouseArea{
+                        id: _maPauseResume
+
+                        anchors.fill: parent
+
+                        onClicked: {
+                            Hardware.pause();
+                        }
+                    }
+                }
+
             }
-         }
-         TabButton {
-             height: parent.height
-             anchors.top: parent.top
-             text: qsTr("Library")
-             onClicked: {
-                 _swipeView.currentIndex=1
-             }
-         }
-         TabButton {
-             height: parent.height
-             anchors.top: parent.top
-             text: qsTr("Settings")
-             onClicked: {
-                 _swipeView.currentIndex=2
-             }
-         }
-         TabButton {
-             height: parent.height
-             anchors.top: parent.top
-             text: qsTr("Admin")
-             onClicked: {
-                 _swipeView.currentIndex=3
-             }
-         }
+
+
+            ProgressBar{
+                id: _progressBar
+
+                visible: Hardware.deviceAvaliable
+
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width
+                height: parent.height * 0.05
+
+                value: Hardware.progress;
+
+                // Text{
+                //     anchors.horizontalCenter: parent.horizontalCenter
+                //     anchors.verticalCenter: parent.verticalCenter
+                //     text: (Hardware.progress * 100).toFixed(2) + "%"
+
+                //     z: 2
+                // }
+
+                background: Rectangle {
+                         implicitWidth: 200
+                         implicitHeight: 6
+                         radius: 3
+
+                         border.width: 1
+                     }
+
+                 contentItem: Item {
+                     implicitWidth: 200
+                     implicitHeight: 4
+
+                     Rectangle {
+                         width: _progressBar.visualPosition * parent.width
+                         height: parent.height
+                         radius: 2
+                         z:-2
+
+                         color: "blue"
+                         border.width: 1
+                    }
+                }
+            }
+
+            TabBar{
+                id: _bar
+
+                width: parent.width
+                height: parent.height*0.55
+                currentIndex: _swipeView.currentIndex
+
+                background: Rectangle {
+                         color: "#eeeeee"
+                }
+
+                FooterMenuBtn{
+                    text: qsTr("Home")
+
+                    imageSource: "qrc:/images/home1.svg"
+                    isActive: TabBar.index === _bar.currentIndex
+
+                    onClicked: {
+                        _swipeView.currentIndex=0
+                    }
+                }
+
+                FooterMenuBtn {
+                    imageSource: "qrc:/images/library.svg"
+                    isActive: TabBar.index === _bar.currentIndex
+
+                    text: qsTr("Library")
+                    onClicked: {
+                        _swipeView.currentIndex=1
+                    }
+                }
+
+                FooterMenuBtn {
+                    imageSource: "qrc:/images/settings1.svg"
+                    isActive: TabBar.index === _bar.currentIndex
+
+                    text: qsTr("Settings")
+                    onClicked: {
+                        _swipeView.currentIndex=2
+                    }
+                }
+
+                FooterMenuBtn {
+                    imageSource: "qrc:/images/key.svg"
+                    isActive: TabBar.index === _bar.currentIndex
+
+                    text: qsTr("Admin")
+                    onClicked: {
+                        _swipeView.currentIndex=3
+                    }
+                }
+            }
+        }
     }
 
     Dialog{
