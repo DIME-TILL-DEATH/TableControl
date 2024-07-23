@@ -64,44 +64,4 @@ enum class Firmware
 
 }
 
-namespace Data
-{
-enum class Hardware
-{
-    SERIAL_ID,
-    PROGRESS,
-    PAUSE_STATE,
-    PRINT_SPEED,
-    LED_BRIGHTNESS,
-    SCALE_COEFFICIENT,
-    ROTATION,
-    CORRECTION,
-    PAUSE_INTERVAL,
-    FI_GEAR2_TEETHS,
-    MACHINE_MINUTES
-};
-
-enum class Playlist
-{
-    PLAYLIST,
-    PLAYLIST_POSITION
-};
-
-enum class File
-{
-    REQUESTED_FILE,
-    REQUESTED_FILE_NOT_FOUND,
-    REQUESTED_FOLDER,
-    REQUESTED_FOLDER_NOT_FOUND,
-    UPLOAD_DATA_SAVED,
-    UPLOAD_DATA_NOT_SAVED
-};
-
-enum class Firmware
-{
-    FIRMWARE_VERSION
-};
-
-}
-
 #endif // REQUESTACTIONS_H

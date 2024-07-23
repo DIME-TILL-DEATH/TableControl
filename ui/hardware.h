@@ -7,9 +7,6 @@
 #include "requestmanager.h"
 #include "answermanager.h"
 
-#include "requestactions.h"
-
-
 class Hardware : public QObject
 {
     Q_OBJECT
@@ -30,11 +27,14 @@ class Hardware : public QObject
 public:
     explicit Hardware(AnswerManager* answerManager, RequestManager* requestManager, QObject *parent = nullptr);
 
-    float progress() const;
-    void setProgress(float newProgress);
-
     Q_INVOKABLE void pause();
     Q_INVOKABLE void setPrintProperties();
+
+    QString serialId() const {return m_serialId;};
+    void setSerialId(QString serialId);
+
+    float progress() const {return m_progress;};
+    void setProgress(float newProgress);
 
     bool deviceAvaliable() const {return m_deviceAvaliable;};
 
@@ -62,11 +62,7 @@ public:
     quint32 machineMinutes() const {return m_machineMinutes;};
     void setMachineMinutes(quint32 machineMinutes);
 
-    QString serialId() const {return m_serialId;};
-
 signals:
-    void sgRequest(FrameType frameType, uint8_t requestType, uint32_t data0 = 0, uint32_t data1 = 0, uint32_t parameters = 0);
-
     void deviceAvaliableChanged();
     void sgProgressChanged();
     void sgPrintSpeedChanged();
@@ -80,8 +76,6 @@ signals:
     void serialIdChanged();    
 
 public slots:
-    void slDataUpdated(FrameType frameType, uint8_t dataType, QVariantList data);
-
     void slTableAvalible();
     void slTableUnavalible();
 

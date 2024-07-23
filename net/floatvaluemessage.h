@@ -13,30 +13,18 @@ public:
         GET
     };
 
-    FloatValueMessage(FrameType frameType, uint8_t action, uint32_t value = 0);
+    FloatValueMessage(FrameType frameType, uint8_t action, float value = 0);
     FloatValueMessage(QByteArray recievedData);
     ~FloatValueMessage();
 
-
-    void formSendData() override;
-    void processRecievedData() override;
-
     ActionType actionType() const {return m_actionType;};
-    uint32_t value() const {return m_value;};
-
-    FrameType frameType() const {return m_frameType;};
-
-    uint8_t action() const {return m_action;};
+    float value() const {return m_value;};
 
 private:
-    FrameType m_frameType;
-    uint8_t m_action;
-
-    float_t m_value;
-
     ActionType m_actionType;
-
     ActionType recognizeActionType();
+
+    float m_value;
 };
 
 #endif // FLOATVALUEMESSAGE_H

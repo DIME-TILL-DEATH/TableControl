@@ -5,7 +5,6 @@
 #include <QVariant>
 #include <QPointF>
 
-#include "requestactions.h"
 
 #include "answermanager.h"
 #include "requestmanager.h"
@@ -20,19 +19,18 @@ public:
     explicit FileManager(AnswerManager *answerManager, RequestManager* requestManager, QObject *parent = nullptr);
 
     bool getPointsFromFile(QString fileName, QList<QVariant>& result);
-    void savePreviewFile(QString filePath, const QByteArray& fileData);
+    void saveFilePart(QString filePath, const QByteArray& fileData, int32_t partPosition = -1, int32_t fileSize = -1);
+    void requesteFileUnavaliable(QString filePath);
 
 signals:
-    void sgUpdateData(FrameType frameType, uint8_t dataType, QVariantList data);
-
     void sgFileDataReady(QString fileName, QList<QVariant> fileData);
 
 public slots:
     void processFileLoadRequest(QString fileName);
 
-    void slDataUpdated(FrameType frameType, uint8_t dataType, QVariantList dataList);
-
 private:
+    RequestManager* m_requestManager;
+
     QMap<QString, QList<QVariant> > m_loadedData;
 
     QString deviceSerialId;

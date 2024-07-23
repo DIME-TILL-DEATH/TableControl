@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
     app.setOrganizationDomain("fmone.ru");
     app.setApplicationName("Kinetic table");
 
-    netManager = new NetManager(fileManager);
+    netManager = new NetManager();
     requestManager = new RequestManager();
     answerManager = new AnswerManager();
     fileManager = new FileManager(answerManager, requestManager);
@@ -50,24 +50,22 @@ int main(int argc, char *argv[])
     ThreadController threadController(QThread::currentThread());
     netManager->moveToThread(threadController.backendThread());
     fileManager->moveToThread(threadController.backendThread());
-    // requestManager->moveToThread(threadController.backendThread());
-    // answerManager->moveToThread(threadController.backendThread());
+    requestManager->moveToThread(threadController.backendThread());
+    answerManager->moveToThread(threadController.backendThread());
 
-    // QObject::connect(requestManager, &RequestManager::sgNetRequest, netManager, &NetManager::sendNetRequest);
-    QObject::connect(requestManager, &RequestManager::sgUpdateData, netManager, &NetManager::slUpdateData);
-
-    QObject::connect(netManager, &NetManager::sgDataUpdated, requestManager, &RequestManager::slDataUpdated);
     QObject::connect(netManager, &NetManager::sgDeviceConnected, requestManager, &RequestManager::slDeviceConnected);
     QObject::connect(netManager, &NetManager::sgDeviceDisconnected, requestManager, &RequestManager::slDeviceDisconnected);
+    QObject::connect(answerManager, &AnswerManager::sgFirmwareVersion, requestManager, &RequestManager::slFirmwareVerisonRecieved);
+    QObject::connect(answerManager, &AnswerManager::sgSerialId, requestManager, &RequestManager::slSerialIdRecieved);
 
     QObject::connect(requestManager, &RequestManager::sgSendMessage, netManager, &NetManager::slSendMessage);
+    QObject::connect(answerManager, &AnswerManager::sgSendMessage, netManager, &NetManager::slSendMessage);
 
-    QObject::connect(netManager, &NetManager::sgDataUpdated, answerManager, &AnswerManager::slDataUpdated);
     QObject::connect(netManager, &NetManager::sgNetEvent, answerManager, &AnswerManager::slNetEvent);
-    QObject::connect(netManager, &NetManager::sgRecievingMessage, answerManager, &AnswerManager::slRecievingMessage);
+    QObject::connect(netManager, &NetManager::sgRecievingMessage, answerManager, &AnswerManager::slRecieveMessage);
 
-    QObject::connect(fileManager, &FileManager::sgFileDataReady, playlistModel, &PlaylistModel::slFileDataReady);
-    QObject::connect(playlistModel, &PlaylistModel::sgRequestFileData, fileManager, &FileManager::processFileLoadRequest);
+    QObject::connect(fileManager, &FileManager::sgFileDataReady, playlistModel, &PlaylistModel::slFileDataReady, Qt::QueuedConnection);
+    QObject::connect(playlistModel, &PlaylistModel::sgRequestFileData, fileManager, &FileManager::processFileLoadRequest, Qt::QueuedConnection);
 
     QObject::connect(deviceContentModel, &DeviceContentModel::sgRequestFileData, fileManager, &FileManager::processFileLoadRequest, Qt::QueuedConnection);
 

@@ -41,6 +41,7 @@ signals:
     void firmwareUploadProgressChanged();
     void updatingStateChanged();
 
+
 public slots:
     void slUpdate(NetEvents eventType, QString target, QVariantList data);
     void slDeviceAvalible();
@@ -49,6 +50,8 @@ private:
     qreal m_currentProgress{1.0};
     qreal m_firmwareUploadProgress{1.0};
     bool m_updatingState{false};
+
+    RequestManager* m_requestManager;
 
     QMap<QString, QPair<qint64, qint64> > m_activeProcesses;
 };

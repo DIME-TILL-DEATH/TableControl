@@ -9,8 +9,6 @@
 
 #include "contentnode.h"
 
-#include "requestactions.h"
-
 #ifdef __ANDROID__
 #include <jni.h>
 #include "activityresultmanager.h"
@@ -46,12 +44,6 @@ public:
     void setCurrentDstPath(const QString &newCurrentDstPath);
 
 signals:
-    void sgUpdateData(FrameType frameType, uint8_t dataType, QVariantList data);
-    void sgRequest(FrameType frameType, uint8_t requestType,
-                   uint32_t data0 = 0,
-                   uint32_t data1 = 0,
-                   uint32_t parameters = 0);
-
     void sgRequestFileData(QString fileName);
 
     void sgOpenPlatformFileDialog();
@@ -59,12 +51,14 @@ signals:
     void currentDstPathChanged();
 
 public slots:
-    void slDataUpdated(FrameType frameType, uint8_t dataType, QVariantList dataList);
+    void slContentUpdated(QString path, QStringList contentList);
     void slFileDataReady(QString fileName, QList<QVariant> fileData);
 
     void slAndroidFilePicked(QString filePath, QString fileName);
 
 private:
+    RequestManager* m_requestManager;
+
     ContentNode* rootNode;
     ContentNode* sdCardNode;
 

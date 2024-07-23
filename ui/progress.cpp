@@ -2,9 +2,11 @@
 #include "qforeach.h"
 
 Progress::Progress(AnswerManager *answerManager, RequestManager* requestManager, QObject *parent)
-    : QObject{parent}
+    : QObject{parent},
+    m_requestManager(requestManager)
 {
     QObject::connect(answerManager, &AnswerManager::sgNetEvent, this, &Progress::slUpdate);
+    QObject::connect(requestManager, &RequestManager::sgNetEvent, this, &Progress::slUpdate);
     QObject::connect(requestManager, &RequestManager::sgTableAvaliable, this, &Progress::slDeviceAvalible);
 }
 
@@ -12,8 +14,7 @@ void Progress::slUpdate(NetEvents eventType, QString target, QVariantList data)
 {
     switch (eventType)
     {
-        // TODO one event
-    case NetEvents::UploadData:
+    case NetEvents::StartUploadData:
     {
         qint64 partSize = data.at(0).toInt();
         qint64 fileSize = data.at(1).toInt();
@@ -24,17 +25,14 @@ void Progress::slUpdate(NetEvents eventType, QString target, QVariantList data)
     }
     case NetEvents::UploadDataCompleted:
     {
-        // qint64 uploadedPartSize = data.at(0).toInt();
-
         if(!m_activeProcesses.contains(target))
         {
             qDebug() << __FUNCTION__ << "Some error, complete action without request! Target" << target;
         }
         qint64 targetProgress = data.at(0).toInt();
-        // qint64 targetProgress = m_activeProcesses.value(target).first + uploadedPartSize;
         qint64 fileSize = m_activeProcesses.value(target).second;
-        m_activeProcesses.insert(target, {targetProgress, fileSize});
 
+        m_activeProcesses.insert(target, {targetProgress, fileSize});
         break;
     }
     case NetEvents::UploadDataError:
@@ -44,16 +42,34 @@ void Progress::slUpdate(NetEvents eventType, QString target, QVariantList data)
         emit errorOccured(Error::UploadFailed, target);
         break;
     }
+    case NetEvents::UploadFirmwareStart:
+    {
+        qint64 firmwareUploadedBytes = data.at(0).toInt();
+        qint64 fileSize = data.at(1).toInt();
+
+        if(!m_activeProcesses.contains(target))
+            m_activeProcesses.insert(target, {firmwareUploadedBytes, fileSize});
+
+        setFirmwareUploadProgress((qreal)firmwareUploadedBytes/(qreal)fileSize);
+        break;
+    }
     case NetEvents::UploadFirmware:
     {
-        // firmwareUploadedBytes += data.at(0).toInt();
         qint32 firmwareUploadedBytes = data.at(0).toInt();
-        qint32 fileSize = data.at(1).toInt();
-
+        qint32 fileSize = m_activeProcesses.value(target).second; //data.at(1).toInt();
 
         if(fileSize>0) setFirmwareUploadProgress((qreal)firmwareUploadedBytes/(qreal)fileSize);
 
         qDebug() << "Upload, processed: " << firmwareUploadedBytes << " file size: " << fileSize;
+
+        if(firmwareUploadedBytes >= fileSize)
+        {
+            qDebug() << "Firmware uploaded, update";
+            setUpdatingState(true);
+
+            m_activeProcesses.remove(target);
+            m_requestManager->requestParameter(Requests::Firmware::FIRMWARE_UPDATE);
+        }
         break;
     }
     case NetEvents::UploadFirmwareError:
@@ -61,12 +77,6 @@ void Progress::slUpdate(NetEvents eventType, QString target, QVariantList data)
         qDebug() << "Failed to upload file " << target;
         setFirmwareUploadProgress(1.0);
         emit errorOccured(Error::FirmwareUploadFailed, target);
-        break;
-    }
-    case NetEvents::UpdatingFirmware:
-    {
-        qDebug() << "Progress manager, updating firmware";
-        setUpdatingState(true);
         break;
     }
 

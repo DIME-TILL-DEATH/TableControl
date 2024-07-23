@@ -2,7 +2,14 @@
 
 #include "abstractmessage.h"
 
-AbstractMessage::AbstractMessage() {}
+AbstractMessage::AbstractMessage(FrameType frameType, uint8_t action)
+{
+    memset(m_frameHeader.rawData, 0, sizeof(FrameHeader));
+
+    m_frameHeader.structData.frameType = frameType;
+    m_frameHeader.structData.action = action;
+    m_frameHeader.structData.frameSize = sizeof(FrameHeader);
+}
 
 AbstractMessage::AbstractMessage(QByteArray rawData)
     : m_rawData(rawData)
@@ -24,14 +31,4 @@ AbstractMessage::~AbstractMessage()
 QByteArray AbstractMessage::rawData() const
 {
     return m_rawData;
-}
-
-void AbstractMessage::setRawData(const QByteArray &newRawData)
-{
-    m_rawData = newRawData;
-}
-
-AbstractMessage::MessageType AbstractMessage::messageType() const
-{
-    return m_messageType;
 }

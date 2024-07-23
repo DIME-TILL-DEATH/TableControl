@@ -27,25 +27,25 @@ public:
     Q_INVOKABLE void selectFile();
     Q_INVOKABLE void updateFirmware(QString filePath);
 
-    QString currentFwVersion() const;
+    QString currentFwVersion() const {return m_currentFwVersion;};
     void setCurrentFwVersion(const QString &newCurrentFwVersion);
 
     static bool isVerisonSufficient(QString versionString);
 
-signals:
-    void sgUpdateData(FrameType frameType, uint8_t dataType, QVariantList data);
+    constexpr static const char dstPath[] = "/sdcard/firmware.bin";
 
+signals:
     void sgOpenPlatformFileDialog();
     void sgFirmwareVersionInsufficient();
 
     void currentFwVersionChanged();
 
 public slots:
-    void slDataUpdated(FrameType frameType, uint8_t dataType, QVariantList data);
-
     void slAndroidFilePicked(QString filePath, QString fileName);
 
 private:
+    RequestManager* m_requestManager;
+
     QString m_currentFwVersion;
     static FirmwareVersion extractFirmwareVersion(QString versionString);
 

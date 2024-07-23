@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.21.1)
 
-project(KineticControl VERSION 0.5.2 LANGUAGES CXX)
-add_definitions(-DMINIMAL_FIRMWARE_VERSION="0.75")
+project(KineticControl VERSION 0.5.5 LANGUAGES CXX)
+add_definitions(-DMINIMAL_FIRMWARE_VERSION="0.80")
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_STANDARD 17)
@@ -30,9 +30,13 @@ qt_add_executable(KineticControl WIN32 MACOSX_BUNDLE
     net/frames.h
     net/netclient.h net/netclient.cpp
     net/netmanager.h net/netmanager.cpp
+
     net/abstractmessage.h net/abstractmessage.cpp
     net/intvaluemessage.h net/intvaluemessage.cpp
     net/floatvaluemessage.h net/floatvaluemessage.cpp
+    net/stringmessage.h net/stringmessage.cpp
+    net/filepartmessage.h net/filepartmessage.cpp
+    net/foldercontentmessage.h net/foldercontentmessage.cpp
 
     ui/contentnode.h ui/contentnode.cpp
     ui/devicecontentmodel.h ui/devicecontentmodel.cpp

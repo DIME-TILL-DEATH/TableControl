@@ -17,22 +17,13 @@ public:
     IntValueMessage(QByteArray recievedData);
     ~IntValueMessage();
 
-    void formSendData() override;
-    void processRecievedData() override;
-
     ActionType actionType() const {return m_actionType;};
+
     uint32_t value() const {return m_value1;};
     uint32_t firstValue() const {return m_value1;};
     uint32_t secondValue() const {return m_value2;};
 
-    FrameType frameType() const {return m_frameType;};
-
-    uint8_t action() const {return m_action;};
-
 private:
-    FrameType m_frameType;
-    uint8_t m_action;
-
     uint32_t m_value1;
     uint32_t m_value2;
 

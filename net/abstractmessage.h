@@ -12,26 +12,27 @@ public:
     {
         ABSTRACT,
         INT_VALUE,
-        FLOAT_VALUE
+        FLOAT_VALUE,
+        STRING,
+        FILE_PART,
+        FOLDER_CONTENT
     }MessageType;
 
-    AbstractMessage();
+    AbstractMessage(FrameType frameType, uint8_t action);
     AbstractMessage(QByteArray rawData);
     virtual ~AbstractMessage();
 
-    virtual void formSendData(){};
-    virtual void processRecievedData(){};
-
     QByteArray rawData() const;
-    void setRawData(const QByteArray &newRawData);
 
-    MessageType messageType() const;
+    MessageType messageType() const {return m_messageType;};
+    FrameType frameType() const {return m_frameHeader.structData.frameType;};
+    uint8_t action() const {return m_frameHeader.structData.action;};
 
 protected:
-    QByteArray m_rawData;
     MessageType m_messageType{MessageType::ABSTRACT};
-
     FrameHeader_uni m_frameHeader;
+
+    QByteArray m_rawData;
 };
 
 #endif // ABSTRACTMESSAGE_H

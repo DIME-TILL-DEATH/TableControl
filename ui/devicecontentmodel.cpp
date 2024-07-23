@@ -8,10 +8,10 @@
 DeviceContentModel::DeviceContentModel(AnswerManager *answerManager, RequestManager *requestManager, QObject *parent)
     : QAbstractItemModel{parent}
 {
-    QObject::connect(this, &DeviceContentModel::sgRequest, requestManager, &RequestManager::sgNetRequest);
-    QObject::connect(this, &DeviceContentModel::sgUpdateData, requestManager, &RequestManager::sgUpdateData);
+    m_requestManager = requestManager;
 
-    QObject::connect(answerManager, &AnswerManager::sgDataUpdated, this, &DeviceContentModel::slDataUpdated);
+
+    QObject::connect(answerManager, &AnswerManager::sgFolderContent, this, &DeviceContentModel::slContentUpdated);
 
 #ifdef Q_OS_ANDROID
     QObject::connect(&activityResultHandler, &ActivityResultManager::sgFilePicked, this, &DeviceContentModel::slAndroidFilePicked);
@@ -111,14 +111,6 @@ QHash<int, QByteArray> DeviceContentModel::roleNames() const
     return roles;
 }
 
-void DeviceContentModel::uploadFileToDevice(QString dstPath, QString srcPath)
-{
-    QVariantList data;
-    data.append(librarySdcardPath + dstPath);
-    data.append(srcPath);
-    emit sgUpdateData(FrameType::FILE_ACTIONS, (uint8_t)(Requests::File::FILE_CREATE), data);
-}
-
 void DeviceContentModel::selectFile()
 {
 #ifdef Q_OS_ANDROID
@@ -133,72 +125,62 @@ void DeviceContentModel::slAndroidFilePicked(QString filePath, QString fileName)
     uploadFileToDevice(m_currentDstPath + "/" + fileName, filePath);
 }
 
-void DeviceContentModel::slDataUpdated(FrameType frameType, uint8_t dataType, QVariantList dataList)
+void DeviceContentModel::uploadFileToDevice(QString dstPath, QString srcPath)
 {
-    if(frameType != FrameType::FILE_ACTIONS) return;
+    m_requestManager->uploadFile(librarySdcardPath + dstPath, srcPath);
+}
 
-    switch ((Data::File)dataType)
+void DeviceContentModel::slContentUpdated(QString path, QStringList contentList)
+{
+    path.remove(librarySdcardPath);
+    QStringList pathList = path.split("/", Qt::SkipEmptyParts);
+    ContentNode* currentPathNode = sdCardNode;
+    foreach(auto pathElement, pathList)
     {
-    case Data::File::REQUESTED_FOLDER:
-    {
-        QString fullFolderPath = dataList.at(0).toString();
-        fullFolderPath.remove(librarySdcardPath);
-
-        QStringList pathList = fullFolderPath.split("/", Qt::SkipEmptyParts);
-        ContentNode* currentPathNode = sdCardNode;
-        foreach(auto pathElement, pathList)
+        ContentNode* nextPathNode = currentPathNode->childByName(pathElement);
+        if(nextPathNode)
         {
-            ContentNode* nextPathNode = currentPathNode->childByName(pathElement);
-            if(nextPathNode)
-            {
-                currentPathNode = nextPathNode;
-            }
-            else
-            {
-                ContentNode* newPathElement = new ContentNode(pathElement, ContentNode::NodeType::Folder);
-                appendNode(currentPathNode, newPathElement);
-                currentPathNode = newPathElement;
-            }
+            currentPathNode = nextPathNode;
         }
-
-        int row = currentPathNode->childCount();
-        if(row>0)
+        else
         {
-            QModelIndex index = createIndex(currentPathNode->row(), 0, currentPathNode);
-
-            beginRemoveRows(index, 0, row-1);
-            currentPathNode->deleteAllChilds();
-            endRemoveRows();
+            ContentNode* newPathElement = new ContentNode(pathElement, ContentNode::NodeType::Folder);
+            appendNode(currentPathNode, newPathElement);
+            currentPathNode = newPathElement;
         }
-
-        dataList.pop_front();
-        foreach (auto contentNameVariant, dataList)
-        {
-            QString contentName = contentNameVariant.toString();
-            if(contentName.indexOf("DIR|") == 0)
-            {
-                contentName.remove(0, 4);
-
-                appendNode(currentPathNode, new ContentNode(contentName, ContentNode::NodeType::Folder));
-
-                QVariantList data;
-                data.append(librarySdcardPath + fullFolderPath + contentName + "/");
-                emit sgUpdateData(FrameType::FILE_ACTIONS, (uint8_t)(Requests::File::GET_FOLDER_CONTENT), data);
-            }
-            else
-            {
-                appendNode(currentPathNode, new ContentNode(contentName, ContentNode::NodeType::File));
-            }
-        }
-        if(currentPathNode->childCount() >= 2)
-        {
-            currentPathNode->sortChilds();
-            emit dataChanged(createIndex(0, 0, currentPathNode), createIndex(currentPathNode->childCount()-1, 0, currentPathNode));
-        }
-        break;
     }
-    default:
-        break;
+
+    int row = currentPathNode->childCount();
+    if(row>0)
+    {
+        QModelIndex index = createIndex(currentPathNode->row(), 0, currentPathNode);
+
+        beginRemoveRows(index, 0, row-1);
+        currentPathNode->deleteAllChilds();
+        endRemoveRows();
+    }
+
+    contentList.pop_front();
+    foreach (QString contentNameVariant, contentList)
+    {
+        QString contentName = contentNameVariant;
+        if(contentName.indexOf("DIR|") == 0)
+        {
+            contentName.remove(0, 4);
+
+            appendNode(currentPathNode, new ContentNode(contentName, ContentNode::NodeType::Folder));
+
+            m_requestManager->requestFolder(librarySdcardPath + path + contentName + "/");
+        }
+        else
+        {
+            appendNode(currentPathNode, new ContentNode(contentName, ContentNode::NodeType::File));
+        }
+    }
+    if(currentPathNode->childCount() >= 2)
+    {
+        currentPathNode->sortChilds();
+        emit dataChanged(createIndex(0, 0, currentPathNode), createIndex(currentPathNode->childCount()-1, 0, currentPathNode));
     }
 }
 

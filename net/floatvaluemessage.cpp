@@ -1,34 +1,10 @@
-#include <QDebug>
-
 #include "floatvaluemessage.h"
 
-
-FloatValueMessage::FloatValueMessage(FrameType frameType, uint8_t action, uint32_t value)
-    : m_value(value),
-    m_frameType(frameType),
-    m_action(action)
+FloatValueMessage::FloatValueMessage(FrameType frameType, uint8_t action, float value)
+    : AbstractMessage(frameType, action),
+    m_value(value)
 {
     m_messageType = AbstractMessage::FLOAT_VALUE;
-    FloatValueMessage::formSendData();
-}
-
-FloatValueMessage::FloatValueMessage(QByteArray recievedData)
-                : AbstractMessage(recievedData)
-{
-    m_messageType = AbstractMessage::FLOAT_VALUE;
-    FloatValueMessage::processRecievedData();
-}
-
-FloatValueMessage::~FloatValueMessage()
-{
-
-}
-
-void FloatValueMessage::formSendData()
-{
-    m_frameHeader.structData.frameType = m_frameType;
-    m_frameHeader.structData.action = m_action;
-    m_frameHeader.structData.frameSize = sizeof(FrameHeader);
 
     union { float f; uint32_t i; } u;
     u.f = m_value;
@@ -40,12 +16,10 @@ void FloatValueMessage::formSendData()
     m_rawData.append(m_frameHeader.rawData, sizeof(FrameHeader));
 }
 
-void FloatValueMessage::processRecievedData()
+FloatValueMessage::FloatValueMessage(QByteArray recievedData)
+    : AbstractMessage(recievedData)
 {
-    memcpy(m_frameHeader.rawData, m_rawData.data(), sizeof(FrameHeader));
-
-    m_frameType = m_frameHeader.structData.frameType;
-    m_action = m_frameHeader.structData.action;
+    m_messageType = AbstractMessage::FLOAT_VALUE;
 
     union { float f; uint32_t i; } u;
     u.i = m_frameHeader.structData.data0;
@@ -55,13 +29,18 @@ void FloatValueMessage::processRecievedData()
     m_actionType = recognizeActionType();
 }
 
+FloatValueMessage::~FloatValueMessage()
+{
+
+}
+
 FloatValueMessage::ActionType FloatValueMessage::recognizeActionType()
 {
-    switch (m_frameType)
+    switch (m_frameHeader.structData.frameType)
     {
     case HARDWARE_ACTIONS:
     {
-        switch(static_cast<Requests::Hardware>(m_action))
+        switch(static_cast<Requests::Hardware>(m_frameHeader.structData.action))
         {
         case Requests::Hardware::GET_PRINT_SPEED: return ActionType::GET;
         case Requests::Hardware::SET_PRINT_SPEED: return ActionType::SET;

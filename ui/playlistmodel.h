@@ -9,8 +9,6 @@
 #include "requestmanager.h"
 #include "answermanager.h"
 
-#include "requestactions.h"
-#include "abstractmessage.h"
 
 class PlaylistModel : public QAbstractListModel
 {
@@ -42,29 +40,22 @@ public:
     QString playlistName() const;
 
 signals:
-    void sgUpdateData(FrameType frameType, uint8_t dataType, QVariantList data);
-    void sgRequest(FrameType frameType, uint8_t requestType,
-                   uint32_t data0 = 0,
-                   uint32_t data1 = 0,
-                   uint32_t parameters = 0);
-
     void sgRequestFileData(QString fileName) const;
 
     void sgProgressChanged();
-
-    void sgSendMessage(AbstractMessage* message);
-
     void printNameChanged();
-
     void playlistNameChanged();
 
 public slots:
-    void slDataUpdated(FrameType frameType, uint8_t dataType, QVariantList dataList);
+    void slPlaylistUpdated(QStringList newPlaylist);
+    void slPlaylistPositionUpdated(qint32 newPlsPos);
 
     void slFileDataReady(QString fileName, QList<QVariant> fileData);
     void slDeviceUnavaliable();
 
 private:
+    RequestManager* m_requestManager;
+
     QList<PlaylistElement> m_playlist;
     QMap<QString, QList<QVariant>> m_previewData;
 

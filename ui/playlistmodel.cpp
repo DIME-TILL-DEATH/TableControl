@@ -5,11 +5,12 @@
 PlaylistModel::PlaylistModel(AnswerManager* answerManager, RequestManager *requestManager, QObject *parent)
     : QAbstractListModel{parent}
 {
-    QObject::connect(answerManager, &AnswerManager::sgDataUpdated, this, &PlaylistModel::slDataUpdated);
-    QObject::connect(requestManager, &RequestManager::sgTableUnavaliable, this, &PlaylistModel::slDeviceUnavaliable);
+    m_requestManager = requestManager;
 
-    QObject::connect(this, &PlaylistModel::sgRequest, requestManager, &RequestManager::sgNetRequest);
-    QObject::connect(this, &PlaylistModel::sgUpdateData, requestManager, &RequestManager::sgUpdateData);
+    connect(answerManager, &AnswerManager::sgPlaylist, this, &PlaylistModel::slPlaylistUpdated);
+    connect(answerManager, &AnswerManager::sgPlaylistPosition, this, &PlaylistModel::slPlaylistPositionUpdated);
+
+    connect(requestManager, &RequestManager::sgTableUnavaliable, this, &PlaylistModel::slDeviceUnavaliable);
 }
 
 int PlaylistModel::rowCount(const QModelIndex &parent) const
@@ -31,8 +32,7 @@ void PlaylistModel::changePrint(int plsPos)
 {
     if(plsPos != curPlaylistPosition())
     {
-        emit sgRequest(FrameType::PLAYLIST_ACTIONS, (uint8_t)Requests::Playlist::CHANGE_PRINTNG_FILE, plsPos);
-        qDebug() << "Changing printing file to position: " << plsPos;
+        m_requestManager->setParameter(Requests::Playlist::CHANGE_PRINTNG_FILE, plsPos);
     }
 }
 
@@ -97,52 +97,37 @@ void PlaylistModel::slDeviceUnavaliable()
     }
 }
 
-
-void PlaylistModel::slDataUpdated(FrameType frameType, uint8_t dataType, QVariantList dataList)
+void PlaylistModel::slPlaylistUpdated(QStringList newPlaylist)
 {
-    if(frameType != FrameType::PLAYLIST_ACTIONS) return;
+    if(curPlaylistPosition() > newPlaylist.size()) slPlaylistPositionUpdated(newPlaylist.size());
 
-    switch((Data::Playlist)dataType)
+    refreshModel(newPlaylist);
+}
+
+void PlaylistModel::slPlaylistPositionUpdated(qint32 newPlsPos)
+{
+    if(newPlsPos == curPlaylistPosition()) return;
+
+    if(newPlsPos > m_playlist.size())
     {
-    case Data::Playlist::PLAYLIST:
+        qWarning() << "Recieved playlist position more than elements in playlist, pos: " << newPlsPos << ", size: " <<  m_playlist.size();
+        return;
+    }
+
+    if(newPlsPos == -1)
     {
-        QList<QString> newPlaylist;
-        foreach (QVariant varName, dataList)
-        {
-            newPlaylist.append(varName.toString());
-        }
-        refreshModel(newPlaylist);
-        break;
+        qWarning() << "Playlist is empty";
+        return;
     }
-    case Data::Playlist::PLAYLIST_POSITION:
+
+    for(auto it = m_playlist.begin(); it != m_playlist.end(); ++it)
     {
-        qint16 plsPos = dataList.at(0).toInt();
-
-        if(plsPos == curPlaylistPosition()) return;
-
-        if(plsPos > m_playlist.size())
-        {
-            qWarning() << "Recieved playlist position more than elements in playlist";
-            return;
-        }
-
-        if(plsPos == -1)
-        {
-            qWarning() << "Playlist is empty";
-            return;
-        }
-
-        for(auto it = m_playlist.begin(); it != m_playlist.end(); ++it)
-        {
-            (*it).setIsCurrentPrintingElement(false);
-        }
-        (m_playlist.begin() + plsPos)->setIsCurrentPrintingElement(true);
-
-        emit dataChanged(createIndex(0, 0), createIndex(m_playlist.size()-1, 0));
-        emit printNameChanged();
-        break;
+        (*it).setIsCurrentPrintingElement(false);
     }
-    }
+    (m_playlist.begin() + newPlsPos)->setIsCurrentPrintingElement(true);
+
+    emit dataChanged(createIndex(0, 0), createIndex(m_playlist.size()-1, 0));
+    emit printNameChanged();
 }
 
 void PlaylistModel::slFileDataReady(QString fileName, QList<QVariant> fileData)
@@ -150,7 +135,7 @@ void PlaylistModel::slFileDataReady(QString fileName, QList<QVariant> fileData)
     if(m_previewData.value(fileName) != fileData)
     {
         m_previewData.insert(fileName, fileData);
-        for(int pos=0; pos<m_playlist.size();pos++)
+        for(int pos=0; pos<m_playlist.size(); pos++)
         {
             if(m_playlist.at(pos).fullFilePath() == fileName)
             {
@@ -161,7 +146,7 @@ void PlaylistModel::slFileDataReady(QString fileName, QList<QVariant> fileData)
 }
 
 void PlaylistModel::refreshModel(QList<QString> newPlayList)
-{
+{   
     for(int pos=0; pos < newPlayList.size(); pos++)
     {
         QString newFilePath = newPlayList.at(pos);
@@ -173,7 +158,7 @@ void PlaylistModel::refreshModel(QList<QString> newPlayList)
                 m_playlist.replace(pos, PlaylistElement(newFilePath));
                 if(!m_previewData.contains(newFilePath))
                 {
-                    emit sgRequestFileData(newFilePath);
+                   emit sgRequestFileData(newFilePath);
                 }
                 emit dataChanged(createIndex(pos, 0), createIndex(pos, 0));
             }
@@ -184,7 +169,7 @@ void PlaylistModel::refreshModel(QList<QString> newPlayList)
             m_playlist.append(PlaylistElement(newFilePath));
             if(!m_previewData.contains(newFilePath))
             {
-                emit sgRequestFileData(newFilePath);
+               emit sgRequestFileData(newFilePath);
             }
             endInsertRows();
         }
@@ -247,15 +232,14 @@ void PlaylistModel::remove(int pos)
 
 void PlaylistModel::sendUpdatedPlaylist()
 {
-    QVariantList resultData;
-    foreach (const PlaylistElement& element, m_playlist)
+    QString resultDataList;
+    foreach (PlaylistElement item, m_playlist)
     {
-        resultData.append(QVariant(element.fullFilePath()));
+        resultDataList.append(item.fullFilePath());
+        resultDataList.append("\r\n");
     }
-
-    emit sgUpdateData(FrameType::PLAYLIST_ACTIONS, (uint8_t)Requests::Playlist::CHANGE_PLAYLIST, resultData);
-    emit sgRequest(FrameType::PLAYLIST_ACTIONS, (uint8_t)Requests::Playlist::CHANGE_PLAYLIST_POSITION, curPlaylistPosition());
-    qDebug() << "Updating playlist, current printing position:" << curPlaylistPosition();
+    m_requestManager->setParameter(Requests::Playlist::CHANGE_PLAYLIST, resultDataList);
+    m_requestManager->setParameter(Requests::Playlist::CHANGE_PLAYLIST_POSITION, curPlaylistPosition());
 }
 
 qint32 PlaylistModel::curPlaylistPosition()

@@ -9,8 +9,10 @@
 FileManager::FileManager(AnswerManager *answerManager, RequestManager* requestManager, QObject *parent)
     : QObject{parent}
 {
-    QObject::connect(this, &FileManager::sgUpdateData, requestManager, &RequestManager::sgUpdateData);
-    QObject::connect(answerManager, &AnswerManager::sgDataUpdated, this, &FileManager::slDataUpdated);
+    m_requestManager = requestManager;
+
+    connect(answerManager, &AnswerManager::sgFilePartDownloaded, this, &FileManager::saveFilePart);
+    connect(answerManager, &AnswerManager::sgFileNotFound, this, &FileManager::requesteFileUnavaliable);
 }
 
 
@@ -29,6 +31,9 @@ bool FileManager::getPointsFromFile(QString fileName, QList<QVariant>& result)
         {
             QString line = in.readLine();
             QStringList params = line.split(" ");
+
+            if(params.size() < 3) continue;
+
             if(params.at(0) != "G1") continue;
             else
             {
@@ -49,9 +54,18 @@ bool FileManager::getPointsFromFile(QString fileName, QList<QVariant>& result)
     }
 }
 
-void FileManager::savePreviewFile(QString filePath, const QByteArray &fileData)
+void FileManager::saveFilePart(QString filePath, const QByteArray &fileData, int32_t partPosition, int32_t fileSize)
 {
+    // qDebug() << "Save file part" << filePath << partPosition;
+    if(partPosition == -1)
+    {
+        qDebug() << "Attempt to save NOT FOUND file";
+        return;
+    }
+
     QString dataPath;
+
+    filePath.remove(DeviceContentModel::librarySdcardPath);
 #ifdef Q_OS_IOS
     dataPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + '/';
 #endif
@@ -66,11 +80,31 @@ void FileManager::savePreviewFile(QString filePath, const QByteArray &fileData)
     QFile file(filePath);
     file.setFileName(fileInfo.absoluteFilePath());
 
-    if(file.open(QIODevice::WriteOnly | QIODevice::Text))
+    QAbstractSocket::OpenMode flags;
+    if(partPosition == 0)
+    {
+        flags = QIODevice::WriteOnly | QIODevice::Text;
+    }
+    else
+    {
+        flags = QIODevice::Append | QIODevice::Text;
+    }
+
+    if(file.open(flags))
     {
         file.write(fileData);
+
+        // TODO: append new data to preview and update
+        // if((partPosition + fileData.size()) >= fileSize)
+        if((file.size()) >= fileSize)
+        {
+            qDebug() << "File " << filePath << " downloaded.";
+            QList<QVariant> dataFromFile;
+            getPointsFromFile(filePath, dataFromFile);
+
+            emit sgFileDataReady(filePath, dataFromFile);
+        }
         file.close();
-        qDebug() << "File saved";
     }
     else
     {
@@ -80,58 +114,34 @@ void FileManager::savePreviewFile(QString filePath, const QByteArray &fileData)
 
 void FileManager::processFileLoadRequest(QString fileName)
 {
-    //qDebug() << "Processing content load request" << fileName;
     QList<QVariant> dataFromFile;
 
     if(m_loadedData.contains(fileName))
     {
-        //qDebug() << "send pointer to already loaded data";
         emit sgFileDataReady(fileName, m_loadedData.value(fileName));
     }
     else
     {
         if(getPointsFromFile(fileName, dataFromFile))
         {
-            //qDebug() << "loading file";
             m_loadedData.insert(fileName, dataFromFile);
             emit sgFileDataReady(fileName, dataFromFile);
         }
         else
         {
-            // TODO двойные запросы на скачку от разных модулей. Загружают сеть ненужной работой
             m_loadedData.insert(fileName, QVariantList());
-            //qDebug() << "try to download file";
-            QVariantList data;
-            data.append(DeviceContentModel::librarySdcardPath + fileName);
-            emit sgUpdateData(FrameType::FILE_ACTIONS, (uint8_t)(Requests::File::GET_FILE), data);
+            m_requestManager->requestFile(DeviceContentModel::librarySdcardPath + fileName);
         }
     }
 }
 
-void FileManager::slDataUpdated(FrameType frameType, uint8_t dataType, QVariantList dataList)
+
+void FileManager::requesteFileUnavaliable(QString filePath)
 {
-    if(frameType != FrameType::FILE_ACTIONS) return;
-
-    switch((Data::File)dataType)
-    {
-    case Data::File::REQUESTED_FILE:
-    {
-        QString fileName = dataList.at(0).toString();
-        QList<QVariant> dataFromFile;
-        getPointsFromFile(fileName, dataFromFile);
-        emit sgFileDataReady(fileName, dataFromFile);
-        break;
-    }
-
-    case Data::File::REQUESTED_FILE_NOT_FOUND:
-    {
-        QString fileName = dataList.at(0).toString();
-        QList<QVariant> dummyData;
-        dummyData.append("FILE NOT FOUND");
-        emit sgFileDataReady(fileName, dummyData);
-        break;
-    }
-
-    default: {}
-    }
+    // TODO: signal sgRequestedFileUnavaliable
+    filePath.remove(DeviceContentModel::librarySdcardPath);
+    qDebug() << "Requested file not found" << filePath;
+    QList<QVariant> dummyData;
+    dummyData.append("FILE NOT FOUND");
+    emit sgFileDataReady(filePath, dummyData);
 }
