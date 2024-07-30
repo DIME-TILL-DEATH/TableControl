@@ -49,6 +49,8 @@ qt_add_executable(KineticControl WIN32 MACOSX_BUNDLE
 
     android/activityresultmanager.cpp android/activityresultmanager.h
     android/androidutils.cpp android/androidutils.h
+    ui/librarymodel.h ui/librarymodel.cpp
+    ui/libraryelement.h ui/libraryelement.cpp
 )
 
 

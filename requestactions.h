@@ -20,7 +20,9 @@ enum class Playlist
     REQUEST_PLAYLIST_POSITION,
     CHANGE_PLAYLIST,
     CHANGE_PLAYLIST_POSITION,
-    CHANGE_PRINTNG_FILE
+    CHANGE_PRINTNG_FILE,
+    GET_CURRENT_GALLERY,
+    SET_CURRENT_GALLERY
 };
 
 enum class Hardware
@@ -50,7 +52,8 @@ enum class File
     GET_FILE,
     GET_FOLDER_CONTENT,
     FILE_CREATE,
-    FILE_APPEND_DATA
+    FILE_APPEND_DATA,
+    GET_FILE_INFO
 };
 
 enum class Firmware

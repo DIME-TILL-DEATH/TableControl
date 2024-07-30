@@ -8,7 +8,7 @@ class PlaylistElement
 {
     Q_GADGET
     QML_ELEMENT
-    QML_UNCREATABLE("AppManager is for C++ instantiation only")
+    QML_UNCREATABLE("PlaylistElement is for C++ instantiation only")
 
     Q_PROPERTY(QString fileName READ fileName)
     Q_PROPERTY(QString filePath READ filePath)

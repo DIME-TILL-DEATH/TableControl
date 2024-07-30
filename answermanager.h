@@ -44,6 +44,7 @@ signals:
     void sgSerialId(QString serialId);
     void sgFirmwareVersion(QString firmwareVersion);
     void sgPlaylist(QStringList newPlaylist);
+    void sgCurrentGalleryName(QString galleryName);
 
     // Others
     void sgProgress(float progress);

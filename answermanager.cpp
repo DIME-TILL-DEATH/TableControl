@@ -42,8 +42,8 @@ void AnswerManager::slRecieveMessage(std::shared_ptr<AbstractMessage> msg_ptr)
         }
         case AbstractMessage::FILE_PART:
         {
-            FilePartMessage* string_msg = dynamic_cast<FilePartMessage*>(msg_ptr.get());
-            processMessage(string_msg);
+            FilePartMessage* file_msg = dynamic_cast<FilePartMessage*>(msg_ptr.get());
+            processMessage(file_msg);
             break;
         }
         case AbstractMessage::FOLDER_CONTENT:
@@ -198,8 +198,17 @@ void AnswerManager::processMessage(StringMessage *message)
         case Requests::Playlist::REQUEST_PLAYLIST:
         case Requests::Playlist::CHANGE_PLAYLIST:
         {
+            qDebug() << "Playlist recieved";
             QStringList playlist = message->string().split("\r\n", Qt::SkipEmptyParts);
             emit sgPlaylist(playlist);
+            break;
+        }
+
+        case Requests::Playlist::GET_CURRENT_GALLERY:
+        case Requests::Playlist::SET_CURRENT_GALLERY:
+        {
+            qDebug() << "Current gallery is: " << message->string();
+            emit sgCurrentGalleryName(message->string());
             break;
         }
         default: break;

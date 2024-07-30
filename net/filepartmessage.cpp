@@ -66,6 +66,12 @@ FilePartMessage::FilePartMessage(const QByteArray& recievedData)
 {
     m_messageType = AbstractMessage::FILE_PART;
 
+    if((sizeof(FrameHeader) + m_frameHeader.structData.frameParameters) > m_rawData.size())
+    {
+        qDebug() << __FUNCTION__ << "Real size is less than declared in header. mid() op canceled";
+        return;
+    }
+
     m_srcPath = m_rawData.mid(sizeof(FrameHeader), m_frameHeader.structData.frameParameters);
     // // m_srcPath.remove(DeviceContentModel::librarySdcardPath);
 
@@ -74,6 +80,11 @@ FilePartMessage::FilePartMessage(const QByteArray& recievedData)
 
     m_fileSize = static_cast<int32_t>(m_frameHeader.structData.data1);
 
+    if(m_partSize > m_rawData.size())
+    {
+        qDebug() << __FUNCTION__ << "Real size is less than declared in header. right() op canceled";
+        return;
+    }
     m_filePart = m_rawData.right(m_partSize);
 }
 

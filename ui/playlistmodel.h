@@ -14,8 +14,11 @@ class PlaylistModel : public QAbstractListModel
 {
     Q_OBJECT
 
+    QML_ELEMENT
+    QML_UNCREATABLE("LibraryElement is for C++ instantiation only")
+
     Q_PROPERTY(QString printName READ printName NOTIFY printNameChanged FINAL)
-    Q_PROPERTY(QString playlistName READ playlistName NOTIFY playlistNameChanged FINAL)
+    Q_PROPERTY(QString galleryName READ galleryName NOTIFY galleryNameChanged FINAL)
 public:
     explicit PlaylistModel(AnswerManager* answerManager, RequestManager* requestManager, QObject *parent = nullptr);
 
@@ -37,14 +40,15 @@ public:
 
     QString printName() const;
 
-    QString playlistName() const;
+    QString galleryName() const;
+    void setGalleryName(const QString& galleryName);
 
 signals:
     void sgRequestFileData(QString fileName) const;
 
     void sgProgressChanged();
     void printNameChanged();
-    void playlistNameChanged();
+    void galleryNameChanged();
 
 public slots:
     void slPlaylistUpdated(QStringList newPlaylist);
@@ -55,6 +59,8 @@ public slots:
 
 private:
     RequestManager* m_requestManager;
+
+    QString m_galleryName;
 
     QList<PlaylistElement> m_playlist;
     QMap<QString, QList<QVariant>> m_previewData;

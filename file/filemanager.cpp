@@ -11,6 +11,8 @@ FileManager::FileManager(AnswerManager *answerManager, RequestManager* requestMa
 {
     m_requestManager = requestManager;
 
+    connect(answerManager, &AnswerManager::sgSerialId, this, &FileManager::setDeviceSerialId);
+
     connect(answerManager, &AnswerManager::sgFilePartDownloaded, this, &FileManager::saveFilePart);
     connect(answerManager, &AnswerManager::sgFileNotFound, this, &FileManager::requesteFileUnavaliable);
 }
@@ -22,7 +24,7 @@ bool FileManager::getPointsFromFile(QString fileName, QList<QVariant>& result)
 #ifdef Q_OS_IOS
     dataPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + '/';
 #endif
-    QString folder(dataPath + "preview/");
+    QString folder(dataPath + "preview/" + m_deviceSerialId + "/");
     QFile gcodeFile(folder+fileName);
     if(gcodeFile.open(QIODevice::ReadOnly | QIODevice::Text))
     {
@@ -49,27 +51,26 @@ bool FileManager::getPointsFromFile(QString fileName, QList<QVariant>& result)
     }
     else
     {
-        qDebug() << "Can't open file" << fileName;
+        qDebug() << __FUNCTION__ << "Can't open file" << fileName;
         return false;
     }
 }
 
 void FileManager::saveFilePart(QString filePath, const QByteArray &fileData, int32_t partPosition, int32_t fileSize)
 {
-    // qDebug() << "Save file part" << filePath << partPosition;
     if(partPosition == -1)
     {
         qDebug() << "Attempt to save NOT FOUND file";
         return;
     }
 
-    QString dataPath;
-
     filePath.remove(DeviceContentModel::librarySdcardPath);
+
+    QString dataPath;
 #ifdef Q_OS_IOS
     dataPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + '/';
 #endif
-    QFileInfo fileInfo(dataPath + "preview/" + filePath);
+    QFileInfo fileInfo(dataPath + "preview/" + m_deviceSerialId + "/" + filePath);
 
     QDir folder = fileInfo.dir();
     if(!folder.exists())
@@ -80,14 +81,25 @@ void FileManager::saveFilePart(QString filePath, const QByteArray &fileData, int
     QFile file(filePath);
     file.setFileName(fileInfo.absoluteFilePath());
 
+    QStringList pathParts = filePath.split(".");
+
     QAbstractSocket::OpenMode flags;
-    if(partPosition == 0)
+    if(pathParts.last() == "jpg" || pathParts.last() == "jpeg")
     {
-        flags = QIODevice::WriteOnly | QIODevice::Text;
+
     }
     else
     {
-        flags = QIODevice::Append | QIODevice::Text;
+        flags = QIODevice::Text;
+    }
+
+    if(partPosition == 0)
+    {
+        flags |= QIODevice::WriteOnly;
+    }
+    else
+    {
+        flags |= QIODevice::Append;
     }
 
     if(file.open(flags))
@@ -96,43 +108,68 @@ void FileManager::saveFilePart(QString filePath, const QByteArray &fileData, int
 
         // TODO: append new data to preview and update
         // if((partPosition + fileData.size()) >= fileSize)
+
+        // qDebug() << partPosition << fileData.size() << fileSize << file.size();
         if((file.size()) >= fileSize)
         {
             qDebug() << "File " << filePath << " downloaded.";
-            QList<QVariant> dataFromFile;
-            getPointsFromFile(filePath, dataFromFile);
 
-            emit sgFileDataReady(filePath, dataFromFile);
+            if(pathParts.last() == "gcode")
+            {
+                // TODO: более универсальный алгорит, gCOde вынести куда-нибудь
+                QList<QVariant> dataFromFile;
+                getPointsFromFile(filePath, dataFromFile);
+
+                emit sgGCodeDataReady(filePath, dataFromFile);
+            }
+            else
+            {
+                emit sgFileDownloaded(filePath);
+            }
         }
         file.close();
     }
     else
     {
-        qDebug() << "Can't open file" << filePath;
+        qDebug() << __FUNCTION__ << "Can't open file" << filePath;
     }
 }
 
-void FileManager::processFileLoadRequest(QString fileName)
+void FileManager::loadGCodeFileRequest(QString fileName)
 {
     QList<QVariant> dataFromFile;
 
-    if(m_loadedData.contains(fileName))
+    if(m_loadedGCodeData.contains(fileName))
     {
-        emit sgFileDataReady(fileName, m_loadedData.value(fileName));
+        emit sgGCodeDataReady(fileName, m_loadedGCodeData.value(fileName));
     }
     else
     {
         if(getPointsFromFile(fileName, dataFromFile))
         {
-            m_loadedData.insert(fileName, dataFromFile);
-            emit sgFileDataReady(fileName, dataFromFile);
+            m_loadedGCodeData.insert(fileName, dataFromFile);
+            emit sgGCodeDataReady(fileName, dataFromFile);
         }
         else
         {
-            m_loadedData.insert(fileName, QVariantList());
-            m_requestManager->requestFile(DeviceContentModel::librarySdcardPath + fileName);
+            m_loadedGCodeData.insert(fileName, QVariantList());
+            downloadFileRequest(fileName);
         }
     }
+}
+
+void FileManager::downloadFileRequest(QString fileName)
+{
+    // if(!m_downloadRequests.contains(fileName))
+    //     m_downloadRequests.append(fileName);
+
+
+    m_requestManager->requestFile(DeviceContentModel::librarySdcardPath + fileName);
+}
+
+void FileManager::setDeviceSerialId(const QString &newDeviceSerialId)
+{
+    m_deviceSerialId = newDeviceSerialId;
 }
 
 
@@ -143,5 +180,5 @@ void FileManager::requesteFileUnavaliable(QString filePath)
     qDebug() << "Requested file not found" << filePath;
     QList<QVariant> dummyData;
     dummyData.append("FILE NOT FOUND");
-    emit sgFileDataReady(filePath, dummyData);
+    emit sgGCodeDataReady(filePath, dummyData);
 }

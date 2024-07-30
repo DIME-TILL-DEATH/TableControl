@@ -19,7 +19,6 @@ RequestManager::RequestManager(QObject *parent)
 
 void RequestManager::slDeviceConnected()
 {
-    updateDataTimer->start();
     requestParameter(Requests::Firmware::FIRMWARE_VERSION);
 }
 
@@ -47,7 +46,7 @@ void RequestManager::slSerialIdRecieved(QString serialId)
 }
 
 void RequestManager::getTableBaseData()
-{
+{   
     requestParameter(Requests::Hardware::REQUEST_PROGRESS);
     requestParameter(Requests::Hardware::GET_PRINT_SPEED);
     requestParameter(Requests::Hardware::GET_LED_BRIGHTNESS);
@@ -58,12 +57,15 @@ void RequestManager::getTableBaseData()
     requestParameter(Requests::Hardware::GET_FI_GEAR2_TEETH_COUNT);
     requestParameter(Requests::Hardware::GET_MACHINE_MINUTES);
 
+    requestParameter(Requests::Playlist::GET_CURRENT_GALLERY);
+
     requestParameter(Requests::Playlist::REQUEST_PLAYLIST);
     requestParameter(Requests::Playlist::REQUEST_PLAYLIST_POSITION);
     requestParameter(Requests::Hardware::REQUEST_PROGRESS);
 
     requestFolder(DeviceContentModel::librarySdcardPath);
 
+    updateDataTimer->start();
     emit sgTableAvaliable();
 }
 

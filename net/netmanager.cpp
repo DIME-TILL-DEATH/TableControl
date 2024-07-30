@@ -123,6 +123,8 @@ AbstractMessage* NetManager::processPlaylistAnswer()
     {
     case Requests::Playlist::REQUEST_PLAYLIST: return new StringMessage(lastRecvFrame);
     case Requests::Playlist::REQUEST_PLAYLIST_POSITION: return new IntValueMessage(lastRecvFrame);
+    case Requests::Playlist::GET_CURRENT_GALLERY:
+    case Requests::Playlist::SET_CURRENT_GALLERY: return new StringMessage(lastRecvFrame);
         default: break;
     }
     return nullptr;

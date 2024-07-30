@@ -10,6 +10,8 @@ PlaylistModel::PlaylistModel(AnswerManager* answerManager, RequestManager *reque
     connect(answerManager, &AnswerManager::sgPlaylist, this, &PlaylistModel::slPlaylistUpdated);
     connect(answerManager, &AnswerManager::sgPlaylistPosition, this, &PlaylistModel::slPlaylistPositionUpdated);
 
+    connect(answerManager, &AnswerManager::sgCurrentGalleryName, this, &PlaylistModel::setGalleryName);
+
     connect(requestManager, &RequestManager::sgTableUnavaliable, this, &PlaylistModel::slDeviceUnavaliable);
 }
 
@@ -43,35 +45,43 @@ QVariant PlaylistModel::data(const QModelIndex &index, int role) const
         return {-1};
     }
 
-    QString fileName = m_playlist.at(index.row()).fullFilePath();
+    QString fullFileName = m_galleryName + "/" + m_playlist.at(index.row()).fullFilePath();
 
     switch(role)
     {
     case ListRoles::PreviewDataRole:
     {
-        if(!m_previewData.contains(fileName))
+        if(!m_previewData.contains(fullFileName))
         {
-            qDebug() << "Model. Requesting file data: " << fileName;
-            emit sgRequestFileData(fileName);
+            qDebug() << "Model. Requesting file data: " << fullFileName;
+            emit sgRequestFileData(fullFileName);
             return QVariantList();
         }
         else
         {
-            if(m_previewData.value(fileName).at(0).toString() == "FILE NOT FOUND") return QVariantList();
+            if(m_previewData.value(fullFileName).size() == 0) return QVariantList();
 
-            return QVariant(m_previewData.value(fileName));
+            if(m_previewData.value(fullFileName).at(0).toString() == "FILE NOT FOUND") return QVariantList();
+
+            return QVariant(m_previewData.value(fullFileName));
         }
     }
 
     case ListRoles::FileAvaliableRole:
     {
-        if(!m_previewData.contains(fileName))
+        if(!m_previewData.contains(fullFileName))
         {
-            emit sgRequestFileData(fileName);
+            emit sgRequestFileData(fullFileName);
             return 1;
         }
 
-        return !(m_previewData.value(fileName).at(0).toString() == "FILE NOT FOUND");
+        if(m_previewData.value(fullFileName).size() == 0)
+        {
+            qDebug() << "File found, but empty data";
+            return 1;
+        }
+
+        return !(m_previewData.value(fullFileName).at(0).toString() == "FILE NOT FOUND");
     }
 
     case ListRoles::PlaylistElementRole:
@@ -137,7 +147,7 @@ void PlaylistModel::slFileDataReady(QString fileName, QList<QVariant> fileData)
         m_previewData.insert(fileName, fileData);
         for(int pos=0; pos<m_playlist.size(); pos++)
         {
-            if(m_playlist.at(pos).fullFilePath() == fileName)
+            if((m_galleryName + "/" + m_playlist.at(pos).fullFilePath()) == fileName)
             {
                 emit dataChanged(createIndex(pos, 0), createIndex(pos, 0));
             }
@@ -146,7 +156,9 @@ void PlaylistModel::slFileDataReady(QString fileName, QList<QVariant> fileData)
 }
 
 void PlaylistModel::refreshModel(QList<QString> newPlayList)
-{   
+{
+    //qDebug() << "Refreshing playlist model";
+
     for(int pos=0; pos < newPlayList.size(); pos++)
     {
         QString newFilePath = newPlayList.at(pos);
@@ -156,9 +168,9 @@ void PlaylistModel::refreshModel(QList<QString> newPlayList)
             if(m_playlist.at(pos).fullFilePath() != newFilePath)
             {
                 m_playlist.replace(pos, PlaylistElement(newFilePath));
-                if(!m_previewData.contains(newFilePath))
+                if(!m_previewData.contains(m_galleryName + "/" + newFilePath))
                 {
-                   emit sgRequestFileData(newFilePath);
+                   emit sgRequestFileData(m_galleryName + "/" + newFilePath);
                 }
                 emit dataChanged(createIndex(pos, 0), createIndex(pos, 0));
             }
@@ -167,12 +179,17 @@ void PlaylistModel::refreshModel(QList<QString> newPlayList)
         {
             beginInsertRows(QModelIndex(), pos, pos);
             m_playlist.append(PlaylistElement(newFilePath));
-            if(!m_previewData.contains(newFilePath))
+            if(!m_previewData.contains(m_galleryName + "/" + newFilePath))
             {
-               emit sgRequestFileData(newFilePath);
+               emit sgRequestFileData(m_galleryName + "/" + newFilePath);
             }
             endInsertRows();
         }
+
+        // if(!m_previewData.contains(m_galleryName + "/" + newFilePath))
+        // {
+        //     emit sgRequestFileData(m_galleryName + "/" + newFilePath);
+        // }
     }
 
     if(newPlayList.size() < m_playlist.size())
@@ -255,7 +272,22 @@ QString PlaylistModel::printName() const
     else return "--";
 }
 
-QString PlaylistModel::playlistName() const
+QString PlaylistModel::galleryName() const
 {
-    return "default";
+    if(m_galleryName == "") return "default";
+
+    return m_galleryName;
+}
+
+void PlaylistModel::setGalleryName(const QString &galleryName)
+{
+    if(galleryName == m_galleryName) return;
+
+    m_galleryName = galleryName;
+    emit galleryNameChanged();
+
+    beginResetModel();
+    m_playlist.clear();
+    m_previewData.clear();
+    endResetModel();
 }

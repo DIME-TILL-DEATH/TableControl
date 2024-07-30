@@ -6,6 +6,7 @@ import UiObjects
 import Playlist
 import Elements
 import Content
+import Library
 import Settings
 
 ApplicationWindow {
@@ -40,8 +41,12 @@ ApplicationWindow {
             id: _playlistPage
         }
 
-        ContentPage{
-            id: _contentPage
+        // ContentPage{
+        //     id: _contentPage
+        // }
+
+        LibraryPage{
+            id: _libraryPage
         }
 
         SettingsPage{
@@ -77,7 +82,7 @@ ApplicationWindow {
                     DefaultText{
                         height: parent.height * 0.5
 
-                        text: "Playing from " + PlaylistModel.playlistName + " playlist"
+                        text: "Playing from " + PlaylistModel.galleryName + " playlist"
 
                         color: "white"
                         font.pointSize: 8

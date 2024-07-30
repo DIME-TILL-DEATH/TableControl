@@ -38,5 +38,8 @@
         <file>images/key.svg</file>
         <file>images/shuffle.svg</file>
         <file>qml/Elements/RoundIconBtn.qml</file>
+        <file>qml/Library/qmldir</file>
+        <file>qml/Library/LibraryPage.qml</file>
+        <file>qml/Library/LibraryItem.qml</file>
     </qresource>
 </RCC>

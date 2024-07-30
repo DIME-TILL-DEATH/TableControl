@@ -1,0 +1,6 @@
+module Library
+
+LibraryPage 1.0 LibraryPage.qml
+LibraryItem 1.0 LibraryItem.qml
+
+

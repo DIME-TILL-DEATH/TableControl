@@ -22,18 +22,24 @@ public:
     void saveFilePart(QString filePath, const QByteArray& fileData, int32_t partPosition = -1, int32_t fileSize = -1);
     void requesteFileUnavaliable(QString filePath);
 
+    void setDeviceSerialId(const QString &newDeviceSerialId);
+
 signals:
-    void sgFileDataReady(QString fileName, QList<QVariant> fileData);
+    void sgGCodeDataReady(QString fileName, QList<QVariant> fileData);
+    void sgFileDownloaded(QString fileName);
 
 public slots:
-    void processFileLoadRequest(QString fileName);
+    void loadGCodeFileRequest(QString fileName);
+    void downloadFileRequest(QString fileName);
 
 private:
     RequestManager* m_requestManager;
 
-    QMap<QString, QList<QVariant> > m_loadedData;
+    QMap<QString, QList<QVariant> > m_loadedGCodeData;
 
-    QString deviceSerialId;
+    QList<QString> m_downloadRequests;
+
+    QString m_deviceSerialId;
 };
 
 #endif // FILEMANAGER_H
