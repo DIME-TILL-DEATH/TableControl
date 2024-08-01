@@ -2,6 +2,7 @@ module Elements
 
 Busy 1.0 Busy.qml
 
+CustomDialog 1.0 CustomDialog.qml
 FooterMenuBtn 1.0 FooterMenuBtn.qml
 Preview 1.0 Preview.qml
 DefaultText 1.0 DefaultText.qml

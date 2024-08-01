@@ -1,5 +1,6 @@
 module Library
 
+ElementPreviewWIndow 1.0 ElementPreviewWIndow.qml
 LibraryPage 1.0 LibraryPage.qml
 LibraryItem 1.0 LibraryItem.qml
 

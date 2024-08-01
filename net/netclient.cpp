@@ -19,6 +19,7 @@ NetClient::NetClient(QObject *parent)
     connect(socket, &QTcpSocket::disconnected,this, &NetClient::disconnected);
     connect(socket, &QTcpSocket::bytesWritten,this, &NetClient::bytesWritten);
     connect(socket, &QTcpSocket::readyRead,this, &NetClient::readyRead);
+    connect(socket, &QTcpSocket::errorOccurred, this, &NetClient::errorOccured);
 
     socket->connectToHost(targetAddress, targetPort);
     //socket->waitForConnected(-1);
@@ -65,4 +66,10 @@ void NetClient::readyRead()
 {
     QByteArray readedData = socket->readAll();
     emit sgDataRecieved(readedData);
+}
+
+void NetClient::errorOccured(QAbstractSocket::SocketError socketError)
+{
+    qDebug() << __FUNCTION__ << socketError;
+    //disconnect(this);
 }

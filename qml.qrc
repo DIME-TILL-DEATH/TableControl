@@ -41,5 +41,7 @@
         <file>qml/Library/qmldir</file>
         <file>qml/Library/LibraryPage.qml</file>
         <file>qml/Library/LibraryItem.qml</file>
+        <file>qml/Elements/CustomDialog.qml</file>
+        <file>qml/Library/ElementPreviewWindow.qml</file>
     </qresource>
 </RCC>

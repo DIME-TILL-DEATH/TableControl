@@ -19,7 +19,7 @@ FileManager::FileManager(AnswerManager *answerManager, RequestManager* requestMa
 
 
 bool FileManager::getPointsFromFile(QString fileName, QList<QVariant>& result)
-{
+{   
     QString dataPath;
 #ifdef Q_OS_IOS
     dataPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + '/';
@@ -51,7 +51,7 @@ bool FileManager::getPointsFromFile(QString fileName, QList<QVariant>& result)
     }
     else
     {
-        qDebug() << __FUNCTION__ << "Can't open file" << fileName;
+        qDebug() << __FUNCTION__ << "Can't open file" << folder + fileName;
         return false;
     }
 }
@@ -84,22 +84,15 @@ void FileManager::saveFilePart(QString filePath, const QByteArray &fileData, int
     QStringList pathParts = filePath.split(".");
 
     QAbstractSocket::OpenMode flags;
-    if(pathParts.last() == "jpg" || pathParts.last() == "jpeg")
-    {
 
-    }
-    else
-    {
-        flags = QIODevice::Text;
-    }
 
     if(partPosition == 0)
     {
-        flags |= QIODevice::WriteOnly;
+        flags = QIODevice::WriteOnly;
     }
     else
     {
-        flags |= QIODevice::Append;
+        flags = QIODevice::Append;
     }
 
     if(file.open(flags))
@@ -116,10 +109,9 @@ void FileManager::saveFilePart(QString filePath, const QByteArray &fileData, int
 
             if(pathParts.last() == "gcode")
             {
-                // TODO: более универсальный алгорит, gCOde вынести куда-нибудь
+                // TODO: более универсальный алгоритм, gCOde вынести куда-нибудь
                 QList<QVariant> dataFromFile;
                 getPointsFromFile(filePath, dataFromFile);
-
                 emit sgGCodeDataReady(filePath, dataFromFile);
             }
             else
@@ -142,13 +134,18 @@ void FileManager::loadGCodeFileRequest(QString fileName)
     if(m_loadedGCodeData.contains(fileName))
     {
         emit sgGCodeDataReady(fileName, m_loadedGCodeData.value(fileName));
+        // qDebug() << "Loaded data contains gcodes, sending. Source" << fileName;
     }
     else
     {
+        // qDebug() << "Open file and process. Source" << fileName;
+        // qDebug() << "Function start" << fileName << QTime::currentTime();
         if(getPointsFromFile(fileName, dataFromFile))
         {
             m_loadedGCodeData.insert(fileName, dataFromFile);
+            // qDebug() << "before emitting signal" << fileName << QTime::currentTime();
             emit sgGCodeDataReady(fileName, dataFromFile);
+            // qDebug() << "Finish" << fileName <<  " == " << QTime::currentTime() << "\r\n";
         }
         else
         {

@@ -102,6 +102,8 @@ bool LibraryElement::loadPlaylist()
         while (!in.atEnd())
         {
             QString line = in.readLine();
+            if(line == "\r\n") continue;
+
             m_playlist.append(line);
         }
         return true;

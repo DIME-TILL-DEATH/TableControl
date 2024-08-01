@@ -26,6 +26,7 @@ private slots:
     void disconnected();
     void bytesWritten(qint64 bytes);
     void readyRead();
+    void errorOccured(QAbstractSocket::SocketError socketError);
 
 private:
     QTcpSocket* socket;

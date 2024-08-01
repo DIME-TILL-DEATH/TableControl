@@ -8,6 +8,7 @@
 
 #include "requestmanager.h"
 #include "answermanager.h"
+#include "filemanager.h"
 
 
 class PlaylistModel : public QAbstractListModel
@@ -20,7 +21,7 @@ class PlaylistModel : public QAbstractListModel
     Q_PROPERTY(QString printName READ printName NOTIFY printNameChanged FINAL)
     Q_PROPERTY(QString galleryName READ galleryName NOTIFY galleryNameChanged FINAL)
 public:
-    explicit PlaylistModel(AnswerManager* answerManager, RequestManager* requestManager, QObject *parent = nullptr);
+    explicit PlaylistModel(AnswerManager* answerManager, RequestManager* requestManager, FileManager* fileManager, QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role) const;
@@ -44,7 +45,7 @@ public:
     void setGalleryName(const QString& galleryName);
 
 signals:
-    void sgRequestFileData(QString fileName) const;
+    void sgRequestFileData(QString fileName);
 
     void sgProgressChanged();
     void printNameChanged();
@@ -65,6 +66,7 @@ private:
     QList<PlaylistElement> m_playlist;
     QMap<QString, QList<QVariant>> m_previewData;
 
+    void requestFileData(const QString& dataPath);
     void refreshModel(QList<QString> playList);
     enum ListRoles{
         FileNameRole = Qt::UserRole + 1,

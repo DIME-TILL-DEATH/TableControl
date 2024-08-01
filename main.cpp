@@ -44,9 +44,9 @@ int main(int argc, char *argv[])
     fileManager = new FileManager(answerManager, requestManager);
     
     hardware = new Hardware(answerManager, requestManager);
-    playlistModel = new PlaylistModel(answerManager, requestManager);
-    deviceContentModel = new DeviceContentModel(answerManager, requestManager);
-    libraryModel = new LibraryModel(answerManager, requestManager);
+    playlistModel = new PlaylistModel(answerManager, requestManager, fileManager);
+    deviceContentModel = new DeviceContentModel(answerManager, requestManager, fileManager);
+    libraryModel = new LibraryModel(answerManager, requestManager, fileManager);
     progress = new Progress(answerManager, requestManager);
     firmware = new Firmware(answerManager, requestManager);
 
@@ -66,13 +66,6 @@ int main(int argc, char *argv[])
 
     QObject::connect(netManager, &NetManager::sgNetEvent, answerManager, &AnswerManager::slNetEvent);
     QObject::connect(netManager, &NetManager::sgRecievingMessage, answerManager, &AnswerManager::slRecieveMessage);
-    
-    QObject::connect(playlistModel, &PlaylistModel::sgRequestFileData, fileManager, &FileManager::loadGCodeFileRequest, Qt::QueuedConnection);
-    QObject::connect(libraryModel, &LibraryModel::sgFileDownloadRequest, fileManager, &FileManager::downloadFileRequest, Qt::QueuedConnection);
-    QObject::connect(fileManager, &FileManager::sgGCodeDataReady, playlistModel, &PlaylistModel::slFileDataReady, Qt::QueuedConnection);
-    QObject::connect(fileManager, &FileManager::sgFileDownloaded, libraryModel, &LibraryModel::slFileDataUpdated, Qt::QueuedConnection);
-    
-    QObject::connect(deviceContentModel, &DeviceContentModel::sgRequestFileData, fileManager, &FileManager::loadGCodeFileRequest, Qt::QueuedConnection);
 
     qmlRegisterUncreatableType<ContentNode>("UiObjects", 1, 0, "ContentNode", "Cannot create ContentNode in QML");
 

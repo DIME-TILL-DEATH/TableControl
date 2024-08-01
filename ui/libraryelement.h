@@ -22,6 +22,7 @@ public:
     QString name() const {return m_name;};
     QString description() const {return m_description;};
     QString coverPath() const {return m_coverPath;};
+    QStringList playlist() const {return m_playlist;};
 
     void setName(const QString& name);
     void setDescription(const QString& description);

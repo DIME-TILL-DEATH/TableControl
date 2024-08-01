@@ -1,9 +1,11 @@
 import QtQuick 2.15
+import QtQuick.Controls 2.15
 
 import Elements
 import UiObjects
 
 Rectangle{
+    id: _libraryPage
 
     Column{
         id: _column
@@ -23,51 +25,26 @@ Rectangle{
 
             model: LibraryModel
 
-            delegate: Rectangle{
+            delegate: LibraryItem{
                 width: _gridView.cellWidth*0.95
                 height: _gridView.cellHeight*0.95
 
-                color: "lightsteelblue"
-                border.width: 1
-                Column{
-                    id: _delegateColumn
+                onDelegateClicked: function click(delegateIndex){
+                    LibraryModel.setPreviewPlaylist(delegateIndex);
 
-                    anchors.centerIn: parent
-                    width: parent.width*0.9
-                    height: parent.height*0.9
-
-                    Image{
-                        id: _coverImage
-
-                        fillMode: Image.PreserveAspectFit
-                        source: "file:///" + model.libraryElement.coverPath
-
-                        width: parent.width
-                        height: width
-                    }
-
-                    Item{
-                        width: parent.width
-                        height: _delegateColumn.height - _coverImage.height
-
-                        DefaultText{
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            text: model.libraryElement.name
-                        }
-                    }
-                }
-
-                MouseArea{
-                    id: _delegateMa
-
-                    anchors.fill: parent
-
-                    onClicked: {
-                        LibraryModel.setGallery(model.libraryElement.systemName);
-                    }
+                    elementPreviewWindow.choosedElement = model.libraryElement.systemName
+                    elementPreviewWindow.headerText = model.libraryElement.name
+                    elementPreviewWindow.open();
                 }
             }
         }
+    }
+
+    ElementPreviewWindow{
+        id: elementPreviewWindow
+
+        width: _libraryPage.width*0.9
+        height: _libraryPage.height*0.95
     }
 
 }

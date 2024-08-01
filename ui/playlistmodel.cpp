@@ -1,18 +1,21 @@
 #include <QPointF>
+#include <QTime>
 
 #include "playlistmodel.h"
 
-PlaylistModel::PlaylistModel(AnswerManager* answerManager, RequestManager *requestManager, QObject *parent)
+PlaylistModel::PlaylistModel(AnswerManager* answerManager, RequestManager *requestManager, FileManager* fileManager, QObject *parent)
     : QAbstractListModel{parent}
 {
     m_requestManager = requestManager;
 
     connect(answerManager, &AnswerManager::sgPlaylist, this, &PlaylistModel::slPlaylistUpdated);
     connect(answerManager, &AnswerManager::sgPlaylistPosition, this, &PlaylistModel::slPlaylistPositionUpdated);
-
     connect(answerManager, &AnswerManager::sgCurrentGalleryName, this, &PlaylistModel::setGalleryName);
 
     connect(requestManager, &RequestManager::sgTableUnavaliable, this, &PlaylistModel::slDeviceUnavaliable);
+
+    connect(this, &PlaylistModel::sgRequestFileData, fileManager, &FileManager::loadGCodeFileRequest, Qt::QueuedConnection);
+    connect(fileManager, &FileManager::sgGCodeDataReady, this, &PlaylistModel::slFileDataReady, Qt::QueuedConnection);
 }
 
 int PlaylistModel::rowCount(const QModelIndex &parent) const
@@ -53,8 +56,6 @@ QVariant PlaylistModel::data(const QModelIndex &index, int role) const
     {
         if(!m_previewData.contains(fullFileName))
         {
-            qDebug() << "Model. Requesting file data: " << fullFileName;
-            emit sgRequestFileData(fullFileName);
             return QVariantList();
         }
         else
@@ -71,13 +72,11 @@ QVariant PlaylistModel::data(const QModelIndex &index, int role) const
     {
         if(!m_previewData.contains(fullFileName))
         {
-            emit sgRequestFileData(fullFileName);
-            return 1;
+            return 0;
         }
 
         if(m_previewData.value(fullFileName).size() == 0)
         {
-            qDebug() << "File found, but empty data";
             return 1;
         }
 
@@ -105,6 +104,15 @@ void PlaylistModel::slDeviceUnavaliable()
         m_playlist.clear();
         endRemoveRows();
     }
+}
+
+void PlaylistModel::requestFileData(const QString &dataPath)
+{
+    if(m_previewData.contains(dataPath)) return;
+
+    qDebug() << "Model. Requesting file data: " << dataPath;
+    m_previewData.insert(dataPath, QVariantList());
+    emit sgRequestFileData(dataPath);
 }
 
 void PlaylistModel::slPlaylistUpdated(QStringList newPlaylist)
@@ -136,12 +144,15 @@ void PlaylistModel::slPlaylistPositionUpdated(qint32 newPlsPos)
     }
     (m_playlist.begin() + newPlsPos)->setIsCurrentPrintingElement(true);
 
+    // TODO forcing preview repaint. Time consuming op
     emit dataChanged(createIndex(0, 0), createIndex(m_playlist.size()-1, 0));
     emit printNameChanged();
 }
 
 void PlaylistModel::slFileDataReady(QString fileName, QList<QVariant> fileData)
 {
+    if(!m_previewData.contains(fileName)) return;
+
     if(m_previewData.value(fileName) != fileData)
     {
         m_previewData.insert(fileName, fileData);
@@ -150,6 +161,7 @@ void PlaylistModel::slFileDataReady(QString fileName, QList<QVariant> fileData)
             if((m_galleryName + "/" + m_playlist.at(pos).fullFilePath()) == fileName)
             {
                 emit dataChanged(createIndex(pos, 0), createIndex(pos, 0));
+                // qDebug() << "Emitting data changed" << fileName << " pos:" << pos << "Time: " << QTime::currentTime();
             }
         }
     }
@@ -157,39 +169,31 @@ void PlaylistModel::slFileDataReady(QString fileName, QList<QVariant> fileData)
 
 void PlaylistModel::refreshModel(QList<QString> newPlayList)
 {
-    //qDebug() << "Refreshing playlist model";
-
-    for(int pos=0; pos < newPlayList.size(); pos++)
+    quint64 pos = 0; // to skip empty lines
+    for(int i=0; i < newPlayList.size(); i++)
     {
-        QString newFilePath = newPlayList.at(pos);
+        QString newFile = newPlayList.at(pos);
+        if(newFile == "") continue;
 
+        QString dataPath = m_galleryName + "/" + newFile;
         if(pos < m_playlist.size())
         {
-            if(m_playlist.at(pos).fullFilePath() != newFilePath)
+            if(m_playlist.at(pos).fullFilePath() != newFile)
             {
-                m_playlist.replace(pos, PlaylistElement(newFilePath));
-                if(!m_previewData.contains(m_galleryName + "/" + newFilePath))
-                {
-                   emit sgRequestFileData(m_galleryName + "/" + newFilePath);
-                }
+                m_playlist.replace(pos, PlaylistElement(newFile));
                 emit dataChanged(createIndex(pos, 0), createIndex(pos, 0));
             }
         }
         else
         {
             beginInsertRows(QModelIndex(), pos, pos);
-            m_playlist.append(PlaylistElement(newFilePath));
-            if(!m_previewData.contains(m_galleryName + "/" + newFilePath))
-            {
-               emit sgRequestFileData(m_galleryName + "/" + newFilePath);
-            }
+            m_playlist.append(PlaylistElement(newFile));
+
             endInsertRows();
         }
+        pos++;
 
-        // if(!m_previewData.contains(m_galleryName + "/" + newFilePath))
-        // {
-        //     emit sgRequestFileData(m_galleryName + "/" + newFilePath);
-        // }
+        requestFileData(dataPath);
     }
 
     if(newPlayList.size() < m_playlist.size())

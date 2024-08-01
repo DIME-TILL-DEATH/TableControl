@@ -5,13 +5,15 @@
 #include "androidutils.h"
 #endif
 
-DeviceContentModel::DeviceContentModel(AnswerManager *answerManager, RequestManager *requestManager, QObject *parent)
+DeviceContentModel::DeviceContentModel(AnswerManager *answerManager, RequestManager *requestManager, FileManager* fileManager, QObject *parent)
     : QAbstractItemModel{parent}
 {
     m_requestManager = requestManager;
 
 
-    QObject::connect(answerManager, &AnswerManager::sgFolderContent, this, &DeviceContentModel::slContentUpdated);
+    connect(answerManager, &AnswerManager::sgFolderContent, this, &DeviceContentModel::slContentUpdated);
+
+    connect(this, &DeviceContentModel::sgRequestFileData, fileManager, &FileManager::loadGCodeFileRequest, Qt::QueuedConnection);
 
 #ifdef Q_OS_ANDROID
     QObject::connect(&activityResultHandler, &ActivityResultManager::sgFilePicked, this, &DeviceContentModel::slAndroidFilePicked);

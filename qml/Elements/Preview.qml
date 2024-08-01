@@ -15,6 +15,35 @@ Item{
         _canvas.requestPaint();
     }
 
+    Column{
+        id: _loading
+
+        anchors.fill: parent
+
+        visible: (dataPoints.length === 0)
+
+        BusyIndicator{
+            anchors.horizontalCenter: parent.horizontalCenter
+
+            height: parent.height * 0.5
+            width: height
+
+            palette.dark: "red"
+
+            running: true
+        }
+
+        Text{
+            text: "Loading"
+
+            height: parent.height * 0.5
+
+            anchors.horizontalCenter: parent.horizontalCenter
+
+            horizontalAlignment: Text.AlignHCenter
+        }
+    }
+
     Canvas{
         id: _canvas
 
@@ -36,6 +65,7 @@ Item{
         onPaint: {
             if(dataPoints !== undefined)
             {
+                // console.time("canvas paint")
                 var ctx = getContext("2d")
 
                 ctx.reset()
@@ -53,6 +83,7 @@ Item{
                     ctx.lineTo(dataPoints[i].x*coefX, dataPoints[i].y*coefY);
                 }
                 ctx.stroke()
+                // console.timeEnd("canvas paint")
             }
         }
     }

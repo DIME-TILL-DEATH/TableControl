@@ -1,16 +1,29 @@
+#include <QQmlApplicationEngine>
+#include <QtQml>
+
 #include "QDir"
 
 #include "librarymodel.h"
 
 #include "devicecontentmodel.h"
 
-LibraryModel::LibraryModel(AnswerManager* answerManager, RequestManager* requestManager, QObject *parent)
+LibraryModel::LibraryModel(AnswerManager* answerManager, RequestManager* requestManager, FileManager* fileManager, QObject *parent)
     : QAbstractListModel{parent}
 {
     m_requestManager = requestManager;
 
     connect(answerManager, &AnswerManager::sgFolderContent, this, &LibraryModel::slFolderDataUpdated);
     connect(answerManager, &AnswerManager::sgSerialId, this, &LibraryModel::slSerialIdUpdated);
+
+    connect(this, &LibraryModel::sgFileDownloadRequest, fileManager, &FileManager::downloadFileRequest, Qt::QueuedConnection);
+    connect(fileManager, &FileManager::sgFileDownloaded, this, &LibraryModel::slFileDataUpdated, Qt::QueuedConnection);
+
+    m_previewPlaylistModel = new PlaylistModel(answerManager, requestManager, fileManager, this);
+    disconnect(answerManager, &AnswerManager::sgPlaylist, m_previewPlaylistModel, &PlaylistModel::slPlaylistUpdated);
+    disconnect(answerManager, &AnswerManager::sgPlaylistPosition, m_previewPlaylistModel, &PlaylistModel::slPlaylistPositionUpdated);
+    disconnect(answerManager, &AnswerManager::sgCurrentGalleryName, m_previewPlaylistModel, &PlaylistModel::setGalleryName);
+
+    qmlRegisterSingletonInstance("UiObjects", 1, 0, "PreviewPlaylistModel", m_previewPlaylistModel);
 }
 
 int LibraryModel::rowCount(const QModelIndex &parent) const
@@ -56,6 +69,13 @@ void LibraryModel::setGallery(QString contentElementName)
     m_requestManager->requestParameter(Requests::Playlist::REQUEST_PLAYLIST);
     m_requestManager->requestParameter(Requests::Playlist::REQUEST_PLAYLIST_POSITION);
     m_requestManager->requestParameter(Requests::Hardware::REQUEST_PROGRESS);
+}
+
+void LibraryModel::setPreviewPlaylist(int64_t index)
+{
+    QString deviceGalleryName = m_library.at(index).systemName().remove(m_deviceSerialId + "/");
+    m_previewPlaylistModel->setGalleryName(deviceGalleryName);
+    m_previewPlaylistModel->slPlaylistUpdated(m_library.at(index).playlist());
 }
 
 void LibraryModel::slFolderDataUpdated(QString path, QStringList contentList)

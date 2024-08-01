@@ -6,6 +6,7 @@
 
 #include "answermanager.h"
 #include "requestmanager.h"
+#include "filemanager.h"
 
 #include "contentnode.h"
 
@@ -19,7 +20,7 @@ class DeviceContentModel : public QAbstractItemModel
     Q_OBJECT
     Q_PROPERTY(QString currentDstPath READ currentDstPath WRITE setCurrentDstPath NOTIFY currentDstPathChanged FINAL)
 public:
-    explicit DeviceContentModel(AnswerManager *answerManager, RequestManager* requestManager, QObject *parent = nullptr);
+    explicit DeviceContentModel(AnswerManager *answerManager, RequestManager* requestManager, FileManager* fileManager, QObject *parent = nullptr);
     ~DeviceContentModel();
 
     QModelIndex index(int row, int column,

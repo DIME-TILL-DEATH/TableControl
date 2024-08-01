@@ -45,7 +45,6 @@ DropArea{
 
         property int visualIndex: _delegateRoot.visualIndex
 
-
         Row{
             width: parent.width
             height: parent.height
@@ -54,28 +53,59 @@ DropArea{
 
             spacing: _previewIcon.width/10
 
-            Preview
-            {
-                id: _previewIcon
-
+            Item{
                 width: height
                 height: parent.height
 
-                dataPoints: model.previewData
+                Rectangle{
+                    id: _playngPoint
 
-                MouseArea{
-                    id: _showLargePreviewMA
+                    color: "yellow"
+
+                    anchors.centerIn: parent
+
+                    visible: model.playlistElement.isCurrentPrintingElement
+
+                    property int baseWidth: parent.width/4
+
+                    width: baseWidth
+                    height: baseWidth
+
+                    radius: baseWidth/2
+
+                    SequentialAnimation on width{
+                        id: _colorAnim
+
+                        //running: model.playlistElement.isCurrentPrintingElement
+                        loops: Animation.Infinite
+
+                        NumberAnimation {from: _playngPoint.baseWidth; to:  _playngPoint.baseWidth*0.5 ; duration: 250}
+                        NumberAnimation {from: _playngPoint.baseWidth*0.5; to: _playngPoint.baseWidth; duration: 250}
+                    }
+                }
+
+                Preview
+                {
+                    id: _previewIcon
 
                     anchors.fill: parent
 
-                    onPressed:
-                    {
-                        _delegateRoot.showLargePreview(previewData)
-                    }
+                    dataPoints: model.previewData
 
-                    onReleased:
-                    {
-                        _delegateRoot.hideLargePreview()
+                    MouseArea{
+                        id: _showLargePreviewMA
+
+                        anchors.fill: parent
+
+                        onPressed:
+                        {
+                            _delegateRoot.showLargePreview(previewData)
+                        }
+
+                        onReleased:
+                        {
+                            _delegateRoot.hideLargePreview()
+                        }
                     }
                 }
             }
