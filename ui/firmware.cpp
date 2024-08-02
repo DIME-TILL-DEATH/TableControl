@@ -53,9 +53,9 @@ void Firmware::setCurrentFwVersion(const QString &newCurrentFwVersion)
     emit currentFwVersionChanged();
 }
 
-bool Firmware::isVerisonSufficient(QString versionString)
+bool Firmware::isVerisonSufficient(QString versionString, QString mininalVersionString)
 {
-    FirmwareVersion minimalFw = extractFirmwareVersion(MINIMAL_FIRMWARE_VERSION);
+    FirmwareVersion minimalFw = extractFirmwareVersion(mininalVersionString);
     FirmwareVersion tableFw = extractFirmwareVersion(versionString);
 
     if(minimalFw.major > tableFw.major) return false;

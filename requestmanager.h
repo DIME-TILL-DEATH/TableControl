@@ -51,6 +51,8 @@ private:
     void checkDataUpdate();
 
     void updateFileUploadProgress(NetEvents type, QString filePath, quint64 currentPartSize, quint64 totalSize);
+
+    QString currentFw;
 };
 
 #endif // REQUESTMANAGER_H

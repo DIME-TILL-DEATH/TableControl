@@ -62,25 +62,27 @@ DropArea{
 
                     color: "yellow"
 
+                    z: _previewIcon.z + 5
+
                     anchors.centerIn: parent
 
                     visible: model.playlistElement.isCurrentPrintingElement
 
-                    property int baseWidth: parent.width/4
+                    property int baseWidth: parent.width/5
 
                     width: baseWidth
                     height: baseWidth
 
                     radius: baseWidth/2
 
-                    SequentialAnimation on width{
-                        id: _colorAnim
+                    transformOrigin: Item.Center
 
-                        //running: model.playlistElement.isCurrentPrintingElement
+                    SequentialAnimation on scale{
                         loops: Animation.Infinite
+                        running: true
 
-                        NumberAnimation {from: _playngPoint.baseWidth; to:  _playngPoint.baseWidth*0.5 ; duration: 250}
-                        NumberAnimation {from: _playngPoint.baseWidth*0.5; to: _playngPoint.baseWidth; duration: 250}
+                        NumberAnimation {from: 1; to: 0.5 ; duration: 250}
+                        NumberAnimation {from: 0.5; to: 1; duration: 250}
                     }
                 }
 

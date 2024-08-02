@@ -53,6 +53,7 @@ private:
 
     RequestManager* m_requestManager;
 
+
     QMap<QString, QPair<qint64, qint64> > m_activeProcesses;
 };
 

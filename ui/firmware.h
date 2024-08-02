@@ -30,7 +30,7 @@ public:
     QString currentFwVersion() const {return m_currentFwVersion;};
     void setCurrentFwVersion(const QString &newCurrentFwVersion);
 
-    static bool isVerisonSufficient(QString versionString);
+    static bool isVerisonSufficient(QString versionString, QString minimalVersionString = MINIMAL_FIRMWARE_VERSION);
 
     constexpr static const char dstPath[] = "/sdcard/firmware.bin";
 

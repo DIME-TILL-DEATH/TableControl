@@ -33,6 +33,7 @@ void RequestManager::slDeviceDisconnected()
 
 void RequestManager::slFirmwareVerisonRecieved(QString firmwareVersion)
 {
+    currentFw = firmwareVersion;
     if(Firmware::isVerisonSufficient(firmwareVersion))
     {
         requestParameter(Requests::Hardware::GET_SERIAL_ID);
@@ -173,15 +174,27 @@ void RequestManager::updateFirmware(QString firmwarePath)
         return;
     }
 
-    FilePartMessage* msg = new FilePartMessage(FilePartMessage::ActionType::CREATE_FIRMWARE, Firmware::dstPath, firmwarePath);
+    int64_t partPos = file.pos();
+    QString firmwareDstPath = Firmware::dstPath;
+
+    if(!Firmware::isVerisonSufficient(currentFw, "0.80"))
+    {
+        partPos = FilePartMessage::defaultPartSize;
+        firmwareDstPath = "";
+    }
+
+    FilePartMessage* msg = new FilePartMessage(FilePartMessage::ActionType::CREATE_FIRMWARE, firmwareDstPath, firmwarePath, file.read(FilePartMessage::defaultPartSize), partPos);
     emit sgSendMessage(std::shared_ptr<AbstractMessage>(msg));
 
     // updateFileUploadProgress(NetEvents::UploadFirmwareStart, Firmware::dstPath, 0, file.size());
 
     while(!file.atEnd())
     {
-        int partPos = file.pos();
-        FilePartMessage* msg = new FilePartMessage(FilePartMessage::ActionType::APPEND_FIRMWARE, Firmware::dstPath, firmwarePath, file.read(FilePartMessage::defaultPartSize), partPos);
+        partPos = file.pos();
+
+        if(!Firmware::isVerisonSufficient(currentFw, "0.80")) partPos = FilePartMessage::defaultPartSize; //legacy support
+
+        FilePartMessage* msg = new FilePartMessage(FilePartMessage::ActionType::APPEND_FIRMWARE, firmwareDstPath, firmwarePath, file.read(FilePartMessage::defaultPartSize), partPos);
         emit sgSendMessage(std::shared_ptr<AbstractMessage>(msg));
 
     }

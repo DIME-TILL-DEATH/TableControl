@@ -1,6 +1,8 @@
 #include "progress.h"
 #include "qforeach.h"
 
+#include "firmware.h"
+
 Progress::Progress(AnswerManager *answerManager, RequestManager* requestManager, QObject *parent)
     : QObject{parent},
     m_requestManager(requestManager)

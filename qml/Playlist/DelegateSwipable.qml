@@ -37,23 +37,13 @@ SwipeDelegate {
     }
 
     background: Rectangle{
-        //color: "black"
         id: _mainRec
 
-        property color startColor: "white"
-        property color stopColor: model.playlistElement.isCurrentPrintingElement ? "slategray" : "white"
+        color:model.playlistElement.isCurrentPrintingElement ? "lightgray" : "transparent"
+    }
 
-        color: startColor
-
-        SequentialAnimation on color{
-            id: _colorAnim
-
-            running: model.playlistElement.isCurrentPrintingElement
-            loops: Animation.Infinite
-            alwaysRunToEnd: true
-            ColorAnimation {from: _mainRec.startColor; to:  _mainRec.stopColor ; duration: 2000}
-            ColorAnimation {from: _mainRec.stopColor; to: _mainRec.startColor; duration: 2000}
-        }
+    onClicked: {
+        _listView.currentIndex = model.index
     }
 
     onDoubleClicked: {

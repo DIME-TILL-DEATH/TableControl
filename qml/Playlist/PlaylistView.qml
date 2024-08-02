@@ -30,6 +30,14 @@ ListView
 
     }
 
+    highlight: Rectangle{
+        border.width: 2
+        radius: 5
+        color: "transparent"
+
+        z: 5
+    }
+
     function showLargePreview(dataPoints)
     {
         _largePreview.update(dataPoints);

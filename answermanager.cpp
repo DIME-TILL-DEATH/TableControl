@@ -235,8 +235,10 @@ void AnswerManager::processMessage(StringMessage *message)
         {
         case Requests::Firmware::FIRMWARE_VERSION:
         {
-            qDebug() << "Firmware version:" << message->string();
-            emit sgFirmwareVersion(message->string());
+            currentFw = message->string();
+
+            qDebug() << "Firmware version:" << currentFw;
+            emit sgFirmwareVersion(currentFw);
             break;
         }
         default: return;

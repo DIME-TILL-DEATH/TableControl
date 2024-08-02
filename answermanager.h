@@ -59,6 +59,8 @@ private:
     void processMessage(FilePartMessage* message);
 
     void updateFileUploadProgress(NetEvents type, QString filePath, quint64 currentPartSize, quint64 totalSize);
+
+    QString currentFw;
 };
 
 #endif // ANSWERMANAGER_H

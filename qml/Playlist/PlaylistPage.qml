@@ -39,6 +39,8 @@ Rectangle{
 
                     text: "Play"
                     iconSource: "qrc:/images/play.svg"
+
+                    onClicked: PlaylistModel.changePrint(_listView.currentIndex);
                 }
 
                 RoundIconBtn{
@@ -52,8 +54,12 @@ Rectangle{
         }
 
         PlaylistView{
+            id: _listView
+
             height: parent.height * 0.975 - _plsHeader.height
             width: parent.width
+
+            currentIndex: 0
         }
     }
 }
