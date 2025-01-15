@@ -53,7 +53,9 @@ enum class File
     GET_FOLDER_CONTENT,
     FILE_CREATE,
     FILE_APPEND_DATA,
-    GET_FILE_INFO
+    GET_FILE_INFO,
+    FOLDER_CREATE,
+    FOLDER_DELETE
 };
 
 enum class Firmware

@@ -26,7 +26,7 @@ void ActivityResultManager::handleActivityResult(int receiverRequestCode, int re
     {
         switch((ActivityType)receiverRequestCode)
         {
-        case ActivityType::PICK_FILE:
+            case ActivityType::PICK_FILE:
             {
                 QJniObject uriObject = data.callObjectMethod("getData", "()Landroid/net/Uri;");
                 takeReadUriPermission(uriObject);
@@ -36,6 +36,12 @@ void ActivityResultManager::handleActivityResult(int receiverRequestCode, int re
                 qDebug() << "Gcode file name: " << m_fileName;
 
                 emit sgFilePicked(m_filePath, m_fileName);
+                break;
+            }
+
+            case ActivityType::PICK_FOLDER:
+            {
+                qDebug() << "Folder picked";
                 break;
             }
 
@@ -58,11 +64,12 @@ void ActivityResultManager::processUri(QJniObject uriObject)
 //    m_filePath.replace("%2F", "/");
 //    m_filePath.replace("%3A", ":");
 
+    QtJniTypes::Context androidContext = QNativeInterface::QAndroidApplication::context();
     m_fileName= QJniObject::callStaticObjectMethod(
             "com.fmone.utils/FileUtils", "getFileName",
             "(Landroid/net/Uri;Landroid/content/Context;)Ljava/lang/String;",
-            uriObject.object(),
-            QNativeInterface::QAndroidApplication::context()).toString();
+                     uriObject.object(),
+                     androidContext.object()).toString();
 }
 
 void ActivityResultManager::takeReadUriPermission(QJniObject uriObject)

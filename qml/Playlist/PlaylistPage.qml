@@ -43,13 +43,13 @@ Rectangle{
                     onClicked: PlaylistModel.changePrint(_listView.currentIndex);
                 }
 
-                RoundIconBtn{
-                    id: _control
+                // RoundIconBtn{
+                //     id: _control
 
-                    text: "Shuffle"
+                //     text: "Shuffle"
 
-                    iconSource: "qrc:/images/shuffle.svg"
-                }
+                //     iconSource: "qrc:/images/shuffle.svg"
+                // }
             }
         }
 

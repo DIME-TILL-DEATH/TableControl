@@ -176,3 +176,8 @@ void Progress::setUpdatingState(bool newUpdatingState)
     m_updatingState = newUpdatingState;
     emit updatingStateChanged();
 }
+
+quint16 Progress::taskCount() const
+{
+    return m_activeProcesses.count();
+}

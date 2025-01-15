@@ -41,6 +41,9 @@ public:
     Q_INVOKABLE void selectFile();
     Q_INVOKABLE void uploadFileToDevice(QString dstPath, QString srcPath);
 
+    Q_INVOKABLE void uploadPlaylist(QString selectedFolder);
+    Q_INVOKABLE void deletePlaylist(QString playlistName);
+
     QString currentDstPath() const;
     void setCurrentDstPath(const QString &newCurrentDstPath);
 
@@ -50,6 +53,8 @@ signals:
     void sgOpenPlatformFileDialog();
 
     void currentDstPathChanged();
+
+    void sgUploadFolder(QString dstPath, QString srcPath);
 
 public slots:
     void slContentUpdated(QString path, QStringList contentList);

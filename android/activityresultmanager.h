@@ -9,7 +9,8 @@
 
 enum class ActivityType
 {
-    PICK_FILE
+    PICK_FILE,
+    PICK_FOLDER
 };
 
 class ActivityResultManager : public QObject, public QAndroidActivityResultReceiver

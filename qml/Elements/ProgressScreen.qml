@@ -54,7 +54,8 @@ Item {
         }
 
         DefaultText{
-            text: _progressRoot.text
+            // text: _progressRoot.text
+            text: "Files left: " + Progress.taskCount
             anchors.horizontalCenter: parent.horizontalCenter
 
             color: "black"

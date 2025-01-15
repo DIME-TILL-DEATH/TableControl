@@ -37,6 +37,7 @@ public slots:
     void requestFolder(QString folderPath);
 
     void uploadFile(QString dstPath, QString srcPath);
+    void uploadFolder(QString dstPath, QString srcPath);
     void updateFirmware(QString firmwarePath);
 
     void setParameter(Requests::Hardware request, uint32_t value);

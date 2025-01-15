@@ -10,6 +10,7 @@ class Progress : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(qreal currentProgress READ currentProgress WRITE setCurrentProgress NOTIFY currentProgressChanged FINAL)
+    Q_PROPERTY(quint16 taskCount READ taskCount NOTIFY currentProgressChanged FINAL)
     Q_PROPERTY(qreal firmwareUploadProgress READ firmwareUploadProgress WRITE setFirmwareUploadProgress NOTIFY firmwareUploadProgressChanged FINAL)
     Q_PROPERTY(bool updatingState READ updatingState WRITE setUpdatingState NOTIFY updatingStateChanged FINAL)
 public:
@@ -30,6 +31,8 @@ public:
 
     bool updatingState() const;
     void setUpdatingState(bool newUpdatingState);
+
+    quint16 taskCount() const;
 
 signals:
 

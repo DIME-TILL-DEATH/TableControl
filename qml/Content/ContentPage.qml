@@ -10,11 +10,11 @@ import UiObjects
 Item{
     id: _contentPage
 
-    ProgressScreen{
-        id: _progressScreen
+    // ProgressScreen{
+    //     id: _progressScreen
 
-        anchors.fill: parent
-    }
+    //     anchors.fill: parent
+    // }
 
     TreeView{
         id: _treeView

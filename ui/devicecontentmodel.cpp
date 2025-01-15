@@ -1,4 +1,6 @@
 #include "devicecontentmodel.h"
+#include <QDir>
+#include <QFileInfo>
 
 #ifdef __ANDROID__
 #include <jni.h>
@@ -14,6 +16,8 @@ DeviceContentModel::DeviceContentModel(AnswerManager *answerManager, RequestMana
     connect(answerManager, &AnswerManager::sgFolderContent, this, &DeviceContentModel::slContentUpdated);
 
     connect(this, &DeviceContentModel::sgRequestFileData, fileManager, &FileManager::loadGCodeFileRequest, Qt::QueuedConnection);
+
+    connect(this, &DeviceContentModel::sgUploadFolder, requestManager, &RequestManager::uploadFolder, Qt::QueuedConnection);
 
 #ifdef Q_OS_ANDROID
     QObject::connect(&activityResultHandler, &ActivityResultManager::sgFilePicked, this, &DeviceContentModel::slAndroidFilePicked);
@@ -130,6 +134,30 @@ void DeviceContentModel::slAndroidFilePicked(QString filePath, QString fileName)
 void DeviceContentModel::uploadFileToDevice(QString dstPath, QString srcPath)
 {
     m_requestManager->uploadFile(librarySdcardPath + dstPath, srcPath);
+}
+
+void DeviceContentModel::uploadPlaylist(QString selectedFolder)
+{
+
+    qDebug() << Q_FUNC_INFO << selectedFolder;
+
+    // Check needed files!
+
+    // QDir dir(selectedFolder);
+    // QStringList fileList = dir.entryList();
+
+    // foreach(QString fileName, fileList)
+    // {
+    //     qDebug() << fileName;
+    // }
+
+    // m_requestManager->uploadFolder(librarySdcardPath, selectedFolder);
+    emit sgUploadFolder(librarySdcardPath, selectedFolder);
+}
+
+void DeviceContentModel::deletePlaylist(QString playlistName)
+{
+
 }
 
 void DeviceContentModel::slContentUpdated(QString path, QStringList contentList)

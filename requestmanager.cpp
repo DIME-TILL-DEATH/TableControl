@@ -1,6 +1,8 @@
 #include "requestmanager.h"
 
 #include <QFile>
+#include <QFileInfo>
+#include <QDir>
 
 #include "firmware.h"
 #include "devicecontentmodel.h"
@@ -163,6 +165,39 @@ void RequestManager::uploadFile(QString dstPath, QString srcPath)
     requestFolder("/" + path + "/");
 }
 
+void RequestManager::uploadFolder(QString dstPath, QString srcPath)
+{
+    QDir dir(srcPath);
+    QFileInfoList fileList = dir.entryInfoList();
+
+    dstPath += dir.dirName() + "/";
+
+    StringMessage* msg = new StringMessage(FrameType::FILE_ACTIONS, (uint8_t)Requests::File::FOLDER_CREATE, dstPath);
+    emit sgSendMessage(std::shared_ptr<AbstractMessage>(msg));
+
+    foreach(QFileInfo fileInfo, fileList)
+    {
+        QFile currentFile(fileInfo.absoluteFilePath());
+        if(!currentFile.open(QIODevice::ReadOnly))
+        {
+            qDebug() << __FUNCTION__ << "Can't open file " << fileInfo.absoluteFilePath();
+            continue;
+        }
+        qDebug() << "File opened" << fileInfo.fileName();
+        QString uploadPath = dstPath + fileInfo.fileName();
+        updateFileUploadProgress(NetEvents::StartUploadData, uploadPath, 0, currentFile.size());
+        while(!currentFile.atEnd())
+        {
+            int partPos = currentFile.pos();
+            FilePartMessage* msg = new FilePartMessage(FilePartMessage::ActionType::APPEND_TEXT, uploadPath,
+                                                       srcPath, currentFile.read(FilePartMessage::defaultPartSize), partPos);
+            emit sgSendMessage(std::shared_ptr<AbstractMessage>(msg));
+        }
+        currentFile.close();
+    }
+    requestFolder(DeviceContentModel::librarySdcardPath);
+}
+
 void RequestManager::updateFirmware(QString firmwarePath)
 {
     qDebug() << "Upload firmware from " << firmwarePath;
@@ -186,8 +221,6 @@ void RequestManager::updateFirmware(QString firmwarePath)
     FilePartMessage* msg = new FilePartMessage(FilePartMessage::ActionType::CREATE_FIRMWARE, firmwareDstPath, firmwarePath, file.read(FilePartMessage::defaultPartSize), partPos);
     emit sgSendMessage(std::shared_ptr<AbstractMessage>(msg));
 
-    // updateFileUploadProgress(NetEvents::UploadFirmwareStart, Firmware::dstPath, 0, file.size());
-
     while(!file.atEnd())
     {
         partPos = file.pos();
@@ -204,6 +237,7 @@ void RequestManager::updateFirmware(QString firmwarePath)
 
 void RequestManager::updateFileUploadProgress(NetEvents type, QString filePath, quint64 currentPartSize, quint64 totalSize)
 {
+    qDebug() << Q_FUNC_INFO << filePath << currentPartSize << totalSize;
     QVariantList netEventData;
     netEventData.append(currentPartSize);
     netEventData.append(totalSize);

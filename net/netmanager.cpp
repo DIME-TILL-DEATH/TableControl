@@ -9,6 +9,8 @@
 
 #include "netmanager.h"
 
+// #include <QNetworkAccessManager>
+
 NetManager::NetManager(QObject *parent)
     : QObject{parent}
 {
@@ -24,6 +26,9 @@ NetManager::NetManager(QObject *parent)
     connect(netClient, &NetClient::sgConnected, this, &NetManager::sgDeviceConnected);
     connect(netClient, &NetClient::sgDisconnected, this, &NetManager::sgDeviceDisconnected);
     lastRecvFrameHeader.frameSize = 0;
+
+
+    // QNetworkAccessManager manager;
 }
 
 void NetManager::slSendMessage(std::shared_ptr<AbstractMessage> msg_ptr)

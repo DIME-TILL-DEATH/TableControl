@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Dialogs
+import QtCore
 
 import Elements
 import UiObjects
@@ -75,5 +76,61 @@ Rectangle{
         SettingsHeader{
             text: "Running time: " + (Math.floor(Hardware.machineMinutes/60)) + ":" +  Hardware.machineMinutes%60
         }
+
+        Button{
+            id: _btnUploadPlaylist
+
+            anchors.horizontalCenter: parent.horizontalCenter
+
+            width: parent.width*0.5
+            height: parent.height/20
+
+            text: "Upload playlist"
+
+            onClicked: {
+                _folderDialog.open();
+            }
+        }
+
+        Button{
+            id: _btnDeletePlaylist
+
+            anchors.horizontalCenter: parent.horizontalCenter
+
+            width: parent.width*0.5
+            height: parent.height/20
+
+            text: "Delete playlist"
+
+            onClicked: {      
+                DeviceContentModel.deletePlaylist();
+
+            }
+        }
     }
+
+    FolderDialog{
+        id: _folderDialog
+
+        options: FolderDialog.ReadOnly
+
+        // currentFolder: StandardPaths.standardLocations(StandardPaths.DocumentsLocation)[0]
+
+
+
+        onAccepted: {
+            var dirtyPath = _folderDialog.selectedFolder.toString();
+            var cleanPath = decodeURIComponent(dirtyPath.replace(/^(file:\/{3})|(qrc:\/{2})|(http:\/{2})/,""));
+            var path = Qt.platform.os==="windows" ? cleanPath : _folderDialog.selectedFolder;
+            DeviceContentModel.uploadPlaylist(path);
+
+            currentFolder = _folderDialog.selectedFolder
+        }
+        Settings{
+            property alias lasFolder: _folderDialog.currentFolder
+        }
+
+
+    }
+
 }

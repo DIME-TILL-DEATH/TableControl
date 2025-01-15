@@ -1,6 +1,8 @@
 import QtQuick
 import QtQuick.Controls
 
+//import QtDeviceUtilities.NetworkSettings
+
 import UiObjects
 
 import Playlist
@@ -16,6 +18,12 @@ ApplicationWindow {
     height: 900
     visible: true
     title: qsTr("Kinetic table control")
+
+    ProgressScreen{
+        id: _progressScreen
+
+        anchors.fill: parent
+    }
 
     Rectangle
     {
@@ -232,6 +240,10 @@ ApplicationWindow {
             text: "Firmware version insufficient!\nPlease, update firmware"
         }
     }
+
+    // CustomDialog{
+    //     id: _connectionWindow
+    // }
 
     Connections{
         target: Firmware
