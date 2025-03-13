@@ -17,7 +17,7 @@ class Hardware : public QObject
     Q_PROPERTY(float printSpeed READ printSpeed WRITE setPrintSpeed NOTIFY sgPrintSpeedChanged FINAL)
     Q_PROPERTY(float ledBrightness READ ledBrightness WRITE setLedBrightness NOTIFY sgLedBrightnessChanged FINAL)
     Q_PROPERTY(quint32 pauseInterval READ pauseInterval WRITE setPauseInterval NOTIFY pauseIntervalChanged FINAL)
-    Q_PROPERTY(quint16 fiGear2Teeths READ fiGear2Teeths NOTIFY fiGear2TeethsChanged)
+    Q_PROPERTY(quint16 fiGear2Teeths READ fiGear2Teeths WRITE setFiGear2Teeths NOTIFY fiGear2TeethsChanged)
     Q_PROPERTY(quint32 machineMinutes READ machineMinutes NOTIFY machineMinutesChanged FINAL)
     Q_PROPERTY(QString serialId READ serialId NOTIFY serialIdChanged FINAL)
 
@@ -57,7 +57,7 @@ public:
     void setPauseInterval(quint32 newPauseInterval, bool sendRequest = true);
 
     quint16 fiGear2Teeths() const {return m_fiGear2Teeths;};
-    void setFiGear2Teehts(quint16 fiGear2Teeths);
+    void setFiGear2Teeths(quint32 fiGear2Teeths, bool sendRequest = true);
 
     quint32 machineMinutes() const {return m_machineMinutes;};
     void setMachineMinutes(quint32 machineMinutes);

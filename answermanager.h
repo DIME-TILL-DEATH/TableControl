@@ -28,7 +28,7 @@ signals:
     void sgNetEvent(NetEvents eventType, QString target, QVariantList data = {});
 
     // Int
-    void sgFiGear2Teeths(quint16 teethsCount);
+    void sgFiGear2Teeths(quint16 teethsCount, bool sendrequest=false);
     void sgMachineMinutes(quint32 machineMinutes);
     void sgPauseInterval(quint32 pauseInterval, bool sendrequest=false);
     void sgPlaylistPosition(qint32 newPlsPos);

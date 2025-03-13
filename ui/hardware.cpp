@@ -5,7 +5,7 @@ Hardware::Hardware(AnswerManager *answerManager, RequestManager *requestManager,
         QObject{parent}
 {
     connect(answerManager, &AnswerManager::sgSerialId, this, &Hardware::setSerialId);
-    connect(answerManager, &AnswerManager::sgFiGear2Teeths, this, &Hardware::setFiGear2Teehts);
+    connect(answerManager, &AnswerManager::sgFiGear2Teeths, this, &Hardware::setFiGear2Teeths);
     connect(answerManager, &AnswerManager::sgMachineMinutes, this, &Hardware::setMachineMinutes);
     connect(answerManager, &AnswerManager::sgPauseInterval, this, &Hardware::setPauseInterval);
     connect(answerManager, &AnswerManager::sgPrintSpeed, this, &Hardware::setPrintSpeed);
@@ -24,6 +24,7 @@ void Hardware::setPrintProperties()
     setScaleCoefficient(m_scaleCoefficient, true);
     setRotation(m_rotation, true);
     setCorrection(m_correction, true);
+    setFiGear2Teeths(m_fiGear2Teeths, true);
 }
 
 void Hardware::slTableAvalible()
@@ -118,10 +119,13 @@ void Hardware::setCorrection(float newCorrection, bool sendRequest)
 }
 
 
-void Hardware::setFiGear2Teehts(quint16 fiGear2Teeths)
+void Hardware::setFiGear2Teeths(quint32 fiGear2Teeths, bool sendRequest)
 {
     m_fiGear2Teeths = fiGear2Teeths;
     emit fiGear2TeethsChanged();
+
+    if(sendRequest)
+        m_requestManager->setParameter(Requests::Hardware::SET_FI_GEAR2_TEETH_COUNT, fiGear2Teeths);
 }
 
 void Hardware::setMachineMinutes(quint32 machineMinutes)

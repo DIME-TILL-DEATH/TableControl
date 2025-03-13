@@ -53,6 +53,20 @@ Rectangle{
             }
         }
 
+        // SettingsHeader{
+        //     text: "Fi gear 2 teeths: " + Hardware.fiGear2Teeths
+        // }
+
+        SettingTextEdit{
+            label: "Fi gear 2 teeths: "
+            valueChecker: IntValidator{locale: "en"; bottom: 0.0; top: 500.0}
+            visibleText: Hardware.fiGear2Teeths.toFixed(0)
+
+            onValueEntered: function(text){
+                Hardware.fiGear2Teeths = parseFloat(text);
+            }
+        }
+
         Button{
             id: _btnSetPrintProperties
 
@@ -67,10 +81,6 @@ Rectangle{
                 Hardware.setPrintProperties();
 
             }
-        }
-
-        SettingsHeader{
-            text: "Fi gear 2 teeths: " + Hardware.fiGear2Teeths
         }
 
         SettingsHeader{
