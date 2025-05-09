@@ -101,6 +101,16 @@ void AnswerManager::processMessage(IntValueMessage *message)
             emit sgMachineMinutes(message->value());
             break;
         }
+        case Requests::Hardware::GET_FIRST_MOTOR_INVERSION:
+        {
+            emit sgFirstMotorInversion(message->value());
+            break;
+        }
+        case Requests::Hardware::GET_SECOND_MOTOR_INVERSION:
+        {
+            emit sgSecondMotorInversion(message->value());
+            break;
+        }
         default: break;
         }
         break;

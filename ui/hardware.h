@@ -24,6 +24,9 @@ class Hardware : public QObject
     Q_PROPERTY(float scaleCoefficient READ scaleCoefficient WRITE setScaleCoefficient NOTIFY scaleCoefficientChanged FINAL)
     Q_PROPERTY(float rotation READ rotation WRITE setRotation NOTIFY rotationChanged FINAL)
     Q_PROPERTY(float correction READ correction WRITE setCorrection NOTIFY correctionChanged FINAL)
+
+    Q_PROPERTY(bool firstMotorInversion READ firstMotorInversion WRITE setFirstMotorInversion NOTIFY firstMotorInversionChanged FINAL)
+    Q_PROPERTY(bool secondMotorInversion READ secondMotorInversion WRITE setSecondMotorInversion NOTIFY secondMotorInversionChanged FINAL)
 public:
     explicit Hardware(AnswerManager* answerManager, RequestManager* requestManager, QObject *parent = nullptr);
 
@@ -62,6 +65,12 @@ public:
     quint32 machineMinutes() const {return m_machineMinutes;};
     void setMachineMinutes(quint32 machineMinutes);
 
+    bool firstMotorInversion() const {return m_firstMotorInversion;};
+    void setFirstMotorInversion(bool newFirstMotorInversion, bool sendRequest = true);
+
+    bool secondMotorInversion() const {return m_secondMotorInversion;};
+    void setSecondMotorInversion(bool newSecondMotorInversion, bool sendRequest = true);
+
 signals:
     void deviceAvaliableChanged();
     void sgProgressChanged();
@@ -73,7 +82,10 @@ signals:
     void pauseIntervalChanged();
     void fiGear2TeethsChanged();
     void machineMinutesChanged();
-    void serialIdChanged();    
+    void serialIdChanged();
+
+    void firstMotorInversionChanged();
+    void secondMotorInversionChanged();
 
 public slots:
     void slTableAvalible();
@@ -94,6 +106,8 @@ private:
     bool m_deviceAvaliable;
 
     RequestManager* m_requestManager;
+    bool m_firstMotorInversion;
+    bool m_secondMotorInversion;
 };
 
 #endif // HARDWARE_H

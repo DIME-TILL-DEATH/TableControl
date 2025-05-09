@@ -32,6 +32,8 @@ signals:
     void sgMachineMinutes(quint32 machineMinutes);
     void sgPauseInterval(quint32 pauseInterval, bool sendrequest=false);
     void sgPlaylistPosition(qint32 newPlsPos);
+    void sgFirstMotorInversion(quint32 motorInversion, bool sendrequest=false);
+    void sgSecondMotorInversion(quint32 motorInversion, bool sendrequest=false);
 
     // Float
     void sgPrintSpeed(float value, bool sendRequest = false);
