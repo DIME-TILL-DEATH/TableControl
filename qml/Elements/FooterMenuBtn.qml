@@ -15,7 +15,7 @@ TabButton {
 
 
     contentItem: Column{
-        IconImage
+        Image
         {
             source: control.imageSource
 
@@ -23,7 +23,7 @@ TabButton {
             height: parent.height*0.7
 
             fillMode: Image.PreserveAspectFit
-            color: control.isActive ? "white" : "grey"
+            // color: control.isActive ? "white" : "grey"
         }
 
         Text {
