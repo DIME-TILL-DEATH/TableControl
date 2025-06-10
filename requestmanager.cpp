@@ -60,6 +60,9 @@ void RequestManager::getTableBaseData()
     requestParameter(Requests::Hardware::GET_FI_GEAR2_TEETH_COUNT);
     requestParameter(Requests::Hardware::GET_MACHINE_MINUTES);
 
+    requestParameter(Requests::Hardware::GET_FIRST_MOTOR_INVERSION);
+    requestParameter(Requests::Hardware::GET_SECOND_MOTOR_INVERSION);
+
     requestParameter(Requests::Playlist::GET_CURRENT_GALLERY);
 
     requestParameter(Requests::Playlist::REQUEST_PLAYLIST);

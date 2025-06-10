@@ -67,6 +67,27 @@ Rectangle{
             }
         }
 
+        SettingsHeader{
+            text: "Motor inversion:"
+        }
+
+        Switch{
+            text: "Fi motor inversion"
+
+            onClicked:{
+                Hardware.firstMotorInversion = checked;
+            }
+        }
+
+        Switch{
+            text: "R motor inversion"
+
+            onClicked:{
+                Hardware.secondMotorInversion = checked;
+            }
+        }
+
+
         Button{
             id: _btnSetPrintProperties
 

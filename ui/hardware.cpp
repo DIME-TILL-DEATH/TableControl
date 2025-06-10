@@ -14,6 +14,8 @@ Hardware::Hardware(AnswerManager *answerManager, RequestManager *requestManager,
     connect(answerManager, &AnswerManager::sgRotation, this, &Hardware::setRotation);
     connect(answerManager, &AnswerManager::sgCorrection, this, &Hardware::setCorrection);
     connect(answerManager, &AnswerManager::sgProgress, this, &Hardware::setProgress);
+    connect(answerManager, &AnswerManager::sgFirstMotorInversion, this, &Hardware::setFirstMotorInversion);
+    connect(answerManager, &AnswerManager::sgSecondMotorInversion, this, &Hardware::setSecondMotorInversion);
 
     connect(requestManager, &RequestManager::sgTableAvaliable, this, &Hardware::slTableAvalible);
     connect(requestManager, &RequestManager::sgTableUnavaliable, this, &Hardware::slTableUnavalible);
@@ -132,4 +134,22 @@ void Hardware::setMachineMinutes(quint32 machineMinutes)
 {
     m_machineMinutes = machineMinutes;
     emit machineMinutesChanged();
+}
+
+void Hardware::setFirstMotorInversion(bool newFirstMotorInversion, bool sendRequest)
+{
+    m_firstMotorInversion = newFirstMotorInversion;
+    emit firstMotorInversionChanged();
+
+    if(sendRequest)
+        m_requestManager->setParameter(Requests::Hardware::SET_FIRST_MOTOR_INVERSION, (uint32_t)newFirstMotorInversion);
+}
+
+void Hardware::setSecondMotorInversion(bool newSecondMotorInversion, bool sendRequest)
+{
+    m_secondMotorInversion = newSecondMotorInversion;
+    emit secondMotorInversionChanged();
+
+    if(sendRequest)
+        m_requestManager->setParameter(Requests::Hardware::SET_SECOND_MOTOR_INVERSION, (uint32_t)newSecondMotorInversion);
 }
