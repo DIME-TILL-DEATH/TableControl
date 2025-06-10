@@ -105,16 +105,16 @@ ApplicationWindow {
                     }
                 }
 
-                IconImage{
+                Image{
                     id: _pauseResumeBtn
                     source: "qrc:/images/play-pause.svg"
 
                     width: parent.height * 0.95
                     height: width
 
-                    fillMode: Image.PreserveAspectFit
+                    // fillMode: Image.PreserveAspectFit
 
-                    color: _maPauseResume.containsPress ? "red" : "white"
+                    // color: _maPauseResume.containsPress ? "red" : "white"
                     MouseArea{
                         id: _maPauseResume
 

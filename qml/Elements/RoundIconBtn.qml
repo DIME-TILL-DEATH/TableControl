@@ -16,7 +16,7 @@ Button{
     contentItem: Row{
 
         spacing: width/15
-        IconImage{
+        Image{
             id: _icon
             source: _control.iconSource
 
@@ -25,7 +25,7 @@ Button{
 
             fillMode: Image.PreserveAspectFit
 
-            color: _control.down ? "grey" : "white"
+            // color: _control.down ? "grey" : "white"
         }
 
         DefaultText {
