@@ -22,6 +22,8 @@ Rectangle {
     Preview{
         id: _basicPreview
 
+        lineColor: "black"
+
         dataPoints: _root.dataPoints
         lineWidth: 1
     }

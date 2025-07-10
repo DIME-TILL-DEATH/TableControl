@@ -6,6 +6,8 @@ Rectangle{
     color: "lightsteelblue"
     border.width: 1
 
+    radius: width/20
+
     signal delegateClicked(int index)
 
     Column{

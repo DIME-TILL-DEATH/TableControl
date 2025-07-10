@@ -10,7 +10,7 @@ NetClient::NetClient(QObject *parent)
     : QObject{parent}
 {
 #ifdef __ANDROID__
-    AndroidUtils::bindProcessToNetwork(); //to WIFI
+    // AndroidUtils::bindProcessToNetwork(); //to WIFI
 #endif
 
     socket = new QTcpSocket(this);

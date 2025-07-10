@@ -7,6 +7,12 @@ import Elements
 import UiObjects
 
 Rectangle{
+
+    gradient: Gradient{
+        GradientStop { position: 0.0; color: "lightgrey" }
+        GradientStop { position: 1.0; color: "#303030" }
+    }
+
     Column{
         height: parent.height*0.95
         width: parent.width*0.75

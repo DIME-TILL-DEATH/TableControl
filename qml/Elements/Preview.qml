@@ -4,11 +4,15 @@ import QtQuick.Controls
 import UiObjects
 
 Item{
+    id: root
+
     width: parent.width
     height: width
 
     property var dataPoints
     property real lineWidth: 0.25
+
+    property color lineColor: "lightgrey"
 
     function update()
     {
@@ -71,7 +75,7 @@ Item{
                 ctx.reset()
 
                 ctx.lineWidth = lineWidth
-                ctx.strokeStyle = "darkslategrey"
+                ctx.strokeStyle = root.lineColor
 
                 ctx.translate(_canvas.width/2, _canvas.height/2)
                 ctx.rotate(Math.PI)

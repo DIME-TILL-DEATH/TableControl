@@ -124,11 +124,13 @@ DropArea{
                     DefaultText{
                        text: model.playlistElement.fileName
 
-                       color: (model.isFileAvaliable) ? "black" : "red";
+                       color: (model.isFileAvaliable) ? "lightgrey" : "red";
                     }
                     DefaultText{
                        text: model.playlistElement.filePath
                        font.bold: false
+
+                       color: "lightgrey"
                     }
                 }
             }

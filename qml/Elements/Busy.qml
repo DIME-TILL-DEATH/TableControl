@@ -61,7 +61,7 @@ Item
         anchors.fill: parent
 
         onPressed: {
-            console.log("clc")
+
         }
     }
 }
