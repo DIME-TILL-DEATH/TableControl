@@ -35,12 +35,12 @@ Rectangle{
                   + "Firmware ver.: " + Firmware.currentFwVersion
         }
 
-        Button{
+        MButton{
             id: _btnFirmwareUpdate
 
             anchors.horizontalCenter: parent.horizontalCenter
 
-            width: parent.width*0.75
+            width: parent.width*0.5
             height: parent.height/20
 
             text: "Update firmware"
@@ -55,7 +55,7 @@ Rectangle{
             text: "Print speed"
         }
 
-        Slider{
+        MSlider{
             id: _speedSlider
 
             width: parent.width
@@ -71,14 +71,14 @@ Rectangle{
 
             onMoved: {
                 Hardware.printSpeed = _speedSlider.value
-            }
+            }                 
         }
 
         SettingsHeader{
             text: "LED brightness"
         }
 
-        Slider{
+        MSlider{
             id: _ledSlider
 
             width: parent.width
@@ -104,7 +104,7 @@ Rectangle{
         ComboBox{
             id: _comboPause
 
-            width: parent.width*0.75
+            width: parent.width*0.5
             height: parent.height/18
 
             anchors.horizontalCenter: parent.horizontalCenter

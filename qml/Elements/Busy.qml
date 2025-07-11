@@ -23,15 +23,52 @@ Item
 
         spacing: bI.height/20
 
-        BusyIndicator
-        {
-            id : bI
-            width: height
-            height: parent.height*5/10
-            anchors.horizontalCenter: parent.horizontalCenter
-            palette.dark: "red"
+        // BusyIndicator
+        // {
+        //     id : bI
+        //     width: height
+        //     height: parent.height*5/10
+        //     anchors.horizontalCenter: parent.horizontalCenter
+        //     palette.dark: "red"
 
-            running: true
+        //     running: true
+        // }
+
+        Image{
+            id: _coverImage
+
+            fillMode: Image.PreserveAspectFit
+            source: "qrc:/images/figure.png"
+
+            width: parent.width * 0.5
+            height: width
+
+            anchors.horizontalCenter: parent.horizontalCenter
+
+            SequentialAnimation{
+                running: true
+                loops: Animation.Infinite
+
+
+                NumberAnimation {
+                    target: _coverImage
+                    property: "scale"
+                    duration: 1000
+                    to: 0.8
+                }
+
+                NumberAnimation {
+                    target: _coverImage
+                    property: "scale"
+                    duration: 1000
+                    to: 1.0
+                }
+            }
+        }
+
+        Item{
+            width: parent.width
+            height: parent.height*1/10
         }
 
         Item
@@ -43,6 +80,10 @@ Item
             {
                 text: extText
                 anchors.horizontalCenter: parent.horizontalCenter
+
+                font.pixelSize: height*2.5
+                // font.family: ""
+
             }
         }
     }

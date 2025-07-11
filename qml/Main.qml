@@ -166,7 +166,14 @@ ApplicationWindow {
                          radius: 2
                          z:-2
 
-                         color: "blue"
+                         // color: "blue"
+
+                         gradient: Gradient{
+                             orientation: Gradient.Horizontal
+
+                             GradientStop{position: 0.0; color: "purple"}
+                             GradientStop{position: 1.0; color: "orange"}
+                         }
                          border.width: 1
                     }
                 }

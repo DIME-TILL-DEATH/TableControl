@@ -25,7 +25,7 @@ Rectangle{
             width: parent.width
             height: parent.height
 
-            cellWidth: width*0.25
+            cellWidth: width*0.33
             cellHeight: cellWidth*1.1
 
             model: LibraryModel

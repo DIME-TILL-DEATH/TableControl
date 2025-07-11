@@ -38,9 +38,9 @@ Dialog
         width: _root.width
         height: _root.height
 
-        color: "white"
+        color: "#383838"
 
-        radius: _root.width/200
+        radius: _root.width/50
         border.color: "black"
         border.width: 1
     }
@@ -98,14 +98,14 @@ Dialog
         id: _dialogButtonBox
 
         width: _root.width
-        height: _title.height*1.5 //footerHeight
+        height: _title.height*0.5 //footerHeight
 
         alignment: Qt.AlignHCenter
 
         background: Rectangle{
-            color: "black"
+            color: "#383838"
             radius: _backRect.radius
-            border.color: "black"
+            border.color: "#383838"
             border.width: 1
         }
     }

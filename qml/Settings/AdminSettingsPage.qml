@@ -94,7 +94,7 @@ Rectangle{
         }
 
 
-        Button{
+        MButton{
             id: _btnSetPrintProperties
 
             anchors.horizontalCenter: parent.horizontalCenter
@@ -114,7 +114,7 @@ Rectangle{
             text: "Running time: " + (Math.floor(Hardware.machineMinutes/60)) + ":" +  Hardware.machineMinutes%60
         }
 
-        Button{
+        MButton{
             id: _btnUploadPlaylist
 
             anchors.horizontalCenter: parent.horizontalCenter
@@ -129,7 +129,7 @@ Rectangle{
             }
         }
 
-        Button{
+        MButton{
             id: _btnDeletePlaylist
 
             anchors.horizontalCenter: parent.horizontalCenter

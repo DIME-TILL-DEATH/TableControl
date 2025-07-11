@@ -36,5 +36,9 @@
         <file>images/icon_settings.svg</file>
         <file>images/play-pause.svg</file>
         <file>images/icon_pls_item.svg</file>
+        <file>images/figure.png</file>
+        <file>images/logo_kinetic.png</file>
+        <file>qml/Elements/MSlider.qml</file>
+        <file>qml/Elements/MButton.qml</file>
     </qresource>
 </RCC>

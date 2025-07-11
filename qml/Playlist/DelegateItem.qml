@@ -60,7 +60,14 @@ DropArea{
                 Rectangle{
                     id: _playngPoint
 
-                    color: "yellow"
+                    color: "white"
+
+                    // gradient: Gradient{
+                    //     orientation: Gradient.Vertical
+
+                    //     GradientStop{position: 0; color: "purple"}
+                    //     GradientStop{position: 1; color: "orange"}
+                    // }
 
                     z: _previewIcon.z + 5
 
@@ -123,12 +130,14 @@ DropArea{
 
                     DefaultText{
                        text: model.playlistElement.fileName
+                       font.pixelSize: parent.height/4
 
                        color: (model.isFileAvaliable) ? "lightgrey" : "red";
                     }
                     DefaultText{
                        text: model.playlistElement.filePath
                        font.bold: false
+                       font.pixelSize: parent.height/4
 
                        color: "lightgrey"
                     }
@@ -144,8 +153,10 @@ DropArea{
 
                 DefaultText{
                     anchors.centerIn: parent
-                    font.pointSize: 25
+                    font.pixelSize: parent.height
                     text: "⋮"
+
+                    color: "white"
                 }
 
                 MouseArea {
