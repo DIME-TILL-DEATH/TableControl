@@ -39,7 +39,7 @@ SwipeDelegate {
     background: Rectangle{
         id: _mainRec
 
-        color:model.playlistElement.isCurrentPrintingElement ? "lightgray" : "transparent"
+        color: "transparent"//model.playlistElement.isCurrentPrintingElement ? "lightgray" : "transparent"
     }
 
     onClicked: {

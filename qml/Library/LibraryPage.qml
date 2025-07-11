@@ -7,6 +7,11 @@ import UiObjects
 Rectangle{
     id: _libraryPage
 
+    gradient: Gradient{
+        GradientStop { position: 0.0; color: "lightgrey" }
+        GradientStop { position: 1.0; color: "#303030" }
+    }
+
     Column{
         id: _column
         width: parent.width * 0.95
@@ -20,14 +25,14 @@ Rectangle{
             width: parent.width
             height: parent.height
 
-            cellWidth: width*0.5
+            cellWidth: width*0.33
             cellHeight: cellWidth*1.1
 
             model: LibraryModel
 
             delegate: LibraryItem{
-                width: _gridView.cellWidth*0.95
-                height: _gridView.cellHeight*0.95
+                width: _gridView.cellWidth*0.9
+                height: _gridView.cellHeight*0.9
 
                 onDelegateClicked: function click(delegateIndex){
                     LibraryModel.setPreviewPlaylist(delegateIndex);

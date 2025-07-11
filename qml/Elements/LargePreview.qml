@@ -7,7 +7,7 @@ Rectangle {
     border.color: "black"
     border.width: 3
 
-    color: "peachpuff"
+    color: "white"
 
 //    property var dataPoints
 
@@ -21,6 +21,8 @@ Rectangle {
 
     Preview{
         id: _basicPreview
+
+        lineColor: "black"
 
         dataPoints: _root.dataPoints
         lineWidth: 1

@@ -25,17 +25,17 @@ ApplicationWindow {
         anchors.fill: parent
     }
 
-    Rectangle
-    {
-        anchors.fill: parent
-        color: "black"
-    }
+    // Rectangle
+    // {
+    //     anchors.fill: parent
+    //     color: "dimgrey"
+    // }
 
     SwipeView
     {
         id: _swipeView
 
-        width: parent.width * 0.95
+        width: parent.width
         height: parent.height
 
         spacing: parent.width * 0.025
@@ -70,7 +70,7 @@ ApplicationWindow {
     {
         width: _main.width
         height: _main.height*0.125
-        color: "black"
+        color: "#202020"
 
         Column{
             anchors.fill: parent
@@ -166,7 +166,14 @@ ApplicationWindow {
                          radius: 2
                          z:-2
 
-                         color: "blue"
+                         // color: "blue"
+
+                         gradient: Gradient{
+                             orientation: Gradient.Horizontal
+
+                             GradientStop{position: 0.0; color: "purple"}
+                             GradientStop{position: 1.0; color: "orange"}
+                         }
                          border.width: 1
                     }
                 }
@@ -180,13 +187,13 @@ ApplicationWindow {
                 currentIndex: _swipeView.currentIndex
 
                 background: Rectangle {
-                         color: "#eeeeee"
+                    color: "#202020"
                 }
 
                 FooterMenuBtn{
                     text: qsTr("Home")
 
-                    imageSource: "qrc:/images/home1.svg"
+                    imageSource: "qrc:/images/icon_play.svg"
                     isActive: TabBar.index === _bar.currentIndex
 
                     onClicked: {
@@ -195,7 +202,7 @@ ApplicationWindow {
                 }
 
                 FooterMenuBtn {
-                    imageSource: "qrc:/images/library.svg"
+                    imageSource: "qrc:/images/icon_library.svg"
                     isActive: TabBar.index === _bar.currentIndex
 
                     text: qsTr("Library")
@@ -205,7 +212,7 @@ ApplicationWindow {
                 }
 
                 FooterMenuBtn {
-                    imageSource: "qrc:/images/settings1.svg"
+                    imageSource: "qrc:/images/icon_settings.svg"
                     isActive: TabBar.index === _bar.currentIndex
 
                     text: qsTr("Settings")
@@ -215,7 +222,7 @@ ApplicationWindow {
                 }
 
                 FooterMenuBtn {
-                    imageSource: "qrc:/images/key.svg"
+                    imageSource: "qrc:/images/icon_admin.svg"
                     isActive: TabBar.index === _bar.currentIndex
 
                     text: qsTr("Admin")

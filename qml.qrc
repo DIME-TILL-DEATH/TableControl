@@ -23,25 +23,22 @@
         <file>qml/Settings/SettingsHeader.qml</file>
         <file>qml/Settings/SettingTextEdit.qml</file>
         <file>qml/Settings/AdminSettingsPage.qml</file>
-        <file>images/home1.svg</file>
-        <file>images/home2.svg</file>
-        <file>images/library.svg</file>
-        <file>images/pause.svg</file>
-        <file>images/pause-circle.svg</file>
-        <file>images/play.svg</file>
-        <file>images/play-circle.svg</file>
-        <file>images/play-pause.svg</file>
-        <file>images/settings1.svg</file>
-        <file>images/settings2.svg</file>
-        <file>images/settings3.svg</file>
         <file>qml/Elements/FooterMenuBtn.qml</file>
-        <file>images/key.svg</file>
-        <file>images/shuffle.svg</file>
         <file>qml/Elements/RoundIconBtn.qml</file>
         <file>qml/Library/qmldir</file>
         <file>qml/Library/LibraryPage.qml</file>
         <file>qml/Library/LibraryItem.qml</file>
         <file>qml/Elements/CustomDialog.qml</file>
         <file>qml/Library/ElementPreviewWindow.qml</file>
+        <file>images/icon_admin.svg</file>
+        <file>images/icon_library.svg</file>
+        <file>images/icon_play.svg</file>
+        <file>images/icon_settings.svg</file>
+        <file>images/play-pause.svg</file>
+        <file>images/icon_pls_item.svg</file>
+        <file>images/figure.png</file>
+        <file>images/logo_kinetic.png</file>
+        <file>qml/Elements/MSlider.qml</file>
+        <file>qml/Elements/MButton.qml</file>
     </qresource>
 </RCC>

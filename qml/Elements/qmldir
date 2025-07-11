@@ -9,3 +9,5 @@ DefaultText 1.0 DefaultText.qml
 LargePreview 1.0 LargePreview.qml
 ProgressScreen 1.0 ProgressScreen.qml
 RoundIconBtn 1.0 RoundIconBtn.qml
+MSlider 1.0 MSlider.qml
+MButton 1.0 MButton.qml

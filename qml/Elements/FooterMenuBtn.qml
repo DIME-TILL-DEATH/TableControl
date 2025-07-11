@@ -38,9 +38,26 @@ TabButton {
             text: control.text
             horizontalAlignment: Text.AlignHCenter
          }
+
+        Rectangle{
+            visible: control.isActive
+
+            width: control.width * 0.9
+            height: 2
+
+            anchors.horizontalCenter: parent.horizontalCenter
+
+            gradient: Gradient{
+                orientation: Gradient.Horizontal
+
+                GradientStop { position: 0.0; color: "purple" }
+                // GradientStop { position: 0.33; color: "yellow" }
+                GradientStop { position: 1.0; color: "orange" }
+            }
+        }
     }
 
     background: Rectangle {
-        color: "black"
+        color: "#202020"
     }
 }

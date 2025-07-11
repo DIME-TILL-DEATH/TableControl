@@ -11,24 +11,15 @@ CustomDialog{
 
     property var choosedElement
 
-    header: Rectangle{
+    header: Item{
                id: _title
 
                width: _root.width
                height: _root.height * 0.125
 
-               color: "black"
-
-               Rectangle{
-                   id: _headerDivider
-                   width: parent.width
-                   height: 1
-                   anchors.bottom: _title.bottom
-                   color: "black"
-               }
 
                Column{
-                   width: parent.width*0.4
+                   width: parent.width*0.8
                    height: parent.height*0.9
 
                    anchors.centerIn: parent
@@ -48,137 +39,157 @@ CustomDialog{
                        anchors.horizontalCenter: parent.horizontalCenter
                    }
 
-                   RoundIconBtn{
-                       id: _btnPlay
-
+                   Item{
                        width: parent.width
                        height: parent.height*0.55
 
-                       text: "Play"
-                       iconSource: "qrc:/images/play.svg"
+                       RoundIconBtn{
+                           id: _btnPlay
 
-                       onClicked: {
-                            LibraryModel.setGallery(_root.choosedElement);
+                           width: parent.width * 0.3
+                           height: parent.height
+
+                           anchors.left: parent.left
+
+                           text: "PLAY"
+                           iconSource: "qrc:/images/play.svg"
+
+                           font.pixelSize: height/2
+
+                           onClicked: {
+                                LibraryModel.setGallery(_root.choosedElement);
+                           }
+                       }
+
+                       RoundIconBtn{
+                           text: "BACK"
+
+                           width: parent.width * 0.3
+                           height: parent.height
+
+                           anchors.right: parent.right
+
+                           font.pixelSize: height/2
+
+                           onClicked: {
+                               _root.close()
+                           }
                        }
                    }
                }
         }
 
-    footer: Rectangle {
-        id: _dialogButtonBox
+    // footer: Rectangle {
+    //     id: _dialogButtonBox
 
-        width: _root.width
-        height: _root.height*0.075
-        color: "black"
+    //     width: _root.width
+    //     height: _root.height*0.075
+    //     color: "#383838"
+    // }
 
-        border.color: "black"
-        border.width: 1
-
-        RoundIconBtn{
-            text: "BACK"
-
-            width: parent.width*0.4
-            height: parent.height*0.9
-
-            anchors.centerIn: parent
-
-            onClicked: {
-                _root.close()
-            }
-        }
-    }
-
-    ListView{
-        id: _listView
-
-        width: parent.width
+    Rectangle{
+        width: parent.width * 0.95
         height: parent.height
 
-        boundsBehavior: Flickable.StopAtBounds
-        clip: true
+        radius: width/50
 
-        model: PreviewPlaylistModel
+        anchors.centerIn: parent
 
-        delegate: Item{
-            id: _delegate
+        // color: "white"
 
-            width: _listView.width
-            height: _listView.height/8
+        ListView{
+            id: _listView
 
-            Row{
-                width: parent.width
-                height: parent.height
+            width: parent.width * 0.9
+            height: parent.height * 0.9
+            anchors.centerIn: parent
 
-                anchors.verticalCenter: parent.verticalCenter
+            boundsBehavior: Flickable.StopAtBounds
+            clip: true
 
-                spacing: _previewIcon.width/10
+            model: PreviewPlaylistModel
 
-                Preview
-                {
-                    id: _previewIcon
+            delegate: Item{
+                id: _delegate
 
-                    width: height
+                width: _listView.width
+                height: _listView.height/8
+
+                Row{
+                    width: parent.width
                     height: parent.height
 
-                    dataPoints: model.previewData
+                    anchors.verticalCenter: parent.verticalCenter
 
-                    MouseArea{
-                        id: _showLargePreviewMA
+                    spacing: _previewIcon.width/10
 
-                        anchors.fill: parent
+                    Preview
+                    {
+                        id: _previewIcon
 
-                        onPressed:
-                        {
-                            // _delegateRoot.showLargePreview(previewData)
+                        width: height
+                        height: parent.height
 
-                            _largePreview.update(model.previewData);
-                            _largePreview.visible = true;
+                        dataPoints: model.previewData
 
-                            _listView.interactive = false
-                        }
+                        MouseArea{
+                            id: _showLargePreviewMA
 
-                        onReleased:
-                        {
-                            // _delegateRoot.hideLargePreview()
+                            anchors.fill: parent
 
-                            _largePreview.visible = false;
-                            _largePreview.update(0);
-
-                            _listView.interactive = true
-                        }
-                    }
-
-                    Connections{
-                        target: PreviewPlaylistModel
-
-                        function onDataChanged(firstModelIndex, lastModelIndex)
-                        {
-
-                            for(var i = firstModelIndex.row; i<=lastModelIndex.row; i++)
+                            onPressed:
                             {
-                                if(i === index)
+                                // _delegateRoot.showLargePreview(previewData)
+
+                                _largePreview.update(model.previewData);
+                                _largePreview.visible = true;
+
+                                _listView.interactive = false
+                            }
+
+                            onReleased:
+                            {
+                                // _delegateRoot.hideLargePreview()
+
+                                _largePreview.visible = false;
+                                _largePreview.update(0);
+
+                                _listView.interactive = true
+                            }
+                        }
+
+                        Connections{
+                            target: PreviewPlaylistModel
+
+                            function onDataChanged(firstModelIndex, lastModelIndex)
+                            {
+
+                                for(var i = firstModelIndex.row; i<=lastModelIndex.row; i++)
                                 {
-                                    _previewIcon.update();
+                                    if(i === index)
+                                    {
+                                        _previewIcon.update();
+                                    }
                                 }
                             }
                         }
                     }
-                }
 
 
-                Item{
-                    width: parent.width - _previewIcon.width - parent.spacing*2
-                    height: parent.height*0.5
+                    Item{
+                        width: parent.width - _previewIcon.width - parent.spacing*2
+                        height: parent.height*0.5
 
-                    anchors.verticalCenter: parent.verticalCenter
+                        anchors.verticalCenter: parent.verticalCenter
 
-                    DefaultText{
-                       text: model.playlistElement.fileName
+                        DefaultText{
+                           text: model.playlistElement.fileName
 
-                       color: (model.isFileAvaliable) ? "black" : "red";
+                           color: (model.isFileAvaliable) ? "black" : "red";
+                        }
                     }
-                }
 
+                }
             }
         }
     }
